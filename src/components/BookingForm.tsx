@@ -41,7 +41,7 @@ const BookingForm = ({ onSubmit }: BookingFormProps) => {
     notes: "",
     date: "",
     time: "",
-    assignedTo: "Pandit Ji",
+    assignedTo: "Akashvani Astrology",
     service: "",
     amount: "",
     consultationNotes: "",
@@ -277,7 +277,7 @@ const BookingForm = ({ onSubmit }: BookingFormProps) => {
                   <SelectContent>
                     {serviceOptions.map((s) => (
                       <SelectItem key={s.value} value={s.value}>
-                        {s.value} — NPR {s.price.toLocaleString()}
+                        {s.value} — NPR {getAdjustedPrice(s.price, form.location).toLocaleString()}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -292,10 +292,6 @@ const BookingForm = ({ onSubmit }: BookingFormProps) => {
                   className={inputClass}
                   readOnly
                 />
-              </div>
-              <div>
-                <Label className="text-muted-foreground text-xs mb-1.5 block">Assigned To</Label>
-                <Input value={form.assignedTo} readOnly className={inputClass} />
               </div>
             </div>
           </div>
