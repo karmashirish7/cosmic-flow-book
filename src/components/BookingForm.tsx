@@ -226,7 +226,7 @@ const BookingForm = ({ onSubmit }: BookingFormProps) => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="nepal">Nepal</SelectItem>
-                    <SelectItem value="outside">Outside Nepal (1.5× rate)</SelectItem>
+                    <SelectItem value="outside">Outside Nepal</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
