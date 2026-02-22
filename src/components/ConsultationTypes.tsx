@@ -1,41 +1,41 @@
 import { motion } from "framer-motion";
-import { Star, Heart, Briefcase, Compass, Moon, Sun } from "lucide-react";
+import { Star, Heart, Briefcase, Compass, GraduationCap, Sun } from "lucide-react";
 
 const services = [
   {
     icon: Star,
-    title: "Birth Chart Analysis",
+    title: "In-Depth Birth Chart Analysis",
     description: "Complete Kundli reading with planetary positions, dashas, and life predictions.",
-    price: "NPR 2,500",
+    price: "NPR 4,100",
     duration: "60 min",
   },
   {
     icon: Heart,
     title: "Love & Relationship",
     description: "Compatibility analysis, marriage timing, and relationship guidance.",
-    price: "NPR 2,000",
+    price: "NPR 2,100",
     duration: "45 min",
   },
   {
     icon: Briefcase,
     title: "Career & Finance",
     description: "Professional direction, wealth yogas, and financial timing insights.",
-    price: "NPR 2,000",
+    price: "NPR 2,100",
+    duration: "45 min",
+  },
+  {
+    icon: GraduationCap,
+    title: "Foreign Education",
+    description: "Education abroad prospects, best timing, and country selection guidance.",
+    price: "NPR 2,100",
     duration: "45 min",
   },
   {
     icon: Compass,
     title: "Life Direction",
     description: "Purpose discovery, karmic patterns, and spiritual growth guidance.",
-    price: "NPR 3,000",
+    price: "NPR 3,100",
     duration: "75 min",
-  },
-  {
-    icon: Moon,
-    title: "Annual Forecast",
-    description: "Year-ahead predictions with transit analysis and personalized remedies.",
-    price: "NPR 3,500",
-    duration: "60 min",
   },
   {
     icon: Sun,

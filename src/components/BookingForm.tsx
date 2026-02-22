@@ -14,11 +14,11 @@ import {
 } from "@/components/ui/select";
 
 const serviceOptions = [
-  { value: "Birth Chart Analysis", price: 2500 },
-  { value: "Love & Relationship", price: 2000 },
-  { value: "Career & Finance", price: 2000 },
-  { value: "Life Direction", price: 3000 },
-  { value: "Annual Forecast", price: 3500 },
+  { value: "In-Depth Birth Chart Analysis", price: 4100 },
+  { value: "Love & Relationship", price: 2100 },
+  { value: "Career & Finance", price: 2100 },
+  { value: "Foreign Education", price: 2100 },
+  { value: "Life Direction", price: 3100 },
   { value: "Muhurta Selection", price: 1500 },
 ];
 
@@ -37,6 +37,7 @@ const BookingForm = ({ onSubmit }: BookingFormProps) => {
     birthTime: "",
     birthPlace: "",
     accurateTime: "yes",
+    location: "nepal",
     notes: "",
     date: "",
     time: "",
@@ -81,14 +82,29 @@ const BookingForm = ({ onSubmit }: BookingFormProps) => {
     return () => window.removeEventListener("prefill-service", handler);
   }, []);
 
+  const getAdjustedPrice = useCallback((basePrice: number, loc: string) => {
+    return loc === "outside" ? Math.round(basePrice * 1.5) : basePrice;
+  }, []);
+
   const handleServiceChange = useCallback((value: string) => {
     const match = serviceOptions.find((s) => s.value === value);
     setForm((prev) => ({
       ...prev,
       service: value,
-      amount: match ? String(match.price) : prev.amount,
+      amount: match ? String(getAdjustedPrice(match.price, prev.location)) : prev.amount,
     }));
-  }, []);
+  }, [getAdjustedPrice]);
+
+  const handleLocationChange = useCallback((value: string) => {
+    setForm((prev) => {
+      const match = serviceOptions.find((s) => s.value === prev.service);
+      return {
+        ...prev,
+        location: value,
+        amount: match ? String(getAdjustedPrice(match.price, value)) : prev.amount,
+      };
+    });
+  }, [getAdjustedPrice]);
 
   const handleChange = (field: string, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -199,6 +215,18 @@ const BookingForm = ({ onSubmit }: BookingFormProps) => {
                   <SelectContent>
                     <SelectItem value="yes">Yes</SelectItem>
                     <SelectItem value="no">No (approximate)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-muted-foreground text-xs mb-1.5 block">Current Location *</Label>
+                <Select value={form.location} onValueChange={handleLocationChange}>
+                  <SelectTrigger className={inputClass}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="nepal">Nepal</SelectItem>
+                    <SelectItem value="outside">Outside Nepal (1.5× rate)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

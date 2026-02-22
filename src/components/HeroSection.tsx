@@ -59,33 +59,12 @@ const HeroSection = () => {
             Unlock the cosmic blueprint of your life.
           </motion.p>
 
-          {/* CTAs */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center mb-16"
-          >
-            <button
-              onClick={scrollToBooking}
-              className="btn-primary-glow rounded-full px-8 py-4 text-base font-semibold tracking-wide"
-            >
-              Book Your Consultation
-            </button>
-            <button
-              onClick={scrollToServices}
-              className="btn-secondary-ghost rounded-full px-8 py-4 text-base tracking-wide"
-            >
-              View Consultation Types
-            </button>
-          </motion.div>
-
           {/* Video Container */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.8 }}
-            className="relative aspect-video max-w-3xl mx-auto rounded-2xl overflow-hidden glass-strong glow-nebula"
+            transition={{ duration: 1, delay: 0.6 }}
+            className="relative aspect-video max-w-3xl mx-auto rounded-2xl overflow-hidden glass-strong glow-nebula mb-10"
           >
             {!isPlaying ? (
               <div className="absolute inset-0 flex items-center justify-center bg-cosmic-deep/60">
@@ -110,6 +89,27 @@ const HeroSection = () => {
                 allowFullScreen
               />
             )}
+          </motion.div>
+
+          {/* CTAs below video */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.8 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center"
+          >
+            <button
+              onClick={scrollToBooking}
+              className="btn-primary-glow rounded-full px-8 py-4 text-base font-semibold tracking-wide"
+            >
+              Book Your Consultation
+            </button>
+            <button
+              onClick={scrollToServices}
+              className="btn-secondary-ghost rounded-full px-8 py-4 text-base tracking-wide"
+            >
+              View Consultation Types
+            </button>
           </motion.div>
         </div>
 
