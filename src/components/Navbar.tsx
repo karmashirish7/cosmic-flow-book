@@ -1,0 +1,40 @@
+import logo from "@/assets/logo.png";
+
+const navLinks = [
+  { label: "Services", target: "services" },
+  { label: "Testimonials", target: "testimonials" },
+  { label: "FAQ", target: "faq" },
+];
+
+const Navbar = () => {
+  const scrollTo = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  return (
+    <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-border/20">
+      <div className="container mx-auto max-w-6xl flex items-center justify-between px-4 py-3">
+        <img src={logo} alt="Akashvani Astrology" className="h-10 md:h-12" />
+        <div className="hidden sm:flex items-center gap-6">
+          {navLinks.map((link) => (
+            <button
+              key={link.target}
+              onClick={() => scrollTo(link.target)}
+              className="text-sm text-muted-foreground hover:text-gold transition-colors"
+            >
+              {link.label}
+            </button>
+          ))}
+          <button
+            onClick={() => scrollTo("booking")}
+            className="btn-primary-glow rounded-full px-5 py-2 text-xs font-semibold"
+          >
+            Book Now
+          </button>
+        </div>
+      </div>
+    </nav>
+  );
+};
+
+export default Navbar;

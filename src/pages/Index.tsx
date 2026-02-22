@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import Navbar from "@/components/Navbar";
 import StarField from "@/components/StarField";
 import HeroSection from "@/components/HeroSection";
 import TrustBadges from "@/components/TrustBadges";
@@ -66,6 +67,7 @@ const Index = () => {
       <div className="relative z-10">
         {step === "landing" && (
           <>
+            <Navbar />
             <HeroSection />
             <TrustBadges />
             <ConsultationTypes />
