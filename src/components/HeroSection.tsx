@@ -82,7 +82,7 @@ const HeroSection = () => {
               </div>
             ) : (
               <iframe
-                src="https://www.youtube.com/embed/Dm7uqaFaezQ?autoplay=1&start=511"
+                src="https://www.youtube.com/embed/IWVJq-4zW24?autoplay=1"
                 title="Akashvani Astrology Introduction"
                 className="w-full h-full"
                 allow="autoplay; encrypted-media"
