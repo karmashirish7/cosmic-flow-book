@@ -22,7 +22,7 @@ const HeroSection = () => {
         <div className="absolute inset-0 bg-cosmic" style={{ opacity: 0.7 }} />
       </div>
 
-      <div className="relative z-10 container mx-auto px-4 py-12">
+      <div className="relative z-10 container mx-auto px-4 py-20">
         <div className="max-w-4xl mx-auto text-center">
           {/* Badge */}
           <motion.div
@@ -41,11 +41,11 @@ const HeroSection = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold leading-tight mb-4"
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-serif font-bold leading-tight mb-6"
           >
-            <span className="text-foreground">Searching for </span>
+            <span className="text-foreground">Still Searching for </span>
             <span className="gradient-gold-text">Clarity</span>
-            <span className="text-foreground"> in Life</span>
+            <span className="text-foreground"> in Life's Biggest Decisions?</span>
           </motion.h1>
 
           {/* Subtitle */}
@@ -53,7 +53,7 @@ const HeroSection = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto mb-6"
+            className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10"
           >
             Personalized Vedic astrology consultation based on your exact birth details.
             Unlock the cosmic blueprint of your life.
@@ -64,7 +64,7 @@ const HeroSection = () => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, delay: 0.6 }}
-            className="relative aspect-video max-w-2xl mx-auto rounded-2xl overflow-hidden glass-strong glow-nebula mb-6"
+            className="relative aspect-video max-w-3xl mx-auto rounded-2xl overflow-hidden glass-strong glow-nebula mb-10"
           >
             {!isPlaying ? (
               <div className="absolute inset-0 flex items-center justify-center bg-cosmic-deep/60">
