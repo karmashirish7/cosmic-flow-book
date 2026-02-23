@@ -43,6 +43,9 @@ const Index = () => {
           service: bookingData.service,
           location: bookingData.location,
           amount: bookingData.amount,
+          name: bookingData.name,
+          phone: bookingData.phone,
+          email: bookingData.email,
         },
       });
 
