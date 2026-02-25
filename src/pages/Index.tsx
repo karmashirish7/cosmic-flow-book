@@ -12,9 +12,17 @@ import Testimonials from "@/components/Testimonials";
 import FAQ from "@/components/FAQ";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import QRPaymentModal from "@/components/QRPaymentModal";
-import { supabase } from "@/integrations/supabase/client";
 
 const WEBHOOK_URL = "https://n8n.blanxer.tech/webhook/62380a50-80c2-4fd7-b550-a8b5217be694";
+const BLANXER_STORE_ID = "652b9138aebd132f108cb75f";
+const BLANXER_ORDER_URL = `https://api.blanxer.com/order/${BLANXER_STORE_ID}`;
+
+// Product ID mapping
+const getProductId = (service: string, location: string) => {
+  if (service === "Love & Relationship") return "699b26e63ccc0711c1f85b0c";
+  if (location === "outside") return "699744003ccc0711c1c52260";
+  return "692157465d92ef3244969f12";
+};
 
 type FlowStep = "landing" | "payment" | "success";
 
@@ -38,28 +46,50 @@ const Index = () => {
   const handlePayNow = useCallback(async () => {
     setIsCreatingOrder(true);
     try {
-      const { data, error } = await supabase.functions.invoke("create-blanxer-order", {
-        body: {
-          service: bookingData.service,
-          location: bookingData.location,
-          amount: bookingData.amount,
-          name: bookingData.name,
-          phone: bookingData.phone,
-          email: bookingData.email,
+      const productId = getProductId(bookingData.service, bookingData.location);
+
+      const res = await fetch(BLANXER_ORDER_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Referer": "https://cosmic-flow-book.lovable.app/",
         },
+        body: JSON.stringify({
+          products: [{ product: productId, variant: "", quantity: 1 }],
+          customer_email: bookingData.email || "",
+          customer_full_name: bookingData.name || "",
+          customer_phone_number: bookingData.phone || "",
+          customer_address: "",
+          customer_address_landmark: "",
+          customer_address_city: "",
+          order_note: `${bookingData.service} consultation`,
+          pan: "",
+          company_name: "",
+          paymentMethod: "fonepay",
+          url: "https://cosmic-flow-book.lovable.app",
+          coupon: "",
+        }),
       });
 
-      if (error || !data?.success) {
-        console.error("Order creation failed:", error || data);
+      const orderData = await res.json();
+      console.log("Blanxer order response:", orderData);
+
+      if (!orderData.success) {
+        console.error("Order creation failed:", orderData);
         alert("Failed to create payment order. Please try again.");
         return;
       }
 
+      const qrData = orderData.qr_data;
+      const qrMessage = qrData?.extras?.qrMessage || qrData?.qr_payload;
+      const socketUrl = qrData?.extras?.merchantWebSocketUrl || qrData?.socket_url;
+
       setQrModal({
         open: true,
-        qrUrl: data.qr_url,
-        socketUrl: data.socket_url,
-        amount: data.amount,
+        qrUrl: qrMessage ? `https://api.blanxer.com/public/qr?q=${encodeURIComponent(qrMessage)}` : "",
+        socketUrl: socketUrl || "",
+        amount: Number(bookingData.amount),
       });
     } catch (err) {
       console.error("Error creating order:", err);
