@@ -20,6 +20,7 @@ const serviceOptions = [
   { value: "Foreign Education", price: 2100 },
   { value: "Life Direction", price: 3100 },
   { value: "Muhurta Selection", price: 1500 },
+  { value: "Test", price: 10 },
 ];
 
 interface BookingFormProps {

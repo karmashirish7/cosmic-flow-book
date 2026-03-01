@@ -11,9 +11,11 @@ const ORDER_URL = `https://api.blanxer.com/order/${STORE_ID}`;
 const QR_INIT_URL = "https://api.blanxer.com/payment/dynamic_qr/init";
 const BLANXER_SITE_URL = "https://akashvani-astrology.blanxer.io";
 
-// In-Depth Birth Chart Analysis — NPR 4100, no variants
-const PRODUCT_ID = "692157465d92ef3244969f12";
-const VARIANT_ID = "";
+const PRODUCT_MAP: Record<string, { product: string; variant: string }> = {
+  "In-Depth Birth Chart Analysis": { product: "692157465d92ef3244969f12", variant: "" },
+  "Test": { product: "69a42581af8a6b363b90c71d", variant: "" },
+};
+const DEFAULT_PRODUCT = { product: "692157465d92ef3244969f12", variant: "" };
 
 const normalizePhone = (value: unknown) => {
   const digits = String(value ?? "").replace(/\D/g, "");
@@ -47,8 +49,10 @@ serve(async (req) => {
       );
     }
 
+    const mapped = PRODUCT_MAP[serviceName] || DEFAULT_PRODUCT;
+
     const orderPayload = {
-      products: [{ product: PRODUCT_ID, variant: VARIANT_ID, quantity: 1 }],
+      products: [{ product: mapped.product, variant: mapped.variant, quantity: 1 }],
       customer_email: customerEmail,
       customer_full_name: customerName,
       customer_phone_number: customerPhone,
