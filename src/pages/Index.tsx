@@ -64,7 +64,7 @@ const Index = () => {
       setQrModal({
         open: true,
         qrUrl: qrMessage
-          ? `https://chart.googleapis.com/chart?cht=qr&chs=400x400&chl=${encodeURIComponent(qrMessage)}`
+          ? `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(qrMessage)}`
           : "",
         socketUrl: socketUrl || "",
         amount: Number(bookingData.amount) || qrData?.amount || 0,
