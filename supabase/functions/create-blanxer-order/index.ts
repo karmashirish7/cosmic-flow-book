@@ -6,14 +6,14 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const STORE_ID = "652b9138aebd132f108cb75f";
+const STORE_ID = "692143375d92ef3244957b89";
 const ORDER_URL = `https://api.blanxer.com/order/${STORE_ID}`;
 const QR_INIT_URL = "https://api.blanxer.com/payment/dynamic_qr/init";
-const BLANXER_SITE_URL = "https://blanxersupply.com";
+const BLANXER_SITE_URL = "https://akashvani-astrology.blanxer.io";
 
-// In-Depth Birth Chart Analysis product (current configured variant)
-const PRODUCT_ID = "6756c1577481be1b05cfc66a";
-const VARIANT_ID = "67f4ee989a4366a2fdcce428";
+// In-Depth Birth Chart Analysis — NPR 4100, no variants
+const PRODUCT_ID = "692157465d92ef3244969f12";
+const VARIANT_ID = "";
 
 const normalizePhone = (value: unknown) => {
   const digits = String(value ?? "").replace(/\D/g, "");
@@ -32,7 +32,7 @@ serve(async (req) => {
     const customerPhone = normalizePhone(payload.phone);
     const customerEmail = String(payload.email ?? "").trim();
     const customerAddress = String(payload.address ?? "").trim();
-    const customerCity = "Kathmandu";
+    const customerCity = "Kathmandu Inside Ring Road";
     const serviceName = String(payload.service ?? "Consultation").trim() || "Consultation";
     const customerOrderNote =
       String(payload.notes ?? "").trim() || `${serviceName} consultation`;
