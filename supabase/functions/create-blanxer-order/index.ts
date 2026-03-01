@@ -102,7 +102,6 @@ serve(async (req) => {
         order: orderId,
         store: STORE_ID,
         url: BLANXER_SITE_URL,
-        self: true,
       }),
     });
 
