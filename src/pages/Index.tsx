@@ -12,6 +12,7 @@ import Testimonials from "@/components/Testimonials";
 import FAQ from "@/components/FAQ";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import QRPaymentModal from "@/components/QRPaymentModal";
+import { supabase } from "@/integrations/supabase/client";
 
 const WEBHOOK_URL = "https://n8n.blanxer.tech/webhook/62380a50-80c2-4fd7-b550-a8b5217be694";
 
@@ -37,10 +38,37 @@ const Index = () => {
   const handlePayNow = useCallback(async () => {
     setIsCreatingOrder(true);
     try {
-      // TODO: Integrate Fonepay Dynamic QR here
-      // This should generate a QR code and open the modal
-      console.log("Payment initiation placeholder — Fonepay integration pending");
-      alert("Fonepay Dynamic QR integration coming soon.");
+      const { data, error } = await supabase.functions.invoke("create-blanxer-order", {
+        body: {
+          name: bookingData.name,
+          phone: bookingData.phone,
+          email: bookingData.email || "",
+          address: bookingData.birthPlace || "",
+          notes: bookingData.notes || "",
+          service: bookingData.service,
+        },
+      });
+
+      if (error || !data?.success) {
+        console.error("Order creation failed:", error || data);
+        alert("Failed to create payment order. Please try again.");
+        return;
+      }
+
+      console.log("Blanxer order + QR response:", data);
+
+      const qrData = data.qr;
+      const qrMessage = qrData?.extras?.qrMessage || qrData?.qr_payload;
+      const socketUrl = qrData?.extras?.merchantWebSocketUrl || qrData?.socket_url;
+
+      setQrModal({
+        open: true,
+        qrUrl: qrMessage
+          ? `https://api.blanxer.com/public/qr?q=${encodeURIComponent(qrMessage)}`
+          : "",
+        socketUrl: socketUrl || "",
+        amount: Number(bookingData.amount),
+      });
     } catch (err) {
       console.error("Error initiating payment:", err);
       alert("Something went wrong. Please try again.");
