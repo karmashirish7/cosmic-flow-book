@@ -58,16 +58,16 @@ const Index = () => {
       console.log("Blanxer order + QR response:", data);
 
       const qrData = data.qr;
-      const qrMessage = qrData?.extras?.qrMessage || qrData?.qr_payload;
-      const socketUrl = qrData?.extras?.merchantWebSocketUrl || qrData?.socket_url;
+      const qrMessage = qrData?.qr_message || qrData?.extras?.qrMessage;
+      const socketUrl = qrData?.socket_url || qrData?.extras?.merchantWebSocketUrl;
 
       setQrModal({
         open: true,
         qrUrl: qrMessage
-          ? `https://api.blanxer.com/public/qr?q=${encodeURIComponent(qrMessage)}`
+          ? `https://chart.googleapis.com/chart?cht=qr&chs=400x400&chl=${encodeURIComponent(qrMessage)}`
           : "",
         socketUrl: socketUrl || "",
-        amount: Number(bookingData.amount),
+        amount: Number(bookingData.amount) || qrData?.amount || 0,
       });
     } catch (err) {
       console.error("Error initiating payment:", err);
