@@ -34,8 +34,7 @@ serve(async (req) => {
     const customerAddress = String(payload.address ?? "").trim();
     const customerCity = "Kathmandu Inside Ring Road";
     const serviceName = String(payload.service ?? "Consultation").trim() || "Consultation";
-    const customerOrderNote =
-      String(payload.notes ?? "").trim() || `${serviceName} consultation`;
+    const customerOrderNote = "Consultation Payment";
 
     if (customerPhone.length !== 10) {
       return new Response(
