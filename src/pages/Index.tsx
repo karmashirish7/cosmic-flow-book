@@ -104,6 +104,31 @@ const Index = () => {
       console.error("Webhook error:", err);
     }
 
+    // Auto-open WhatsApp with booking details
+    const whatsappMessage = [
+      `🙏 Namaste! New consultation booking received.`,
+      ``,
+      `👤 *Name:* ${bookingData.name}`,
+      `📞 *Phone:* ${bookingData.phone}`,
+      bookingData.email ? `📧 *Email:* ${bookingData.email}` : "",
+      bookingData.dob ? `🎂 *DOB:* ${bookingData.dob}` : "",
+      bookingData.birthTime ? `🕐 *Birth Time:* ${bookingData.birthTime}` : "",
+      bookingData.birthPlace ? `📍 *Birth Place:* ${bookingData.birthPlace}` : "",
+      ``,
+      `🔮 *Service:* ${bookingData.service}`,
+      `📅 *Date:* ${bookingData.date}`,
+      `⏰ *Time:* ${bookingData.time}`,
+      `💰 *Amount Paid:* NPR ${Number(bookingData.amount || 0).toLocaleString()}`,
+      bookingData.notes ? `📝 *Notes:* ${bookingData.notes}` : "",
+      ``,
+      `✅ *Payment Status:* Paid`,
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    const whatsappUrl = `https://wa.me/9779705216077?text=${encodeURIComponent(whatsappMessage)}`;
+    window.open(whatsappUrl, "_blank");
+
     setStep("success");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [bookingData]);

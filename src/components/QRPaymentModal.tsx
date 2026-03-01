@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { X, Loader2, CheckCircle2, AlertCircle, Clock } from "lucide-react";
 
 interface QRPaymentModalProps {
   open: boolean;
@@ -11,7 +11,9 @@ interface QRPaymentModalProps {
   onClose: () => void;
 }
 
-type PaymentStatus = "waiting" | "verified" | "success" | "error";
+type PaymentStatus = "waiting" | "verified" | "success" | "error" | "expired";
+
+const COUNTDOWN_SECONDS = 5 * 60; // 5 minutes
 
 const QRPaymentModal = ({
   open,
@@ -22,15 +24,47 @@ const QRPaymentModal = ({
   onClose,
 }: QRPaymentModalProps) => {
   const [status, setStatus] = useState<PaymentStatus>("waiting");
+  const [timeLeft, setTimeLeft] = useState(COUNTDOWN_SECONDS);
   const wsRef = useRef<WebSocket | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const cleanup = useCallback(() => {
     if (wsRef.current) {
       wsRef.current.close();
       wsRef.current = null;
     }
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
   }, []);
 
+  // Countdown timer
+  useEffect(() => {
+    if (!open) return;
+
+    setTimeLeft(COUNTDOWN_SECONDS);
+
+    timerRef.current = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          setStatus("expired");
+          cleanup();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [open, cleanup]);
+
+  // WebSocket connection
   useEffect(() => {
     if (!open || !socketUrl) return;
 
@@ -73,10 +107,20 @@ const QRPaymentModal = ({
       console.log("Socket closed");
     };
 
-    return cleanup;
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+        wsRef.current = null;
+      }
+    };
   }, [open, socketUrl, onPaymentSuccess, cleanup]);
 
   if (!open) return null;
+
+  const minutes = Math.floor(timeLeft / 60);
+  const seconds = timeLeft % 60;
+  const formattedTime = `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  const isLowTime = timeLeft <= 60;
 
   return (
     <AnimatePresence>
@@ -107,7 +151,7 @@ const QRPaymentModal = ({
             </p>
           </div>
 
-          {status === "waiting" && (
+          {(status === "waiting" || status === "verified") && (
             <div className="flex flex-col items-center gap-4">
               <div className="bg-white rounded-xl p-3">
                 <img
@@ -116,25 +160,25 @@ const QRPaymentModal = ({
                   className="w-56 h-56 object-contain"
                 />
               </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin text-gold" />
-                Waiting for payment...
-              </div>
-            </div>
-          )}
 
-          {status === "verified" && (
-            <div className="flex flex-col items-center gap-4">
-              <div className="bg-white rounded-xl p-3">
-                <img
-                  src={qrUrl}
-                  alt="Payment QR Code"
-                  className="w-56 h-56 object-contain"
-                />
+              {/* Countdown Timer */}
+              <div className={`flex items-center gap-2 text-sm font-mono ${isLowTime ? "text-destructive" : "text-muted-foreground"}`}>
+                <Clock className={`h-4 w-4 ${isLowTime ? "animate-pulse" : ""}`} />
+                <span>Expires in {formattedTime}</span>
               </div>
-              <div className="flex items-center gap-2 text-sm text-gold">
-                <CheckCircle2 className="h-4 w-4" />
-                QR Verified — Confirming payment...
+
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                {status === "verified" ? (
+                  <>
+                    <CheckCircle2 className="h-4 w-4 text-gold" />
+                    QR Verified — Confirming payment...
+                  </>
+                ) : (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin text-gold" />
+                    Waiting for payment...
+                  </>
+                )}
               </div>
             </div>
           )}
@@ -154,6 +198,22 @@ const QRPaymentModal = ({
             </div>
           )}
 
+          {status === "expired" && (
+            <div className="flex flex-col items-center gap-4 py-6">
+              <div className="w-16 h-16 rounded-full bg-destructive/20 flex items-center justify-center">
+                <Clock className="h-8 w-8 text-destructive" />
+              </div>
+              <p className="text-lg font-semibold text-destructive">QR Expired</p>
+              <p className="text-sm text-muted-foreground">The payment window has expired. Please try again.</p>
+              <button
+                onClick={onClose}
+                className="btn-primary-glow rounded-xl px-6 py-2 text-sm"
+              >
+                Try Again
+              </button>
+            </div>
+          )}
+
           {status === "error" && (
             <div className="flex flex-col items-center gap-4 py-6">
               <div className="w-16 h-16 rounded-full bg-destructive/20 flex items-center justify-center">
@@ -170,9 +230,11 @@ const QRPaymentModal = ({
             </div>
           )}
 
-          <p className="text-xs text-center text-muted-foreground">
-            Scan with any Fonepay-supported banking app
-          </p>
+          {(status === "waiting" || status === "verified") && (
+            <p className="text-xs text-center text-muted-foreground">
+              Scan with any Fonepay-supported banking app
+            </p>
+          )}
         </motion.div>
       </motion.div>
     </AnimatePresence>
