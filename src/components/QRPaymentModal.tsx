@@ -25,6 +25,7 @@ const QRPaymentModal = ({
   socketUrl,
   amount,
   orderId,
+  transactionId,
   onPaymentSuccess,
   onClose,
 }: QRPaymentModalProps) => {
