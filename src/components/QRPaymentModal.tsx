@@ -1,25 +1,29 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Loader2, CheckCircle2, AlertCircle, Clock } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface QRPaymentModalProps {
   open: boolean;
   qrUrl: string;
   socketUrl: string;
   amount: number;
+  orderId: string;
   onPaymentSuccess: () => void;
   onClose: () => void;
 }
 
 type PaymentStatus = "waiting" | "verified" | "success" | "error" | "expired";
 
-const COUNTDOWN_SECONDS = 5 * 60; // 5 minutes
+const COUNTDOWN_SECONDS = 5 * 60;
+const POLL_INTERVAL = 2000;
 
 const QRPaymentModal = ({
   open,
   qrUrl,
   socketUrl,
   amount,
+  orderId,
   onPaymentSuccess,
   onClose,
 }: QRPaymentModalProps) => {
@@ -27,6 +31,8 @@ const QRPaymentModal = ({
   const [timeLeft, setTimeLeft] = useState(COUNTDOWN_SECONDS);
   const wsRef = useRef<WebSocket | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const successHandledRef = useRef(false);
 
   const cleanup = useCallback(() => {
     if (wsRef.current) {
@@ -37,7 +43,47 @@ const QRPaymentModal = ({
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
+    if (pollRef.current) {
+      clearInterval(pollRef.current);
+      pollRef.current = null;
+    }
   }, []);
+
+  const handleSuccess = useCallback(async (transactionData?: any) => {
+    if (successHandledRef.current) return;
+    successHandledRef.current = true;
+
+    setStatus("success");
+    cleanup();
+
+    // Confirm the order with Blanxer
+    try {
+      const confirmPayload = transactionData || { transaction: orderId };
+      console.log("Confirming order with Blanxer:", confirmPayload);
+
+      const { data, error } = await supabase.functions.invoke("confirm-blanxer-order", {
+        body: confirmPayload,
+      });
+
+      if (error) {
+        console.error("Order confirmation failed:", error);
+      } else {
+        console.log("Order confirmed:", data);
+      }
+    } catch (err) {
+      console.error("Error confirming order:", err);
+    }
+
+    setTimeout(() => onPaymentSuccess(), 1500);
+  }, [orderId, onPaymentSuccess, cleanup]);
+
+  // Reset on open
+  useEffect(() => {
+    if (open) {
+      successHandledRef.current = false;
+      setStatus("waiting");
+    }
+  }, [open]);
 
   // Countdown timer
   useEffect(() => {
@@ -68,8 +114,6 @@ const QRPaymentModal = ({
   useEffect(() => {
     if (!open || !socketUrl) return;
 
-    setStatus("waiting");
-
     const ws = new WebSocket(socketUrl);
     wsRef.current = ws;
 
@@ -86,9 +130,7 @@ const QRPaymentModal = ({
           const parsed = JSON.parse(txStatus);
 
           if (parsed.paymentSuccess === true) {
-            setStatus("success");
-            cleanup();
-            setTimeout(() => onPaymentSuccess(), 1500);
+            handleSuccess(parsed);
           } else if (parsed.qrVerified === true) {
             setStatus("verified");
           }
@@ -100,7 +142,7 @@ const QRPaymentModal = ({
 
     ws.onerror = () => {
       console.error("WebSocket error");
-      setStatus("error");
+      // Don't set error status — polling will continue as fallback
     };
 
     ws.onclose = () => {
@@ -113,7 +155,51 @@ const QRPaymentModal = ({
         wsRef.current = null;
       }
     };
-  }, [open, socketUrl, onPaymentSuccess, cleanup]);
+  }, [open, socketUrl, handleSuccess]);
+
+  // Polling every 2 seconds as fallback (detects payment even if user switches windows)
+  useEffect(() => {
+    if (!open || !socketUrl) return;
+
+    pollRef.current = setInterval(() => {
+      if (successHandledRef.current) return;
+
+      // Re-check WebSocket — if it's closed, try reconnecting
+      if (wsRef.current && wsRef.current.readyState === WebSocket.CLOSED) {
+        console.log("WebSocket closed, attempting reconnect...");
+        try {
+          const ws = new WebSocket(socketUrl);
+          wsRef.current = ws;
+
+          ws.onmessage = (event) => {
+            try {
+              const data = JSON.parse(event.data);
+              const txStatus = data.transactionStatus;
+              if (typeof txStatus === "string") {
+                const parsed = JSON.parse(txStatus);
+                if (parsed.paymentSuccess === true) {
+                  handleSuccess(parsed);
+                } else if (parsed.qrVerified === true) {
+                  setStatus("verified");
+                }
+              }
+            } catch (err) {
+              console.error("Reconnected socket parse error:", err);
+            }
+          };
+        } catch (err) {
+          console.error("WebSocket reconnect failed:", err);
+        }
+      }
+    }, POLL_INTERVAL);
+
+    return () => {
+      if (pollRef.current) {
+        clearInterval(pollRef.current);
+        pollRef.current = null;
+      }
+    };
+  }, [open, socketUrl, handleSuccess]);
 
   if (!open) return null;
 
@@ -161,7 +247,6 @@ const QRPaymentModal = ({
                 />
               </div>
 
-              {/* Countdown Timer */}
               <div className={`flex items-center gap-2 text-sm font-mono ${isLowTime ? "text-destructive" : "text-muted-foreground"}`}>
                 <Clock className={`h-4 w-4 ${isLowTime ? "animate-pulse" : ""}`} />
                 <span>Expires in {formattedTime}</span>
