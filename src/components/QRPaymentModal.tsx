@@ -58,9 +58,9 @@ const QRPaymentModal = ({
     setStatus("success");
     cleanup();
 
-    // Confirm the order with Blanxer
+    // Confirm the order with Blanxer using the transaction ID from QR init
     try {
-      const confirmPayload = transactionData || { transaction: orderId };
+      const confirmPayload = { transaction: transactionId || orderId };
       console.log("Confirming order with Blanxer:", confirmPayload);
 
       const { data, error } = await supabase.functions.invoke("confirm-blanxer-order", {
@@ -77,7 +77,7 @@ const QRPaymentModal = ({
     }
 
     setTimeout(() => onPaymentSuccess(), 1500);
-  }, [orderId, onPaymentSuccess, cleanup]);
+  }, [orderId, transactionId, onPaymentSuccess, cleanup]);
 
   // Reset on open
   useEffect(() => {
