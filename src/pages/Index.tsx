@@ -185,6 +185,7 @@ const Index = () => {
         qrUrl={qrModal.qrUrl}
         socketUrl={qrModal.socketUrl}
         amount={qrModal.amount}
+        orderId={qrModal.orderId}
         onPaymentSuccess={handlePaymentSuccess}
         onClose={() => setQrModal((prev) => ({ ...prev, open: false }))}
       />
