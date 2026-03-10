@@ -26,6 +26,7 @@ const Index = () => {
     qrUrl: "",
     socketUrl: "",
     amount: 0,
+    orderId: "",
   });
   const [isCreatingOrder, setIsCreatingOrder] = useState(false);
 
