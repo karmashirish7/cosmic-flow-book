@@ -27,6 +27,7 @@ const Index = () => {
     socketUrl: "",
     amount: 0,
     orderId: "",
+    transactionId: "",
   });
   const [isCreatingOrder, setIsCreatingOrder] = useState(false);
 
