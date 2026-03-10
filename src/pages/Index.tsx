@@ -62,6 +62,8 @@ const Index = () => {
       const qrMessage = qrData?.qr_message || qrData?.extras?.qrMessage;
       const socketUrl = qrData?.socket_url || qrData?.extras?.merchantWebSocketUrl;
 
+      const orderId = data.order?._id || data.order?.order?._id || data.order?.id || "";
+
       setQrModal({
         open: true,
         qrUrl: qrMessage
@@ -69,6 +71,7 @@ const Index = () => {
           : "",
         socketUrl: socketUrl || "",
         amount: Number(bookingData.amount) || qrData?.amount || 0,
+        orderId,
       });
     } catch (err) {
       console.error("Error initiating payment:", err);
