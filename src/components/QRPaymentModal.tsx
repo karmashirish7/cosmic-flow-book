@@ -9,6 +9,7 @@ interface QRPaymentModalProps {
   socketUrl: string;
   amount: number;
   orderId: string;
+  transactionId: string;
   onPaymentSuccess: () => void;
   onClose: () => void;
 }
