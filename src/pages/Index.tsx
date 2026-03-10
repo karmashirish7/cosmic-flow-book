@@ -27,6 +27,7 @@ const Index = () => {
     socketUrl: "",
     amount: 0,
     orderId: "",
+    transactionId: "",
   });
   const [isCreatingOrder, setIsCreatingOrder] = useState(false);
 
@@ -61,6 +62,7 @@ const Index = () => {
       const qrData = data.qr;
       const qrMessage = qrData?.qr_message || qrData?.extras?.qrMessage;
       const socketUrl = qrData?.socket_url || qrData?.extras?.merchantWebSocketUrl;
+      const transactionId = qrData?.transaction || "";
 
       const orderId = data.order?._id || data.order?.order?._id || data.order?.id || "";
 
@@ -72,6 +74,7 @@ const Index = () => {
         socketUrl: socketUrl || "",
         amount: Number(bookingData.amount) || qrData?.amount || 0,
         orderId,
+        transactionId,
       });
     } catch (err) {
       console.error("Error initiating payment:", err);
@@ -186,6 +189,7 @@ const Index = () => {
         socketUrl={qrModal.socketUrl}
         amount={qrModal.amount}
         orderId={qrModal.orderId}
+        transactionId={qrModal.transactionId}
         onPaymentSuccess={handlePaymentSuccess}
         onClose={() => setQrModal((prev) => ({ ...prev, open: false }))}
       />
