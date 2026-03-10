@@ -31,8 +31,15 @@ serve(async (req) => {
       body: JSON.stringify(payload),
     });
 
-    const confirmData = await confirmRes.json();
-    console.log("Confirm response:", JSON.stringify(confirmData));
+    const responseText = await confirmRes.text();
+    console.log("Confirm response status:", confirmRes.status, "body:", responseText);
+
+    let confirmData;
+    try {
+      confirmData = JSON.parse(responseText);
+    } catch {
+      confirmData = { raw: responseText };
+    }
 
     return new Response(
       JSON.stringify({ success: confirmRes.ok, data: confirmData }),
