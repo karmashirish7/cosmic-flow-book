@@ -266,14 +266,24 @@ const BookingForm = ({ onSubmit }: BookingFormProps) => {
                 />
               </div>
               <div>
-                <Label className="text-muted-foreground text-xs mb-1.5 block">Time *</Label>
-                <Input
-                  value={form.time}
-                  onChange={(e) => handleChange("time", e.target.value)}
-                  type="time"
-                  required
-                  className={inputClass}
-                />
+                <Label className="text-muted-foreground text-xs mb-1.5 block">Preferred Time *</Label>
+                <Select value={form.time} onValueChange={(v) => handleChange("time", v)}>
+                  <SelectTrigger className={inputClass}>
+                    <SelectValue placeholder="Select a time" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Array.from({ length: 28 }, (_, i) => {
+                      const hour = Math.floor(i / 2) + 7;
+                      const min = i % 2 === 0 ? "00" : "30";
+                      const label = `${hour > 12 ? hour - 12 : hour}:${min} ${hour >= 12 ? "PM" : "AM"}`;
+                      const value = `${String(hour).padStart(2, "0")}:${min}`;
+                      return <SelectItem key={value} value={value}>{label}</SelectItem>;
+                    })}
+                  </SelectContent>
+                </Select>
+                <p className="text-muted-foreground text-[10px] mt-1.5 italic">
+                  This is the estimated time. Actual consultation time may differ based on mutual convenience.
+                </p>
               </div>
               <div>
                 <Label className="text-muted-foreground text-xs mb-1.5 block">Service Type *</Label>
