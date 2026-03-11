@@ -28,6 +28,7 @@ const Index = () => {
     amount: 0,
     orderId: "",
     transactionId: "",
+    prn: "",
   });
   const [isCreatingOrder, setIsCreatingOrder] = useState(false);
 
@@ -75,6 +76,7 @@ const Index = () => {
         amount: Number(bookingData.amount) || qrData?.amount || 0,
         orderId,
         transactionId,
+        prn: qrData?.prn || "",
       });
     } catch (err) {
       console.error("Error initiating payment:", err);
@@ -190,6 +192,7 @@ const Index = () => {
         amount={qrModal.amount}
         orderId={qrModal.orderId}
         transactionId={qrModal.transactionId}
+        prn={qrModal.prn}
         onPaymentSuccess={handlePaymentSuccess}
         onClose={() => setQrModal((prev) => ({ ...prev, open: false }))}
       />

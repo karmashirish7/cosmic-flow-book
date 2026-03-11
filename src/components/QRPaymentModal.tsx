@@ -10,6 +10,7 @@ interface QRPaymentModalProps {
   amount: number;
   orderId: string;
   transactionId: string;
+  prn: string;
   onPaymentSuccess: () => void;
   onClose: () => void;
 }
@@ -26,6 +27,7 @@ const QRPaymentModal = ({
   amount,
   orderId,
   transactionId,
+  prn: initialPrn,
   onPaymentSuccess,
   onClose,
 }: QRPaymentModalProps) => {
@@ -61,12 +63,12 @@ const QRPaymentModal = ({
 
     // Confirm the order with Blanxer using the transaction ID from QR init
     try {
-      const prn = transactionData?.prn || transactionData?.purchaseCode || prnRef.current || "";
+      const prn = initialPrn || transactionData?.productNumber || transactionData?.prn || transactionData?.purchaseCode || prnRef.current || "";
       const confirmPayload = {
         transaction: transactionId || orderId,
         prn,
       };
-      console.log("Confirming order with Blanxer:", confirmPayload, "Full transactionData:", JSON.stringify(transactionData));
+      console.log("Confirming order with Blanxer:", confirmPayload);
 
       const { data, error } = await supabase.functions.invoke("confirm-blanxer-order", {
         body: confirmPayload,
@@ -82,7 +84,7 @@ const QRPaymentModal = ({
     }
 
     setTimeout(() => onPaymentSuccess(), 1500);
-  }, [orderId, transactionId, onPaymentSuccess, cleanup]);
+  }, [orderId, transactionId, initialPrn, onPaymentSuccess, cleanup]);
 
   // Reset on open
   useEffect(() => {
@@ -141,6 +143,7 @@ const QRPaymentModal = ({
           // Save PRN whenever we get it
           if (parsed.prn) prnRef.current = parsed.prn;
           if (parsed.purchaseCode) prnRef.current = parsed.purchaseCode;
+          if (parsed.productNumber) prnRef.current = parsed.productNumber;
 
           if (parsed.paymentSuccess === true) {
             handleSuccess(parsed);
@@ -192,6 +195,7 @@ const QRPaymentModal = ({
                 const parsed = JSON.parse(txStatus);
                 if (parsed.prn) prnRef.current = parsed.prn;
                 if (parsed.purchaseCode) prnRef.current = parsed.purchaseCode;
+                if (parsed.productNumber) prnRef.current = parsed.productNumber;
                 if (parsed.paymentSuccess === true) {
                   handleSuccess(parsed);
                 } else if (parsed.qrVerified === true) {
