@@ -1,27 +1,30 @@
 import "https://deno.land/std@0.224.0/dotenv/load.ts";
-import { assertEquals } from "https://deno.land/std@0.224.0/assert/mod.ts";
 
-const SUPABASE_URL = Deno.env.get("VITE_SUPABASE_URL")!;
-const SUPABASE_ANON_KEY = Deno.env.get("VITE_SUPABASE_PUBLISHABLE_KEY")!;
+const STORE_ID = "692143375d92ef3244957b89";
+const BLANXER_SITE_URL = "https://akashvani-astrology.blanxer.io";
+const testPayload = { transaction: "69b13a6d6365132d1a7a6bd7", prn: "69b13a6d6365132d1a7a6bd7gjic" };
 
-Deno.test("confirm-blanxer-order returns a response", async () => {
-  const response = await fetch(`${SUPABASE_URL}/functions/v1/confirm-blanxer-order`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
-      "apikey": SUPABASE_ANON_KEY,
-    },
-    body: JSON.stringify({
-      transaction: "69b13a6d6365132d1a7a6bd7",
-      prn: "69b13a6d6365132d1a7a6bd7gjic",
-    }),
+const urls = [
+  `https://api.blanxer.com/order/public/confirm/${STORE_ID}`,
+  `https://api.blanxer.com/order/confirm/${STORE_ID}`,
+  `https://api.blanxer.com/public/order/confirm/${STORE_ID}`,
+  `https://api.blanxer.com/order/public/confirm`,
+  `https://api.blanxer.com/order/${STORE_ID}/confirm`,
+];
+
+for (const url of urls) {
+  Deno.test(`Test: ${url}`, async () => {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Referer: `${BLANXER_SITE_URL}/`,
+        Origin: BLANXER_SITE_URL,
+      },
+      body: JSON.stringify(testPayload),
+    });
+    const body = await res.text();
+    console.log(`Status: ${res.status} | Body: ${body.substring(0, 200)}`);
   });
-
-  const body = await response.text();
-  console.log("Status:", response.status);
-  console.log("Response:", body);
-
-  // We just want to see what the API returns - not necessarily 200
-  assertEquals(typeof body, "string");
-});
+}
