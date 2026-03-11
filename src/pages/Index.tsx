@@ -28,6 +28,7 @@ const Index = () => {
     amount: 0,
     orderId: "",
     transactionId: "",
+    prn: "",
   });
   const [isCreatingOrder, setIsCreatingOrder] = useState(false);
 
