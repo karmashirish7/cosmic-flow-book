@@ -9,7 +9,7 @@ const corsHeaders = {
 const STORE_ID = "692143375d92ef3244957b89";
 const BLANXER_SITE_URL = "https://akashvani-astrology.blanxer.io";
 
-// Try multiple confirm endpoints to find the working one
+// Try multiple confirm endpoint patterns
 const CONFIRM_URLS = [
   `https://api.blanxer.com/payment/dynamic_qr/confirm`,
   `https://api.blanxer.com/payment/confirm`,
@@ -23,36 +23,46 @@ serve(async (req) => {
 
   try {
     const payload = await req.json();
-
     console.log("Confirm request payload:", JSON.stringify(payload));
 
-    const confirmRes = await fetch(CONFIRM_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        Referer: `${BLANXER_SITE_URL}/`,
-        Origin: BLANXER_SITE_URL,
-      },
-      body: JSON.stringify(payload),
-    });
+    const results: Array<{ url: string; status: number; body: string }> = [];
 
-    const responseText = await confirmRes.text();
-    console.log("Confirm response status:", confirmRes.status, "body:", responseText);
+    for (const url of CONFIRM_URLS) {
+      try {
+        console.log(`Trying confirm URL: ${url}`);
+        const res = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            Referer: `${BLANXER_SITE_URL}/`,
+            Origin: BLANXER_SITE_URL,
+          },
+          body: JSON.stringify({ ...payload, store: STORE_ID }),
+        });
 
-    let confirmData;
-    try {
-      confirmData = JSON.parse(responseText);
-    } catch {
-      confirmData = { raw: responseText };
+        const body = await res.text();
+        console.log(`URL ${url} -> status: ${res.status}, body: ${body}`);
+        results.push({ url, status: res.status, body });
+
+        if (res.ok) {
+          let data;
+          try { data = JSON.parse(body); } catch { data = { raw: body }; }
+          return new Response(
+            JSON.stringify({ success: true, data, url }),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+      } catch (err) {
+        console.error(`Error with ${url}:`, err.message);
+        results.push({ url, status: 0, body: err.message });
+      }
     }
 
+    // None worked — return all results for debugging
     return new Response(
-      JSON.stringify({ success: confirmRes.ok, data: confirmData }),
-      {
-        status: confirmRes.ok ? 200 : 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      JSON.stringify({ success: false, error: "No confirm endpoint worked", results }),
+      { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
     console.error("Confirm error:", err);
