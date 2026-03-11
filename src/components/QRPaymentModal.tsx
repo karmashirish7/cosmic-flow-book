@@ -84,7 +84,7 @@ const QRPaymentModal = ({
     }
 
     setTimeout(() => onPaymentSuccess(), 1500);
-  }, [orderId, transactionId, onPaymentSuccess, cleanup]);
+  }, [orderId, transactionId, initialPrn, onPaymentSuccess, cleanup]);
 
   // Reset on open
   useEffect(() => {
