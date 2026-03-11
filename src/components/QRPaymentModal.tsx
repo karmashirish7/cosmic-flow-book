@@ -130,10 +130,16 @@ const QRPaymentModal = ({
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
+        console.log("Socket raw data:", JSON.stringify(data));
         const txStatus = data.transactionStatus;
 
         if (typeof txStatus === "string") {
           const parsed = JSON.parse(txStatus);
+          console.log("Parsed transactionStatus:", JSON.stringify(parsed));
+
+          // Save PRN whenever we get it
+          if (parsed.prn) prnRef.current = parsed.prn;
+          if (parsed.purchaseCode) prnRef.current = parsed.purchaseCode;
 
           if (parsed.paymentSuccess === true) {
             handleSuccess(parsed);
