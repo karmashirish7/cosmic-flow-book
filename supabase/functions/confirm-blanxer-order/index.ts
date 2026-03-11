@@ -7,7 +7,7 @@ const corsHeaders = {
 };
 
 const STORE_ID = "692143375d92ef3244957b89";
-const CONFIRM_URL = `https://api.blanxer.com/order/public/confirm/${STORE_ID}`;
+const CONFIRM_URL = `https://api.blanxer.com/order/confirm/${STORE_ID}`;
 const BLANXER_SITE_URL = "https://akashvani-astrology.blanxer.io";
 
 serve(async (req) => {
