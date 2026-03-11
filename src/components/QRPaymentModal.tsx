@@ -10,6 +10,7 @@ interface QRPaymentModalProps {
   amount: number;
   orderId: string;
   transactionId: string;
+  prn: string;
   onPaymentSuccess: () => void;
   onClose: () => void;
 }
