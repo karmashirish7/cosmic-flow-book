@@ -19,7 +19,7 @@ const serviceOptions = [
   { value: "Career & Finance", price: 2000 },
   { value: "Foreign Education", price: 2000 },
   { value: "Life Direction", price: 2000 },
-  { value: "Muhurta Selection", price: 2000 },
+  { value: "Health", price: 2000 },
   { value: "Test", price: 10 },
 ];
 

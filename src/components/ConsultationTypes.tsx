@@ -39,8 +39,8 @@ const services = [
   },
   {
     icon: Sun,
-    title: "Muhurta Selection",
-    description: "Auspicious timing for marriage, business, travel, and major life events.",
+    title: "Health",
+    description: "Health insights, wellness timing, and astrological guidance for physical well-being.",
     price: "NPR 2,000",
     duration: "35 min",
   },
