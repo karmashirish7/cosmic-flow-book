@@ -7,8 +7,14 @@ const corsHeaders = {
 };
 
 const STORE_ID = "692143375d92ef3244957b89";
-const CONFIRM_URL = `https://api.blanxer.com/order/confirm/${STORE_ID}`;
 const BLANXER_SITE_URL = "https://akashvani-astrology.blanxer.io";
+
+// Try multiple confirm endpoints to find the working one
+const CONFIRM_URLS = [
+  `https://api.blanxer.com/payment/dynamic_qr/confirm`,
+  `https://api.blanxer.com/payment/confirm`,
+  `https://api.blanxer.com/order/${STORE_ID}/confirm`,
+];
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
