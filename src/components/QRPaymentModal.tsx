@@ -62,7 +62,7 @@ const QRPaymentModal = ({
     try {
       const confirmPayload = {
         transaction: transactionId || orderId,
-        purchaseCode: transactionData?.purchaseCode || transactionData?.prn || "",
+        prn: transactionData?.prn || transactionData?.purchaseCode || "",
       };
       console.log("Confirming order with Blanxer:", confirmPayload);
 
