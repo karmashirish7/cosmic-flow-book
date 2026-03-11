@@ -190,6 +190,8 @@ const QRPaymentModal = ({
               const txStatus = data.transactionStatus;
               if (typeof txStatus === "string") {
                 const parsed = JSON.parse(txStatus);
+                if (parsed.prn) prnRef.current = parsed.prn;
+                if (parsed.purchaseCode) prnRef.current = parsed.purchaseCode;
                 if (parsed.paymentSuccess === true) {
                   handleSuccess(parsed);
                 } else if (parsed.qrVerified === true) {
