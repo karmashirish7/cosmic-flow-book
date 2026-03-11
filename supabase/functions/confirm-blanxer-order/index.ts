@@ -16,40 +16,53 @@ serve(async (req) => {
 
   try {
     const payload = await req.json();
-    const { transaction, orderId } = payload;
-    console.log("Confirm request payload:", JSON.stringify(payload));
+    const { transaction, orderId, wsData } = payload;
+    const apiKey = Deno.env.get("BLANXER_API_KEY") || "";
+    
+    console.log("Confirm payload:", JSON.stringify(payload));
+    console.log("Has API key:", !!apiKey);
 
-    // Try multiple endpoint patterns with different methods
+    // Try various endpoint/method/auth combinations
     const attempts = [
-      { url: `https://api.blanxer.com/order/confirm`, method: "POST", body: { transaction, order: orderId, store: STORE_ID } },
-      { url: `https://api.blanxer.com/order/confirm/${orderId}`, method: "POST", body: { transaction, store: STORE_ID } },
-      { url: `https://api.blanxer.com/order/${STORE_ID}/${orderId}`, method: "PUT", body: { payment_status: "paid", transaction } },
-      { url: `https://api.blanxer.com/order/${STORE_ID}/${orderId}`, method: "PATCH", body: { payment_status: "paid", transaction } },
-      { url: `https://api.blanxer.com/payment/verify`, method: "POST", body: { transaction, order: orderId, store: STORE_ID } },
-      { url: `https://api.blanxer.com/order/status/${orderId}`, method: "PUT", body: { status: "confirmed", transaction } },
+      // With API key auth
+      { url: `https://api.blanxer.com/order/confirm`, method: "POST", body: { transaction, order: orderId, store: STORE_ID }, auth: true },
+      { url: `https://api.blanxer.com/order/confirm/${STORE_ID}`, method: "POST", body: { transaction, order: orderId }, auth: true },
+      { url: `https://api.blanxer.com/order/public/confirm/${STORE_ID}`, method: "POST", body: { transaction, order: orderId }, auth: true },
+      // Payment-specific endpoints
+      { url: `https://api.blanxer.com/payment/dynamic_qr/verify`, method: "POST", body: { transaction, order: orderId, store: STORE_ID }, auth: false },
+      { url: `https://api.blanxer.com/payment/dynamic_qr/complete`, method: "POST", body: { transaction, order: orderId, store: STORE_ID }, auth: false },
+      { url: `https://api.blanxer.com/payment/callback`, method: "POST", body: { transaction, order: orderId, store: STORE_ID, ...(wsData || {}) }, auth: false },
+      // Order status update with API key
+      { url: `https://api.blanxer.com/order/${orderId}`, method: "PUT", body: { payment_status: "paid", status: "confirmed" }, auth: true },
+      { url: `https://api.blanxer.com/order/${orderId}`, method: "PATCH", body: { payment_status: "paid", status: "confirmed" }, auth: true },
     ];
 
     const results: Array<{ url: string; method: string; status: number; body: string }> = [];
 
     for (const attempt of attempts) {
       try {
-        console.log(`Trying ${attempt.method} ${attempt.url}`);
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Referer: `${BLANXER_SITE_URL}/`,
+          Origin: BLANXER_SITE_URL,
+        };
+        if (attempt.auth && apiKey) {
+          headers["Authorization"] = `Bearer ${apiKey}`;
+          headers["x-api-key"] = apiKey;
+        }
+
         const res = await fetch(attempt.url, {
           method: attempt.method,
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            Referer: `${BLANXER_SITE_URL}/`,
-            Origin: BLANXER_SITE_URL,
-          },
+          headers,
           body: JSON.stringify(attempt.body),
         });
 
         const body = await res.text();
-        console.log(`${attempt.method} ${attempt.url} -> ${res.status}: ${body.substring(0, 200)}`);
-        results.push({ url: attempt.url, method: attempt.method, status: res.status, body: body.substring(0, 300) });
+        const preview = body.substring(0, 300);
+        console.log(`${attempt.method} ${attempt.url} [auth:${attempt.auth}] -> ${res.status}: ${preview}`);
+        results.push({ url: attempt.url, method: attempt.method, status: res.status, body: preview });
 
-        // If we get a non-404 success or meaningful response, return it
         if (res.ok) {
           let data;
           try { data = JSON.parse(body); } catch { data = { raw: body }; }
@@ -59,7 +72,6 @@ serve(async (req) => {
           );
         }
       } catch (err) {
-        console.error(`Error with ${attempt.method} ${attempt.url}:`, err.message);
         results.push({ url: attempt.url, method: attempt.method, status: 0, body: err.message });
       }
     }
