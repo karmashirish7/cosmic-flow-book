@@ -35,6 +35,7 @@ const QRPaymentModal = ({
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const successHandledRef = useRef(false);
+  const prnRef = useRef<string>("");
 
   const cleanup = useCallback(() => {
     if (wsRef.current) {
