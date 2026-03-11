@@ -6,6 +6,10 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const STORE_ID = "692143375d92ef3244957b89";
+const BLANXER_SITE_URL = "https://akashvani-astrology.blanxer.io";
+const CONFIRM_URL = `https://api.blanxer.com/order/public/confirm/${STORE_ID}`;
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -13,14 +17,38 @@ serve(async (req) => {
 
   try {
     const payload = await req.json();
-    console.log("Payment confirmed (client-side):", JSON.stringify(payload));
+    const transaction = payload.transaction || "";
+    const purchaseCode = payload.purchaseCode || "";
 
-    // Note: Blanxer does not expose a public order confirmation API.
-    // Order confirmation is handled internally via Fonepay → Blanxer webhook.
-    // This function logs the payment success for our records.
+    console.log("Confirming order:", { transaction, purchaseCode });
+
+    const confirmPayload: Record<string, string> = {};
+    if (transaction) confirmPayload.transaction = transaction;
+    if (purchaseCode) confirmPayload.purchaseCode = purchaseCode;
+
+    const res = await fetch(CONFIRM_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Referer: `${BLANXER_SITE_URL}/`,
+        Origin: BLANXER_SITE_URL,
+      },
+      body: JSON.stringify(confirmPayload),
+    });
+
+    const data = await res.json();
+    console.log("Confirm response:", res.status, JSON.stringify(data));
+
+    if (!res.ok) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Confirmation failed", details: data }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     return new Response(
-      JSON.stringify({ success: true, message: "Payment recorded" }),
+      JSON.stringify({ success: true, data }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
