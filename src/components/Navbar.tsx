@@ -14,7 +14,12 @@ const Navbar = () => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-border/20">
       <div className="container mx-auto max-w-6xl flex items-center justify-between px-4 py-3">
-        <img src={logo} alt="Akashvani Astrology" className="h-10 md:h-12" />
+        <img
+          src={logo}
+          alt="Akashvani Astrology"
+          className="h-10 md:h-12 cursor-pointer"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        />
         <div className="hidden sm:flex items-center gap-6">
           {navLinks.map((link) => (
             <button
