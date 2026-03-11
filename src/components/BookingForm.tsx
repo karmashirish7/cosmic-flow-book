@@ -14,12 +14,12 @@ import {
 } from "@/components/ui/select";
 
 const serviceOptions = [
-  { value: "In-Depth Birth Chart Analysis", price: 4100 },
-  { value: "Love & Relationship", price: 2100 },
-  { value: "Career & Finance", price: 2100 },
-  { value: "Foreign Education", price: 2100 },
-  { value: "Life Direction", price: 3100 },
-  { value: "Muhurta Selection", price: 1500 },
+  { value: "In-Depth Birth Chart Analysis", price: 2500 },
+  { value: "Love & Relationship", price: 2000 },
+  { value: "Career & Finance", price: 2000 },
+  { value: "Foreign Education", price: 2000 },
+  { value: "Life Direction", price: 2000 },
+  { value: "Muhurta Selection", price: 2000 },
   { value: "Test", price: 10 },
 ];
 
