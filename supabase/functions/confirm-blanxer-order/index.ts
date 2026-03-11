@@ -18,13 +18,14 @@ serve(async (req) => {
   try {
     const payload = await req.json();
     const transaction = payload.transaction || "";
-    const purchaseCode = payload.purchaseCode || "";
-
-    console.log("Confirming order:", { transaction, purchaseCode });
+    const prn = payload.prn || "";
 
     const confirmPayload: Record<string, string> = {};
     if (transaction) confirmPayload.transaction = transaction;
-    if (purchaseCode) confirmPayload.purchaseCode = purchaseCode;
+    if (prn) confirmPayload.prn = prn;
+
+    console.log("Confirm URL:", CONFIRM_URL);
+    console.log("Confirm payload:", JSON.stringify(confirmPayload));
 
     const res = await fetch(CONFIRM_URL, {
       method: "POST",
@@ -37,19 +38,23 @@ serve(async (req) => {
       body: JSON.stringify(confirmPayload),
     });
 
-    const data = await res.json();
-    console.log("Confirm response:", res.status, JSON.stringify(data));
+    const rawText = await res.text();
+    console.log("Confirm response status:", res.status);
+    console.log("Confirm response body:", rawText.substring(0, 500));
 
-    if (!res.ok) {
+    let data;
+    try {
+      data = JSON.parse(rawText);
+    } catch {
       return new Response(
-        JSON.stringify({ success: false, error: "Confirmation failed", details: data }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ success: false, error: "Non-JSON response from Blanxer", status: res.status, body: rawText.substring(0, 200) }),
+        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     return new Response(
-      JSON.stringify({ success: true, data }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      JSON.stringify({ success: res.ok, data }),
+      { status: res.ok ? 200 : 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
     console.error("Confirm error:", err);
