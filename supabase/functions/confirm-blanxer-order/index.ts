@@ -8,7 +8,7 @@ const corsHeaders = {
 
 const STORE_ID = "692143375d92ef3244957b89";
 const BLANXER_SITE_URL = "https://akashvani-astrology.blanxer.io";
-const CONFIRM_URL = `https://api.blanxer.com/order/confirm/${STORE_ID}`;
+const CONFIRM_URL = `${BLANXER_SITE_URL}/order/public/confirm/${STORE_ID}`;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
