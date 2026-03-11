@@ -182,21 +182,27 @@ const BookingForm = ({ onSubmit }: BookingFormProps) => {
               </div>
               <div>
                 <Label className="text-muted-foreground text-xs mb-1.5 block">Date of Birth</Label>
-                <Input
-                  value={form.dob}
-                  onChange={(e) => handleChange("dob", e.target.value)}
-                  type="date"
-                  className={inputClass}
-                />
+                <div className="relative">
+                  <Input
+                    value={form.dob}
+                    onChange={(e) => handleChange("dob", e.target.value)}
+                    type="date"
+                    className={`${inputClass} [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:cursor-pointer`}
+                  />
+                  <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground pointer-events-none" />
+                </div>
               </div>
               <div>
                 <Label className="text-muted-foreground text-xs mb-1.5 block">Birth Time</Label>
-                <Input
-                  value={form.birthTime}
-                  onChange={(e) => handleChange("birthTime", e.target.value)}
-                  type="time"
-                  className={inputClass}
-                />
+                <div className="relative">
+                  <Input
+                    value={form.birthTime}
+                    onChange={(e) => handleChange("birthTime", e.target.value)}
+                    type="time"
+                    className={`${inputClass} [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:cursor-pointer`}
+                  />
+                  <Clock className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground pointer-events-none" />
+                </div>
               </div>
               <div>
                 <Label className="text-muted-foreground text-xs mb-1.5 block">Birth Place</Label>
