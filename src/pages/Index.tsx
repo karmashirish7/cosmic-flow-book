@@ -192,6 +192,7 @@ const Index = () => {
         amount={qrModal.amount}
         orderId={qrModal.orderId}
         transactionId={qrModal.transactionId}
+        prn={qrModal.prn}
         onPaymentSuccess={handlePaymentSuccess}
         onClose={() => setQrModal((prev) => ({ ...prev, open: false }))}
       />
