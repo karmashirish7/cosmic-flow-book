@@ -60,7 +60,10 @@ const QRPaymentModal = ({
 
     // Confirm the order with Blanxer using the transaction ID from QR init
     try {
-      const confirmPayload = { transaction: transactionId || orderId };
+      const confirmPayload = {
+        transaction: transactionId || orderId,
+        purchaseCode: transactionData?.purchaseCode || transactionData?.prn || "",
+      };
       console.log("Confirming order with Blanxer:", confirmPayload);
 
       const { data, error } = await supabase.functions.invoke("confirm-blanxer-order", {
