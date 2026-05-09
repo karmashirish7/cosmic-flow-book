@@ -1,231 +1,72 @@
-import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Loader2, CheckCircle2, AlertCircle, Clock } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { X, MessageCircle, Share2 } from "lucide-react";
+import fonepayQr from "@/assets/fonepay-qr.png";
 
 interface QRPaymentModalProps {
   open: boolean;
-  qrUrl: string;
-  socketUrl: string;
   amount: number;
-  orderId: string;
-  transactionId: string;
-  prn: string;
+  bookingData: Record<string, string>;
   onPaymentSuccess: () => void;
   onClose: () => void;
 }
 
-type PaymentStatus = "waiting" | "verified" | "success" | "error" | "expired";
-
-const COUNTDOWN_SECONDS = 5 * 60;
-const POLL_INTERVAL = 2000;
+const formatDate = (dateStr: string) => {
+  if (!dateStr) return "";
+  try {
+    return new Date(dateStr).toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  } catch {
+    return dateStr;
+  }
+};
 
 const QRPaymentModal = ({
   open,
-  qrUrl,
-  socketUrl,
   amount,
-  orderId,
-  transactionId,
-  prn: initialPrn,
+  bookingData,
   onPaymentSuccess,
   onClose,
 }: QRPaymentModalProps) => {
-  const [status, setStatus] = useState<PaymentStatus>("waiting");
-  const [timeLeft, setTimeLeft] = useState(COUNTDOWN_SECONDS);
-  const wsRef = useRef<WebSocket | null>(null);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const successHandledRef = useRef(false);
-  const prnRef = useRef<string>("");
+  const handleSendScreenshot = () => {
+    const birthDetails = [bookingData.dob, bookingData.birthTime, bookingData.birthPlace]
+      .filter(Boolean)
+      .join(", ");
 
-  const cleanup = useCallback(() => {
-    if (wsRef.current) {
-      wsRef.current.close();
-      wsRef.current = null;
-    }
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-    if (pollRef.current) {
-      clearInterval(pollRef.current);
-      pollRef.current = null;
-    }
-  }, []);
+    const lines = [
+      `Namaste! I'd like to confirm my consultation booking with *Akashvani Astrology*.`,
+      ``,
+      `*Booking Details:*`,
+      `• *Service:* ${bookingData.service}`,
+      `• *Amount Paid:* NPR ${Number(amount || 0).toLocaleString()}`,
+      `• *Preferred Date:* ${formatDate(bookingData.date)}`,
+      `• *Preferred Time:* ${bookingData.time}`,
+      bookingData.email ? `• *Email:* ${bookingData.email}` : null,
+      `• *Phone:* ${bookingData.phone}`,
+    ];
 
-  const handleSuccess = useCallback(async (transactionData?: any) => {
-    if (successHandledRef.current) return;
-    successHandledRef.current = true;
-
-    setStatus("success");
-    cleanup();
-
-    // Confirm the order with Blanxer using the transaction ID from QR init
-    try {
-      const prn = initialPrn || transactionData?.productNumber || transactionData?.prn || transactionData?.purchaseCode || prnRef.current || "";
-      const confirmPayload = {
-        transaction: transactionId || orderId,
-        prn,
-      };
-      console.log("Confirming order with Blanxer:", confirmPayload);
-
-      const { data, error } = await supabase.functions.invoke("confirm-blanxer-order", {
-        body: confirmPayload,
-      });
-
-      if (error) {
-        console.error("Order confirmation failed:", error);
-      } else {
-        console.log("Order confirmed:", data);
-      }
-    } catch (err) {
-      console.error("Error confirming order:", err);
+    if (birthDetails) {
+      lines.push(``, `*Birth Details:*`, `${birthDetails}`);
     }
 
-    setTimeout(() => onPaymentSuccess(), 1500);
-  }, [orderId, transactionId, initialPrn, onPaymentSuccess, cleanup]);
-
-  // Reset on open
-  useEffect(() => {
-    if (open) {
-      successHandledRef.current = false;
-      setStatus("waiting");
+    if (bookingData.notes) {
+      lines.push(``, `*Notes:*`, `${bookingData.notes}`);
     }
-  }, [open]);
 
-  // Countdown timer
-  useEffect(() => {
-    if (!open) return;
+    lines.push(
+      ``,
+      `Payment has been completed. Kindly find my payment screenshot attached.`
+    );
 
-    setTimeLeft(COUNTDOWN_SECONDS);
-
-    timerRef.current = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          setStatus("expired");
-          cleanup();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-    };
-  }, [open, cleanup]);
-
-  // WebSocket connection
-  useEffect(() => {
-    if (!open || !socketUrl) return;
-
-    const ws = new WebSocket(socketUrl);
-    wsRef.current = ws;
-
-    ws.onopen = () => {
-      console.log("Connected to payment socket");
-    };
-
-    ws.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        console.log("Socket raw data:", JSON.stringify(data));
-        const txStatus = data.transactionStatus;
-
-        if (typeof txStatus === "string") {
-          const parsed = JSON.parse(txStatus);
-          console.log("Parsed transactionStatus:", JSON.stringify(parsed));
-
-          // Save PRN whenever we get it
-          if (parsed.prn) prnRef.current = parsed.prn;
-          if (parsed.purchaseCode) prnRef.current = parsed.purchaseCode;
-          if (parsed.productNumber) prnRef.current = parsed.productNumber;
-
-          if (parsed.paymentSuccess === true) {
-            handleSuccess(parsed);
-          } else if (parsed.qrVerified === true) {
-            setStatus("verified");
-          }
-        }
-      } catch (err) {
-        console.error("Socket message parse error:", err);
-      }
-    };
-
-    ws.onerror = () => {
-      console.error("WebSocket error");
-      // Don't set error status — polling will continue as fallback
-    };
-
-    ws.onclose = () => {
-      console.log("Socket closed");
-    };
-
-    return () => {
-      if (wsRef.current) {
-        wsRef.current.close();
-        wsRef.current = null;
-      }
-    };
-  }, [open, socketUrl, handleSuccess]);
-
-  // Polling every 2 seconds as fallback (detects payment even if user switches windows)
-  useEffect(() => {
-    if (!open || !socketUrl) return;
-
-    pollRef.current = setInterval(() => {
-      if (successHandledRef.current) return;
-
-      // Re-check WebSocket — if it's closed, try reconnecting
-      if (wsRef.current && wsRef.current.readyState === WebSocket.CLOSED) {
-        console.log("WebSocket closed, attempting reconnect...");
-        try {
-          const ws = new WebSocket(socketUrl);
-          wsRef.current = ws;
-
-          ws.onmessage = (event) => {
-            try {
-              const data = JSON.parse(event.data);
-              const txStatus = data.transactionStatus;
-              if (typeof txStatus === "string") {
-                const parsed = JSON.parse(txStatus);
-                if (parsed.prn) prnRef.current = parsed.prn;
-                if (parsed.purchaseCode) prnRef.current = parsed.purchaseCode;
-                if (parsed.productNumber) prnRef.current = parsed.productNumber;
-                if (parsed.paymentSuccess === true) {
-                  handleSuccess(parsed);
-                } else if (parsed.qrVerified === true) {
-                  setStatus("verified");
-                }
-              }
-            } catch (err) {
-              console.error("Reconnected socket parse error:", err);
-            }
-          };
-        } catch (err) {
-          console.error("WebSocket reconnect failed:", err);
-        }
-      }
-    }, POLL_INTERVAL);
-
-    return () => {
-      if (pollRef.current) {
-        clearInterval(pollRef.current);
-        pollRef.current = null;
-      }
-    };
-  }, [open, socketUrl, handleSuccess]);
+    const message = lines.filter((l) => l !== null).join("\n");
+    window.open(`https://wa.me/9779705216077?text=${encodeURIComponent(message)}`, "_blank");
+    onPaymentSuccess();
+  };
 
   if (!open) return null;
-
-  const minutes = Math.floor(timeLeft / 60);
-  const seconds = timeLeft % 60;
-  const formattedTime = `${minutes}:${seconds.toString().padStart(2, "0")}`;
-  const isLowTime = timeLeft <= 60;
 
   return (
     <AnimatePresence>
@@ -234,111 +75,89 @@ const QRPaymentModal = ({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
-        onClick={(e) => e.target === e.currentTarget && status === "waiting" && onClose()}
+        onClick={(e) => e.target === e.currentTarget && onClose()}
       >
         <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.9, opacity: 0 }}
-          className="glass-strong rounded-2xl p-6 md:p-8 max-w-md w-full space-y-6 relative"
+          initial={{ scale: 0.92, opacity: 0, y: 16 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          exit={{ scale: 0.92, opacity: 0, y: 16 }}
+          transition={{ type: "spring", damping: 22, stiffness: 300 }}
+          className="bg-white rounded-2xl shadow-2xl max-w-sm w-full relative overflow-hidden"
         >
+          {/* Close */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors"
+            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10"
           >
             <X className="h-5 w-5" />
           </button>
 
-          <div className="text-center">
-            <h3 className="text-xl font-serif font-bold mb-1">Scan to Pay</h3>
-            <p className="text-muted-foreground text-sm">
-              NPR {amount.toLocaleString()}
+          {/* Header */}
+          <div className="px-6 pt-7 pb-4 text-center space-y-1">
+            <h3 className="text-[17px] font-bold leading-snug" style={{ color: "#7B1A1A" }}>
+              Please pay NPR {Number(amount || 0).toLocaleString()} and<br />
+              send the screenshot on WhatsApp
+            </h3>
+            <p className="text-sm" style={{ color: "#C05050" }}>
+              Scan the QR code below to make payment via Fonepay
             </p>
           </div>
 
-          {(status === "waiting" || status === "verified") && (
-            <div className="flex flex-col items-center gap-4">
-              <div className="bg-white rounded-xl p-3">
+          {/* Bank card + QR */}
+          <div className="mx-5 mb-4 rounded-xl border border-rose-100 overflow-hidden shadow-sm">
+            {/* Account card */}
+            <div className="bg-gradient-to-r from-gray-50 to-white px-4 py-3 border-b border-rose-100">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="font-bold text-[13px] text-gray-800 leading-tight">
+                    AKASHVANI ASTROLOGY PVT. LTD.
+                  </p>
+                  <p className="text-[11px] text-gray-500 mt-0.5">NABIL BANK LIMITED</p>
+                  <p className="text-[12px] text-gray-600 font-mono mt-0.5">17001017502926</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-semibold bg-amber-500 text-white px-2 py-0.5 rounded-full">
+                    Primary
+                  </span>
+                  <Share2 className="h-4 w-4 text-gray-400" />
+                </div>
+              </div>
+              <p className="text-[10px] text-gray-400 mt-1">Lubhu, Lalitpur Branch</p>
+            </div>
+
+            {/* QR Code */}
+            <div className="bg-white px-6 py-4 flex justify-center">
+              <div className="border border-gray-200 rounded-lg p-2">
                 <img
-                  src={qrUrl}
-                  alt="Payment QR Code"
-                  className="w-56 h-56 object-contain"
+                  src={fonepayQr}
+                  alt="Fonepay QR Code"
+                  className="w-44 h-44 object-contain"
                 />
               </div>
-
-              <div className={`flex items-center gap-2 text-sm font-mono ${isLowTime ? "text-destructive" : "text-muted-foreground"}`}>
-                <Clock className={`h-4 w-4 ${isLowTime ? "animate-pulse" : ""}`} />
-                <span>Expires in {formattedTime}</span>
-              </div>
-
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                {status === "verified" ? (
-                  <>
-                    <CheckCircle2 className="h-4 w-4 text-gold" />
-                    QR Verified — Confirming payment...
-                  </>
-                ) : (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin text-gold" />
-                    Waiting for payment...
-                  </>
-                )}
-              </div>
             </div>
-          )}
 
-          {status === "success" && (
-            <div className="flex flex-col items-center gap-4 py-6">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", damping: 12 }}
-                className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center"
-              >
-                <CheckCircle2 className="h-8 w-8 text-green-400" />
-              </motion.div>
-              <p className="text-lg font-semibold text-green-400">Payment Successful!</p>
-              <p className="text-sm text-muted-foreground">Redirecting...</p>
+            {/* Fonepay footer */}
+            <div className="bg-gray-50 border-t border-rose-100 py-2 flex items-center justify-center gap-1.5">
+              <span className="text-[11px] font-semibold text-red-600 tracking-wide">fone</span>
+              <span className="text-[11px] font-bold text-gray-700">pay</span>
+              <span className="text-[10px] text-gray-400 ml-1">· Accepted here</span>
             </div>
-          )}
+          </div>
 
-          {status === "expired" && (
-            <div className="flex flex-col items-center gap-4 py-6">
-              <div className="w-16 h-16 rounded-full bg-destructive/20 flex items-center justify-center">
-                <Clock className="h-8 w-8 text-destructive" />
-              </div>
-              <p className="text-lg font-semibold text-destructive">QR Expired</p>
-              <p className="text-sm text-muted-foreground">The payment window has expired. Please try again.</p>
-              <button
-                onClick={onClose}
-                className="btn-primary-glow rounded-xl px-6 py-2 text-sm"
-              >
-                Try Again
-              </button>
-            </div>
-          )}
+          {/* WhatsApp button */}
+          <div className="px-5 pb-5 space-y-3">
+            <button
+              onClick={handleSendScreenshot}
+              className="w-full flex items-center justify-center gap-2.5 bg-[#25D366] hover:bg-[#20BC5A] active:bg-[#1AAD50] text-white font-semibold text-[15px] py-3.5 rounded-xl transition-colors shadow-sm"
+            >
+              <MessageCircle className="h-5 w-5" />
+              Send Screenshot to WhatsApp
+            </button>
 
-          {status === "error" && (
-            <div className="flex flex-col items-center gap-4 py-6">
-              <div className="w-16 h-16 rounded-full bg-destructive/20 flex items-center justify-center">
-                <AlertCircle className="h-8 w-8 text-destructive" />
-              </div>
-              <p className="text-lg font-semibold text-destructive">Connection Error</p>
-              <p className="text-sm text-muted-foreground">Please try again.</p>
-              <button
-                onClick={onClose}
-                className="btn-primary-glow rounded-xl px-6 py-2 text-sm"
-              >
-                Retry
-              </button>
-            </div>
-          )}
-
-          {(status === "waiting" || status === "verified") && (
-            <p className="text-xs text-center text-muted-foreground">
-              Scan with any Fonepay-supported banking app
+            <p className="text-[11px] text-center text-gray-400 leading-relaxed">
+              After paying, tap the button above and attach your<br />payment screenshot to confirm your booking.
             </p>
-          )}
+          </div>
         </motion.div>
       </motion.div>
     </AnimatePresence>

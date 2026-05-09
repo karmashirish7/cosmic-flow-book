@@ -15,14 +15,14 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen flex items-start sm:items-center justify-center overflow-hidden">
       {/* Background image */}
       <div className="absolute inset-0 z-0">
         <img src={heroBg} alt="" className="w-full h-full object-cover opacity-40" />
         <div className="absolute inset-0 bg-cosmic" style={{ opacity: 0.7 }} />
       </div>
 
-      <div className="relative z-10 container mx-auto px-4 py-12">
+      <div className="relative z-10 container mx-auto px-4 pt-24 pb-12 sm:py-12">
         <div className="max-w-4xl mx-auto text-center">
           {/* Badge */}
           <motion.div
@@ -81,12 +81,12 @@ const HeroSection = () => {
                 </p>
               </div>
             ) : (
-              <iframe
-                src="https://www.youtube.com/embed/IWVJq-4zW24?autoplay=1"
+              <video
+                src="https://pub-7f47ce89586c4affbe75d62e1ab982a3.r2.dev/videos/aaskashvani_introfinal2.mp4"
                 title="Akashvani Astrology Introduction"
                 className="w-full h-full"
-                allow="autoplay; encrypted-media"
-                allowFullScreen
+                autoPlay
+                controls
               />
             )}
           </motion.div>

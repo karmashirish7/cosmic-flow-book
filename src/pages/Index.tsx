@@ -12,7 +12,6 @@ import Testimonials from "@/components/Testimonials";
 import FAQ from "@/components/FAQ";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import QRPaymentModal from "@/components/QRPaymentModal";
-import { supabase } from "@/integrations/supabase/client";
 
 const WEBHOOK_URL = "https://n8n.blanxer.tech/webhook/62380a50-80c2-4fd7-b550-a8b5217be694";
 
@@ -21,16 +20,7 @@ type FlowStep = "landing" | "payment" | "success";
 const Index = () => {
   const [step, setStep] = useState<FlowStep>("landing");
   const [bookingData, setBookingData] = useState<Record<string, string>>({});
-  const [qrModal, setQrModal] = useState({
-    open: false,
-    qrUrl: "",
-    socketUrl: "",
-    amount: 0,
-    orderId: "",
-    transactionId: "",
-    prn: "",
-  });
-  const [isCreatingOrder, setIsCreatingOrder] = useState(false);
+  const [qrModal, setQrModal] = useState({ open: false, amount: 0 });
 
   const handleBookingSubmit = useCallback((data: Record<string, string>) => {
     setBookingData(data);
@@ -38,58 +28,13 @@ const Index = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  const handlePayNow = useCallback(async () => {
-    setIsCreatingOrder(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("create-blanxer-order", {
-        body: {
-          name: bookingData.name,
-          phone: bookingData.phone,
-          email: bookingData.email || "",
-          address: bookingData.birthPlace || "",
-          notes: bookingData.notes || "",
-          service: bookingData.service,
-        },
-      });
-
-      if (error || !data?.success) {
-        console.error("Order creation failed:", error || data);
-        alert("Failed to create payment order. Please try again.");
-        return;
-      }
-
-      console.log("Blanxer order + QR response:", data);
-
-      const qrData = data.qr;
-      const qrMessage = qrData?.qr_message || qrData?.extras?.qrMessage;
-      const socketUrl = qrData?.socket_url || qrData?.extras?.merchantWebSocketUrl;
-      const transactionId = qrData?.transaction || "";
-
-      const orderId = data.order?._id || data.order?.order?._id || data.order?.id || "";
-
-      setQrModal({
-        open: true,
-        qrUrl: qrMessage
-          ? `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(qrMessage)}`
-          : "",
-        socketUrl: socketUrl || "",
-        amount: Number(bookingData.amount) || qrData?.amount || 0,
-        orderId,
-        transactionId,
-        prn: qrData?.prn || "",
-      });
-    } catch (err) {
-      console.error("Error initiating payment:", err);
-      alert("Something went wrong. Please try again.");
-    } finally {
-      setIsCreatingOrder(false);
-    }
-  }, [bookingData]);
+  const handlePayNow = useCallback(() => {
+    setQrModal({ open: true, amount: Number(bookingData.amount) || 0 });
+  }, [bookingData.amount]);
 
   const handlePaymentSuccess = useCallback(async () => {
     setQrModal((prev) => ({ ...prev, open: false }));
 
-    // Send to webhook
     try {
       await fetch(WEBHOOK_URL, {
         method: "POST",
@@ -112,31 +57,6 @@ const Index = () => {
     } catch (err) {
       console.error("Webhook error:", err);
     }
-
-    // Auto-open WhatsApp with booking details
-    const whatsappMessage = [
-      `🙏 Namaste! New consultation booking received.`,
-      ``,
-      `👤 *Name:* ${bookingData.name}`,
-      `📞 *Phone:* ${bookingData.phone}`,
-      bookingData.email ? `📧 *Email:* ${bookingData.email}` : "",
-      bookingData.dob ? `🎂 *DOB:* ${bookingData.dob}` : "",
-      bookingData.birthTime ? `🕐 *Birth Time:* ${bookingData.birthTime}` : "",
-      bookingData.birthPlace ? `📍 *Birth Place:* ${bookingData.birthPlace}` : "",
-      ``,
-      `🔮 *Service:* ${bookingData.service}`,
-      `📅 *Date:* ${bookingData.date}`,
-      `⏰ *Time:* ${bookingData.time}`,
-      `💰 *Amount Paid:* NPR ${Number(bookingData.amount || 0).toLocaleString()}`,
-      bookingData.notes ? `📝 *Notes:* ${bookingData.notes}` : "",
-      ``,
-      `✅ *Payment Status:* Paid`,
-    ]
-      .filter(Boolean)
-      .join("\n");
-
-    const whatsappUrl = `https://wa.me/9779705216077?text=${encodeURIComponent(whatsappMessage)}`;
-    window.open(whatsappUrl, "_blank");
 
     setStep("success");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -176,7 +96,6 @@ const Index = () => {
             data={bookingData}
             onPay={handlePayNow}
             onBack={handleBack}
-            isLoading={isCreatingOrder}
           />
         )}
 
@@ -187,12 +106,8 @@ const Index = () => {
 
       <QRPaymentModal
         open={qrModal.open}
-        qrUrl={qrModal.qrUrl}
-        socketUrl={qrModal.socketUrl}
         amount={qrModal.amount}
-        orderId={qrModal.orderId}
-        transactionId={qrModal.transactionId}
-        prn={qrModal.prn}
+        bookingData={bookingData}
         onPaymentSuccess={handlePaymentSuccess}
         onClose={() => setQrModal((prev) => ({ ...prev, open: false }))}
       />

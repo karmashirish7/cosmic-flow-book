@@ -1,56 +1,27 @@
 import { motion } from "framer-motion";
-import { Star, Heart, Briefcase, Compass, GraduationCap, Sun } from "lucide-react";
+import { Star, Heart, Compass } from "lucide-react";
 
 const services = [
   {
     icon: Star,
-    title: "In-Depth Birth Chart Analysis",
-    description: "Complete Kundli reading with planetary positions, dashas, and life predictions.",
-    price: "NPR 2,500",
-    duration: "1 hr",
-  },
-  {
-    icon: Heart,
-    title: "Love & Relationship",
-    description: "Compatibility analysis, marriage timing, and relationship guidance.",
-    price: "NPR 2,000",
-    duration: "35 min",
-  },
-  {
-    icon: Briefcase,
-    title: "Career & Finance",
-    description: "Professional direction, wealth yogas, and financial timing insights.",
-    price: "NPR 2,000",
-    duration: "35 min",
-  },
-  {
-    icon: GraduationCap,
-    title: "Foreign Education",
-    description: "Education abroad prospects, best timing, and country selection guidance.",
-    price: "NPR 2,000",
-    duration: "35 min",
+    title: "General Consultation",
+    description: "Answer your 4 most pressing questions about life, relationships, career, or any area you seek guidance on.",
   },
   {
     icon: Compass,
-    title: "Life Direction",
-    description: "Purpose discovery, karmic patterns, and spiritual growth guidance.",
-    price: "NPR 2,000",
-    duration: "35 min",
+    title: "In-Depth Consultation",
+    description: "A comprehensive reading covering your birth chart, current planetary periods, and detailed life guidance.",
   },
   {
-    icon: Sun,
-    title: "Health",
-    description: "Health insights, wellness timing, and astrological guidance for physical well-being.",
-    price: "NPR 2,000",
-    duration: "35 min",
+    icon: Heart,
+    title: "Matchmaking & Couple Consultation",
+    description: "Compatibility analysis and relationship guidance for couples or those seeking their perfect match.",
   },
 ];
 
 const ConsultationTypes = () => {
   const scrollToBooking = (serviceTitle: string) => {
-    const bookingSection = document.getElementById("booking");
-    bookingSection?.scrollIntoView({ behavior: "smooth" });
-    // Dispatch custom event to prefill service
+    document.getElementById("booking")?.scrollIntoView({ behavior: "smooth" });
     window.dispatchEvent(new CustomEvent("prefill-service", { detail: serviceTitle }));
   };
 
@@ -75,7 +46,7 @@ const ConsultationTypes = () => {
           <div className="constellation-line w-24 mx-auto mt-6" />
         </motion.div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-3 gap-6">
           {services.map((service, i) => (
             <motion.div
               key={service.title}
@@ -90,15 +61,9 @@ const ConsultationTypes = () => {
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
                   <service.icon className="h-5 w-5 text-gold" />
                 </div>
-                <div className="flex-1">
-                  <h3 className="font-serif font-semibold text-foreground">{service.title}</h3>
-                </div>
+                <h3 className="font-serif font-semibold text-foreground">{service.title}</h3>
               </div>
-              <p className="text-sm text-muted-foreground mb-4">{service.description}</p>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gold font-semibold">{service.price}</span>
-                <span className="text-muted-foreground">{service.duration}</span>
-              </div>
+              <p className="text-sm text-muted-foreground">{service.description}</p>
             </motion.div>
           ))}
         </div>

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Calendar, Clock, User, Phone, Mail, MapPin, FileText, CheckCircle2 } from "lucide-react";
+import { Calendar, Clock, User } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,14 +13,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+const fmt12 = (h: number, m: number) => {
+  const period = h >= 12 ? "PM" : "AM";
+  return `${h % 12 || 12}:${String(m).padStart(2, "0")} ${period}`;
+};
+
+// 7:00 AM → 8:30 PM NPT, every 30 min
+const NPT_SLOTS = Array.from({ length: 28 }, (_, i) => {
+  const total = 7 * 60 + i * 30;
+  return { h: Math.floor(total / 60), m: total % 60 };
+});
+
 const serviceOptions = [
-  { value: "In-Depth Birth Chart Analysis", price: 2500 },
-  { value: "Love & Relationship", price: 2000 },
-  { value: "Career & Finance", price: 2000 },
-  { value: "Foreign Education", price: 2000 },
-  { value: "Life Direction", price: 2000 },
-  { value: "Health", price: 2000 },
-  { value: "Test", price: 10 },
+  { value: "General Consultation", price: 1000 },
+  { value: "In-Depth Consultation", price: 2000 },
+  { value: "Matchmaking & Couple Consultation", price: 3000 },
 ];
 
 interface BookingFormProps {
@@ -75,16 +82,10 @@ const BookingForm = ({ onSubmit }: BookingFormProps) => {
     const handler = (e: Event) => {
       const detail = (e as CustomEvent).detail;
       const match = serviceOptions.find((s) => s.value === detail);
-      if (match) {
-        setForm((prev) => ({ ...prev, service: match.value, amount: String(match.price) }));
-      }
+      if (match) setForm((prev) => ({ ...prev, service: match.value, amount: String(match.price) }));
     };
     window.addEventListener("prefill-service", handler);
     return () => window.removeEventListener("prefill-service", handler);
-  }, []);
-
-  const getAdjustedPrice = useCallback((basePrice: number, loc: string) => {
-    return loc === "outside" ? Math.round(basePrice * 1.5) : basePrice;
   }, []);
 
   const handleServiceChange = useCallback((value: string) => {
@@ -92,20 +93,9 @@ const BookingForm = ({ onSubmit }: BookingFormProps) => {
     setForm((prev) => ({
       ...prev,
       service: value,
-      amount: match ? String(getAdjustedPrice(match.price, prev.location)) : prev.amount,
+      amount: match ? String(match.price) : prev.amount,
     }));
-  }, [getAdjustedPrice]);
-
-  const handleLocationChange = useCallback((value: string) => {
-    setForm((prev) => {
-      const match = serviceOptions.find((s) => s.value === prev.service);
-      return {
-        ...prev,
-        location: value,
-        amount: match ? String(getAdjustedPrice(match.price, value)) : prev.amount,
-      };
-    });
-  }, [getAdjustedPrice]);
+  }, []);
 
   const handleChange = (field: string, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -227,7 +217,7 @@ const BookingForm = ({ onSubmit }: BookingFormProps) => {
               </div>
               <div>
                 <Label className="text-muted-foreground text-xs mb-1.5 block">Current Location *</Label>
-                <Select value={form.location} onValueChange={handleLocationChange}>
+                <Select value={form.location} onValueChange={(v) => handleChange("location", v)}>
                   <SelectTrigger className={inputClass}>
                     <SelectValue />
                   </SelectTrigger>
@@ -266,26 +256,6 @@ const BookingForm = ({ onSubmit }: BookingFormProps) => {
                 />
               </div>
               <div>
-                <Label className="text-muted-foreground text-xs mb-1.5 block">Preferred Time *</Label>
-                <Select value={form.time} onValueChange={(v) => handleChange("time", v)}>
-                  <SelectTrigger className={inputClass}>
-                    <SelectValue placeholder="Select a time" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Array.from({ length: 28 }, (_, i) => {
-                      const hour = Math.floor(i / 2) + 7;
-                      const min = i % 2 === 0 ? "00" : "30";
-                      const label = `${hour > 12 ? hour - 12 : hour}:${min} ${hour >= 12 ? "PM" : "AM"}`;
-                      const value = `${String(hour).padStart(2, "0")}:${min}`;
-                      return <SelectItem key={value} value={value}>{label}</SelectItem>;
-                    })}
-                  </SelectContent>
-                </Select>
-                <p className="text-muted-foreground text-[10px] mt-1.5 italic">
-                  This is the estimated time. Actual consultation time may differ based on mutual convenience.
-                </p>
-              </div>
-              <div>
                 <Label className="text-muted-foreground text-xs mb-1.5 block">Service Type *</Label>
                 <Select value={form.service} onValueChange={handleServiceChange}>
                   <SelectTrigger className={inputClass}>
@@ -294,7 +264,7 @@ const BookingForm = ({ onSubmit }: BookingFormProps) => {
                   <SelectContent>
                     {serviceOptions.map((s) => (
                       <SelectItem key={s.value} value={s.value}>
-                        {s.value} — NPR {getAdjustedPrice(s.price, form.location).toLocaleString()}
+                        {s.value} — NPR {s.price.toLocaleString()}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -310,6 +280,29 @@ const BookingForm = ({ onSubmit }: BookingFormProps) => {
                   readOnly
                 />
               </div>
+            </div>
+
+            {/* Time slot picker — NPT only */}
+            <div className="mt-4">
+              <h4 className="font-medium text-sm text-foreground mb-1">Preferred Time Slots *</h4>
+              <p className="text-muted-foreground text-[11px] mb-3 leading-relaxed">
+                All times are in Nepal Time (NPT). Actual consultation time will be confirmed via WhatsApp.
+              </p>
+              <Select value={form.time} onValueChange={(v) => handleChange("time", v)}>
+                <SelectTrigger className={inputClass}>
+                  <SelectValue placeholder="Select a time slot" />
+                </SelectTrigger>
+                <SelectContent>
+                  {NPT_SLOTS.map(({ h, m }) => {
+                    const value = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+                    return (
+                      <SelectItem key={value} value={value}>
+                        {fmt12(h, m)} NPT
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

@@ -5,10 +5,9 @@ interface PaymentSummaryProps {
   data: Record<string, string>;
   onPay: () => void;
   onBack: () => void;
-  isLoading?: boolean;
 }
 
-const PaymentSummary = ({ data, onPay, onBack, isLoading }: PaymentSummaryProps) => {
+const PaymentSummary = ({ data, onPay, onBack }: PaymentSummaryProps) => {
   return (
     <section className="py-24 px-4">
       <div className="container mx-auto max-w-lg">
@@ -59,10 +58,9 @@ const PaymentSummary = ({ data, onPay, onBack, isLoading }: PaymentSummaryProps)
             </button>
             <button
               onClick={onPay}
-              disabled={isLoading}
-              className="flex-1 btn-primary-glow rounded-xl py-3 text-sm font-semibold disabled:opacity-50"
+              className="flex-1 btn-primary-glow rounded-xl py-3 text-sm font-semibold"
             >
-              {isLoading ? "Creating Order..." : "Pay Now"}
+              Pay Now
             </button>
           </div>
         </motion.div>
