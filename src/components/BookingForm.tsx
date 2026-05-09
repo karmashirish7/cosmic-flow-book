@@ -103,7 +103,7 @@ const BookingForm = ({ onSubmit }: BookingFormProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name || !form.phone || !form.date || !form.time || !form.service) return;
+    if (!form.name || !form.phone || !form.dob || !form.birthTime || !form.birthPlace || !form.date || !form.time || !form.service) return;
     onSubmit(form);
   };
 
@@ -171,35 +171,38 @@ const BookingForm = ({ onSubmit }: BookingFormProps) => {
                 />
               </div>
               <div>
-                <Label className="text-muted-foreground text-xs mb-1.5 block">Date of Birth</Label>
+                <Label className="text-muted-foreground text-xs mb-1.5 block">Date of Birth *</Label>
                 <div className="relative">
                   <Input
                     value={form.dob}
                     onChange={(e) => handleChange("dob", e.target.value)}
                     type="date"
+                    required
                     className={`${inputClass} [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:cursor-pointer`}
                   />
                   <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground pointer-events-none" />
                 </div>
               </div>
               <div>
-                <Label className="text-muted-foreground text-xs mb-1.5 block">Birth Time</Label>
+                <Label className="text-muted-foreground text-xs mb-1.5 block">Birth Time *</Label>
                 <div className="relative">
                   <Input
                     value={form.birthTime}
                     onChange={(e) => handleChange("birthTime", e.target.value)}
                     type="time"
+                    required
                     className={`${inputClass} [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:cursor-pointer`}
                   />
                   <Clock className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground pointer-events-none" />
                 </div>
               </div>
               <div>
-                <Label className="text-muted-foreground text-xs mb-1.5 block">Birth Place</Label>
+                <Label className="text-muted-foreground text-xs mb-1.5 block">Birth Place *</Label>
                 <Input
                   value={form.birthPlace}
                   onChange={(e) => handleChange("birthPlace", e.target.value)}
                   placeholder="City, Country"
+                  required
                   className={inputClass}
                 />
               </div>
