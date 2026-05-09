@@ -3,6 +3,9 @@ import { Play, ArrowDown } from "lucide-react";
 import { useState } from "react";
 import heroBg from "@/assets/hero-bg.jpg";
 
+const YT_ID = "xFuluenI-kw";
+const YT_THUMB = `https://img.youtube.com/vi/${YT_ID}/hqdefault.jpg`;
+
 const HeroSection = () => {
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -67,7 +70,14 @@ const HeroSection = () => {
             className="relative aspect-video max-w-2xl mx-auto rounded-2xl overflow-hidden glass-strong glow-nebula mb-6"
           >
             {!isPlaying ? (
-              <div className="absolute inset-0 flex items-center justify-center bg-cosmic-deep/60">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <img
+                  src={YT_THUMB}
+                  alt="Akashvani introduction video thumbnail"
+                  className="absolute inset-0 w-full h-full object-cover"
+                  loading="lazy"
+                  decoding="async"
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
                 <button
                   onClick={() => setIsPlaying(true)}
@@ -81,12 +91,12 @@ const HeroSection = () => {
                 </p>
               </div>
             ) : (
-              <video
-                src="https://pub-7f47ce89586c4affbe75d62e1ab982a3.r2.dev/videos/aaskashvani_introfinal2.mp4"
+              <iframe
+                src={`https://www.youtube.com/embed/${YT_ID}?autoplay=1&rel=0`}
                 title="Akashvani Astrology Introduction"
                 className="w-full h-full"
-                autoPlay
-                controls
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
               />
             )}
           </motion.div>
