@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { X, MessageCircle, Share2 } from "lucide-react";
+import { X, MessageCircle } from "lucide-react";
 import fonepayQr from "@/assets/fonepay-qr.png";
 
 interface QRPaymentModalProps {
@@ -103,45 +103,13 @@ const QRPaymentModal = ({
             </p>
           </div>
 
-          {/* Bank card + QR */}
-          <div className="mx-5 mb-4 rounded-xl border border-rose-100 overflow-hidden shadow-sm">
-            {/* Account card */}
-            <div className="bg-gradient-to-r from-gray-50 to-white px-4 py-3 border-b border-rose-100">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="font-bold text-[13px] text-gray-800 leading-tight">
-                    AKASHVANI ASTROLOGY PVT. LTD.
-                  </p>
-                  <p className="text-[11px] text-gray-500 mt-0.5">NABIL BANK LIMITED</p>
-                  <p className="text-[12px] text-gray-600 font-mono mt-0.5">17001017502926</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-semibold bg-amber-500 text-white px-2 py-0.5 rounded-full">
-                    Primary
-                  </span>
-                  <Share2 className="h-4 w-4 text-gray-400" />
-                </div>
-              </div>
-              <p className="text-[10px] text-gray-400 mt-1">Lubhu, Lalitpur Branch</p>
-            </div>
-
-            {/* QR Code */}
-            <div className="bg-white px-6 py-4 flex justify-center">
-              <div className="border border-gray-200 rounded-lg p-2">
-                <img
-                  src={fonepayQr}
-                  alt="Fonepay QR Code"
-                  className="w-44 h-44 object-contain"
-                />
-              </div>
-            </div>
-
-            {/* Fonepay footer */}
-            <div className="bg-gray-50 border-t border-rose-100 py-2 flex items-center justify-center gap-1.5">
-              <span className="text-[11px] font-semibold text-red-600 tracking-wide">fone</span>
-              <span className="text-[11px] font-bold text-gray-700">pay</span>
-              <span className="text-[10px] text-gray-400 ml-1">· Accepted here</span>
-            </div>
+          {/* QR Code */}
+          <div className="mx-5 mb-4 flex justify-center">
+            <img
+              src={fonepayQr}
+              alt="Fonepay QR Code"
+              className="w-56 h-56 object-contain rounded-xl"
+            />
           </div>
 
           {/* WhatsApp button */}
