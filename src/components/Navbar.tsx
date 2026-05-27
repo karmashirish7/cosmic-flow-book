@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import logoWebp from "@/assets/logo.webp";
 import logoPng from "@/assets/logo-optimized.png";
@@ -47,6 +48,12 @@ const Navbar = () => {
               {link.label}
             </button>
           ))}
+          <Link
+            to="/ai-predictor"
+            className="text-sm text-muted-foreground hover:text-gold transition-colors"
+          >
+            AI Predictor
+          </Link>
           <button
             onClick={() => scrollTo("booking")}
             className="btn-primary-glow rounded-full px-5 py-2 text-xs font-semibold"
@@ -77,6 +84,13 @@ const Navbar = () => {
               {link.label}
             </button>
           ))}
+          <Link
+            to="/ai-predictor"
+            onClick={() => setOpen(false)}
+            className="text-sm text-muted-foreground hover:text-gold transition-colors text-left py-1"
+          >
+            AI Predictor
+          </Link>
           <button
             onClick={() => scrollTo("booking")}
             className="btn-primary-glow rounded-full px-5 py-2.5 text-xs font-semibold mt-1"
