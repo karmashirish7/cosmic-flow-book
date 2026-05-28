@@ -419,11 +419,12 @@ function ChatInterface({ chart }: { chart: ChartData }) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput]       = useState('')
   const [loading, setLoading]   = useState(false)
-  const bottomRef = useRef<HTMLDivElement>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (messages.length === 0) return
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    const el = scrollRef.current
+    if (el) el.scrollTop = el.scrollHeight
   }, [messages])
 
   const send = useCallback(async (question: string) => {
@@ -467,7 +468,7 @@ function ChatInterface({ chart }: { chart: ChartData }) {
         <span className="ml-auto text-xs text-white/30 truncate">{chart.name} · {lagnaName} Lagna</span>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
         {messages.length === 0 ? (
           <div className="space-y-2">
             <p className="text-xs text-white/30 text-center mb-4">Choose a question or type your own</p>
@@ -504,7 +505,6 @@ function ChatInterface({ chart }: { chart: ChartData }) {
             </div>
           </div>
         )}
-        <div ref={bottomRef} />
       </div>
 
       <div className="p-3 border-t border-white/10 shrink-0">

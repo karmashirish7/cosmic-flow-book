@@ -1,0 +1,11 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ],
+  "functions": {
+    "api/calculate.ts": { "maxDuration": 30, "includeFiles": "node_modules/swisseph/**" },
+    "api/chat.ts": { "maxDuration": 30 }
+  }
+}
