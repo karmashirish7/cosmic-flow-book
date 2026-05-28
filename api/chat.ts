@@ -68,7 +68,7 @@ Answer all questions about this person using ONLY the chart above and the Vedic 
       },
       body: JSON.stringify({
         model: 'anthropic/claude-3.5-haiku',
-        max_tokens: 800,
+        max_tokens: 2000,
         messages: [{ role: 'system', content: systemPrompt }, ...messages],
       }),
     })

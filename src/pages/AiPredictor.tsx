@@ -442,7 +442,7 @@ function ChatInterface({ chart }: { chart: ChartData }) {
           question: q,
           chartSummary: chart.summary,
           name: chart.name,
-          history: messages,
+          history: messages.slice(-8),
         }),
       })
       const data = await res.json()
