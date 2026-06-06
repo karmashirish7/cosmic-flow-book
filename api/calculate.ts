@@ -1,8 +1,4 @@
 import type { IncomingMessage, ServerResponse } from 'http'
-import { calculateChart, parseTimezone, localToUTC } from '../server/astrology.js'
-import { buildChartSummary } from '../server/knowledge.js'
-import { getPlanetDignity } from '../server/dignity.js'
-import { buildDashaTree, getCurrentDasha, serializeDashaTree } from '../server/dasha.js'
 
 function readBody(req: IncomingMessage): Promise<Record<string, string>> {
   return new Promise((resolve, reject) => {
@@ -28,6 +24,21 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   }
 
   try {
+    // Dynamic imports so a native-module load failure (e.g. swisseph binary mismatch
+    // on Vercel Linux) is caught here instead of crashing the function before the
+    // handler runs and producing an empty response body.
+    const [
+      { calculateChart, parseTimezone, localToUTC },
+      { buildChartSummary },
+      { getPlanetDignity },
+      { buildDashaTree, getCurrentDasha, serializeDashaTree },
+    ] = await Promise.all([
+      import('../server/astrology.js'),
+      import('../server/knowledge.js'),
+      import('../server/dignity.js'),
+      import('../server/dasha.js'),
+    ])
+
     const body = await readBody(req)
     const { birthDate, birthTime, birthLat, birthLon, timezone, name, birthPlace } = body
 

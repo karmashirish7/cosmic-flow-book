@@ -673,7 +673,12 @@ export default function AiPredictor() {
           timezone:   form.city.tz,
         }),
       })
-      const data = await res.json()
+      const text = await res.text()
+      if (!text.trim()) {
+        setError('The calculation service is unavailable. Please try again or check back later.')
+        return
+      }
+      const data = JSON.parse(text)
       if (!res.ok || data.error) {
         setError(data.error ?? 'Chart calculation failed. Please try again.')
         return
