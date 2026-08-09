@@ -73,7 +73,6 @@ const packages = [
       "Emotional and relationship compatibility",
       "Communication, family, financial and lifestyle compatibility",
       "Dosha analysis and its practical significance",
-      "Marriage timing and important relationship periods",
       "Strengths, challenges, and areas that may require understanding or adjustment",
     ],
   },
