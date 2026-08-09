@@ -1,13 +1,10 @@
 import { motion } from "framer-motion";
-import { FileText, Video, MessageSquare, Calendar, BookOpen, Phone } from "lucide-react";
+import { Video, MessageSquare, BookOpen } from "lucide-react";
 
 const items = [
   { icon: Video, title: "Live Video Session", desc: "One-on-one consultation via Zoom or Google Meet" },
-  { icon: FileText, title: "Detailed Report", desc: "Written PDF summary of your reading and predictions" },
   { icon: BookOpen, title: "Personalized Remedies", desc: "Mantras, gemstones, and rituals tailored to you" },
-  { icon: Calendar, title: "Follow-Up Support", desc: "7-day post-consultation messaging support" },
   { icon: MessageSquare, title: "Recording Access", desc: "Full recording of your session for future reference" },
-  { icon: Phone, title: "Priority Rebooking", desc: "Discounted rates for returning clients" },
 ];
 
 const WhatYouReceive = () => {

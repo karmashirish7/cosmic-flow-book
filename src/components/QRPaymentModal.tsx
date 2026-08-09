@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { X, MessageCircle } from "lucide-react";
 import fonepayQr from "@/assets/fonepay-qr.png";
+import { useBrand } from "@/brand";
 
 interface QRPaymentModalProps {
   open: boolean;
@@ -31,13 +32,14 @@ const QRPaymentModal = ({
   onPaymentSuccess,
   onClose,
 }: QRPaymentModalProps) => {
+  const brand = useBrand();
   const handleSendScreenshot = () => {
     const birthDetails = [bookingData.dob, bookingData.birthTime, bookingData.birthPlace]
       .filter(Boolean)
       .join(", ");
 
     const lines = [
-      `Namaste! I'd like to confirm my consultation booking with *Akashvani Astrology*.`,
+      `Namaste! I'd like to confirm my consultation booking with *${brand.name}*.`,
       ``,
       `*Booking Details:*`,
       `• *Service:* ${bookingData.service}`,

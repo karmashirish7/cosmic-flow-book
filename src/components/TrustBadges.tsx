@@ -2,9 +2,9 @@ import { motion } from "framer-motion";
 import { Shield, Users, Clock, Award } from "lucide-react";
 
 const badges = [
-  { icon: Users, value: "5,000+", label: "Consultations Done" },
-  { icon: Clock, value: "12+", label: "Years Experience" },
-  { icon: Award, value: "4.9/5", label: "Client Rating" },
+  { icon: Users, value: "1,000+", label: "Consultations Done" },
+  { icon: Clock, value: "4+", label: "Years Experience" },
+  { icon: Award, value: "4.5/5", label: "Client Rating" },
   { icon: Shield, value: "100%", label: "Confidential" },
 ];
 

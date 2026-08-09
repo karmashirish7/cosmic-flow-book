@@ -54,6 +54,59 @@
     --sidebar-border: 260 20% 18%;
     --sidebar-ring: 45 80% 55%;
   }
+
+  /* Astrokarmaz — white & dark red (maroon) theme.
+     Applied on <html class="theme-astrokarmaz"> so Radix portals inherit it. */
+  .theme-astrokarmaz {
+    --background: 0 0% 100%;
+    --foreground: 0 30% 16%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 30% 16%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 30% 16%;
+
+    --primary: 0 63% 37%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 40% 94%;
+    --secondary-foreground: 0 50% 28%;
+
+    --muted: 0 20% 96%;
+    --muted-foreground: 0 8% 42%;
+
+    --accent: 0 50% 45%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 40% 88%;
+    --input: 0 30% 93%;
+    --ring: 0 63% 37%;
+
+    /* Accent aliases (reused across utilities as the "gold" accent) → maroon */
+    --gold: 0 63% 37%;
+    --gold-light: 0 55% 50%;
+    --gold-dark: 0 72% 28%;
+
+    /* Light background gradient with a faint maroon tint */
+    --cosmic-indigo: 0 30% 99%;
+    --cosmic-violet: 0 45% 97%;
+    --cosmic-deep: 0 0% 100%;
+    --nebula-glow: 0 60% 55%;
+    --star-white: 0 0% 95%;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 0 30% 16%;
+    --sidebar-primary: 0 63% 37%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 40% 94%;
+    --sidebar-accent-foreground: 0 50% 28%;
+    --sidebar-border: 0 40% 88%;
+    --sidebar-ring: 0 63% 37%;
+  }
 }
 
 @layer base {
@@ -157,6 +210,19 @@
     background: linear-gradient(90deg, transparent, hsl(var(--gold) / 0.3), transparent);
     height: 1px;
   }
+}
+
+/* Testimonials marquee */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 45s linear infinite;
+  will-change: transform;
+}
+.marquee-group:hover .animate-marquee {
+  animation-play-state: paused;
 }
 
 /* Starfield animation */

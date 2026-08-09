@@ -1,12 +1,14 @@
 import { motion } from "framer-motion";
 import { CheckCircle2, Calendar, MessageCircle } from "lucide-react";
+import { useBrand } from "@/brand";
 
 interface SuccessScreenProps {
   data: Record<string, string>;
 }
 
 const SuccessScreen = ({ data }: SuccessScreenProps) => {
-  const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(data.service + " - Akashvani Astrology")}&dates=${data.date?.replace(/-/g, "")}/${data.date?.replace(/-/g, "")}&details=${encodeURIComponent("Consultation with " + data.assignedTo)}`;
+  const brand = useBrand();
+  const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(data.service + " - " + brand.name)}&dates=${data.date?.replace(/-/g, "")}/${data.date?.replace(/-/g, "")}&details=${encodeURIComponent("Consultation with " + data.assignedTo)}`;
 
   const whatsappUrl = `https://wa.me/9779705216077?text=${encodeURIComponent(`Hi, I just booked a ${data.service} consultation on ${data.date} at ${data.time}. My name is ${data.name}.`)}`;
 
