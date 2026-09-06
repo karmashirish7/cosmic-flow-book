@@ -136,8 +136,8 @@ Answer all questions about this person using ONLY the chart above and the Vedic 
               headers: {
                 'Authorization': `Bearer ${openRouterKey}`,
                 'Content-Type': 'application/json',
-                'HTTP-Referer': 'https://akashvani.local',
-                'X-Title': 'Akashvani Vedic AI',
+                'HTTP-Referer': 'https://astrokarmaz.local',
+                'X-Title': 'Astrokarmaz Vedic AI',
               },
               body: JSON.stringify({
                 model: 'anthropic/claude-3.5-haiku',

@@ -1,6 +1,4 @@
 import { createContext, useContext } from "react";
-import logoWebp from "@/assets/logo.webp";
-import logoPng from "@/assets/logo-optimized.png";
 
 export interface Brand {
   name: string;
@@ -8,17 +6,11 @@ export interface Brand {
   logoPng: string;
 }
 
-export const AKASHVANI: Brand = {
-  name: "Akashvani Astrology",
-  logoWebp,
-  logoPng,
-};
-
 // Logo lives in /public — drop the file at public/astrokarmaz-logo.png
 export const ASTROKARMAZ: Brand = {
   name: "Astrokarmaz",
   logoPng: "/astrokarmaz-logo.png",
 };
 
-export const BrandContext = createContext<Brand>(AKASHVANI);
+export const BrandContext = createContext<Brand>(ASTROKARMAZ);
 export const useBrand = () => useContext(BrandContext);
