@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useBrand } from "@/brand";
+import { CURRENCY, NPR_EQUIVALENT_NOTE, SERVICES, formatAmount, priceFor, type Region } from "@/pricing";
 
 const fmt12 = (h: number, m: number) => {
   const period = h >= 12 ? "PM" : "AM";
@@ -25,64 +26,12 @@ const NPT_SLOTS = Array.from({ length: 28 }, (_, i) => {
   return { h: Math.floor(total / 60), m: total % 60 };
 });
 
-const serviceOptions = [
-  { value: "General Consultation", price: 1000 },
-  { value: "In-Depth Consultation", price: 2000 },
-  { value: "Matchmaking & Couple Consultation", price: 3000 },
-];
-
-const packages = [
-  {
-    title: "General Consultation",
-    service: "General Consultation",
-    price: 1000,
-    duration: "30 min",
-    recommended: false,
-    desc: "Get a clear understanding of your life's major themes through your birth chart. Explore career, relationships, finances, family, and important upcoming phases through your Dasha and Navamsha (D9).",
-    points: [
-      "Key strengths and challenges in your chart",
-      "Important periods and upcoming changes",
-      "Guidance across major areas of life",
-      "Practical astrological insights based on your chart",
-    ],
-  },
-  {
-    title: "In-Depth Consultation",
-    service: "In-Depth Consultation",
-    price: 2000,
-    duration: "60 min",
-    recommended: true,
-    desc: "A deeper analysis for those looking beyond general predictions. We examine your chart from multiple layers to understand why certain patterns occur, when they are likely to unfold, and how to navigate them.",
-    points: [
-      "Detailed analysis of one chosen life area",
-      "Dasha and timing analysis",
-      "Strength of planets and houses through Shadbala & Bhavabala",
-      "Deeper insights using D1, D9, D10 and relevant divisional charts",
-      "Personalized guidance and traditional remedies where appropriate",
-    ],
-  },
-  {
-    title: "Matchmaking & Couple",
-    service: "Matchmaking & Couple Consultation",
-    price: 3000,
-    duration: "1 hr 15 min",
-    recommended: false,
-    desc: "Compatibility goes far beyond Guna Milan. Understand how two individuals connect emotionally, mentally, practically, and in the long term — before taking an important step together.",
-    points: [
-      "Individual analysis of both birth charts",
-      "Emotional and relationship compatibility",
-      "Communication, family, financial and lifestyle compatibility",
-      "Dosha analysis and its practical significance",
-      "Strengths, challenges, and areas that may require understanding or adjustment",
-    ],
-  },
-];
-
 interface BookingFormProps {
+  region: Region;
   onSubmit: (data: Record<string, string>) => void;
 }
 
-const BookingForm = ({ onSubmit }: BookingFormProps) => {
+const BookingForm = ({ region, onSubmit }: BookingFormProps) => {
   const brand = useBrand();
   const [searchParams] = useSearchParams();
 
@@ -94,7 +43,6 @@ const BookingForm = ({ onSubmit }: BookingFormProps) => {
     birthTime: "",
     birthPlace: "",
     accurateTime: "yes",
-    location: "nepal",
     notes: "",
     date: "",
     time: "",
@@ -130,21 +78,30 @@ const BookingForm = ({ onSubmit }: BookingFormProps) => {
   useEffect(() => {
     const handler = (e: Event) => {
       const detail = (e as CustomEvent).detail;
-      const match = serviceOptions.find((s) => s.value === detail);
-      if (match) setForm((prev) => ({ ...prev, service: match.value, amount: String(match.price) }));
+      const match = SERVICES.find((s) => s.service === detail);
+      if (match) setForm((prev) => ({ ...prev, service: match.service, amount: String(match.price[region]) }));
     };
     window.addEventListener("prefill-service", handler);
     return () => window.removeEventListener("prefill-service", handler);
-  }, []);
+  }, [region]);
+
+  useEffect(() => {
+    setForm((prev) => {
+      if (!prev.service) return prev;
+      const price = priceFor(prev.service, region);
+      if (price === undefined || String(price) === prev.amount) return prev;
+      return { ...prev, amount: String(price) };
+    });
+  }, [region]);
 
   const handleServiceChange = useCallback((value: string) => {
-    const match = serviceOptions.find((s) => s.value === value);
+    const price = priceFor(value, region);
     setForm((prev) => ({
       ...prev,
       service: value,
-      amount: match ? String(match.price) : prev.amount,
+      amount: price !== undefined ? String(price) : prev.amount,
     }));
-  }, []);
+  }, [region]);
 
   const handleSelectPackage = useCallback((service: string) => {
     handleServiceChange(service);
@@ -158,7 +115,7 @@ const BookingForm = ({ onSubmit }: BookingFormProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name || !form.phone || !form.dob || !form.birthTime || !form.birthPlace || !form.date || !form.time || !form.service) return;
-    onSubmit(form);
+    onSubmit({ ...form, location: region === "nepal" ? "nepal" : "outside" });
   };
 
   const inputClass = "bg-input/50 border-border/50 text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/30";
@@ -184,7 +141,7 @@ const BookingForm = ({ onSubmit }: BookingFormProps) => {
           viewport={{ once: true }}
           className="grid md:grid-cols-3 gap-5 mb-10 items-stretch"
         >
-          {packages.map((pkg) => (
+          {SERVICES.map((pkg) => (
             <div
               key={pkg.title}
               className={`relative flex flex-col glass rounded-2xl p-6 md:p-7 ${
@@ -198,14 +155,19 @@ const BookingForm = ({ onSubmit }: BookingFormProps) => {
               )}
               <h3 className="font-serif text-lg font-semibold text-gold mb-3">{pkg.title}</h3>
 
-              <div className="mb-4 flex items-center justify-between gap-2 border-b border-border/40 pb-4">
-                <div className="flex items-baseline gap-1.5">
-                  <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">NPR</span>
-                  <span className="text-xl font-serif font-semibold text-foreground leading-none">{pkg.price.toLocaleString()}</span>
+              <div className="mb-4 border-b border-border/40 pb-4">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{CURRENCY[region]}</span>
+                    <span className="text-xl font-serif font-semibold text-foreground leading-none">{pkg.price[region].toLocaleString()}</span>
+                  </div>
+                  <span className="flex items-center gap-1 text-[11px] font-medium text-muted-foreground whitespace-nowrap">
+                    <Clock className="h-3 w-3" /> {pkg.duration}
+                  </span>
                 </div>
-                <span className="flex items-center gap-1 text-[11px] font-medium text-muted-foreground whitespace-nowrap">
-                  <Clock className="h-3 w-3" /> {pkg.duration}
-                </span>
+                {region === "international" && (
+                  <p className="mt-1 text-[10px] text-muted-foreground">{NPR_EQUIVALENT_NOTE}</p>
+                )}
               </div>
 
               <p className="text-muted-foreground text-xs leading-relaxed mb-4">{pkg.desc}</p>
@@ -327,18 +289,6 @@ const BookingForm = ({ onSubmit }: BookingFormProps) => {
                   </SelectContent>
                 </Select>
               </div>
-              <div>
-                <Label className="text-muted-foreground text-xs mb-1.5 block">Current Location *</Label>
-                <Select value={form.location} onValueChange={(v) => handleChange("location", v)}>
-                  <SelectTrigger className={inputClass}>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="nepal">Nepal</SelectItem>
-                    <SelectItem value="outside">Outside Nepal</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
             <div className="mt-4">
               <Label className="text-muted-foreground text-xs mb-1.5 block">Notes</Label>
@@ -374,16 +324,21 @@ const BookingForm = ({ onSubmit }: BookingFormProps) => {
                     <SelectValue placeholder="Select a service" />
                   </SelectTrigger>
                   <SelectContent>
-                    {serviceOptions.map((s) => (
-                      <SelectItem key={s.value} value={s.value}>
-                        {s.value} — NPR {s.price.toLocaleString()}
+                    {SERVICES.map((s) => (
+                      <SelectItem key={s.service} value={s.service}>
+                        {s.service} — {formatAmount(s.price[region], region)}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label className="text-muted-foreground text-xs mb-1.5 block">Amount (NPR)</Label>
+                <Label className="text-muted-foreground text-xs mb-1.5 block">
+                  Amount ({CURRENCY[region]})
+                  {region === "international" && (
+                    <span className="normal-case"> {NPR_EQUIVALENT_NOTE}</span>
+                  )}
+                </Label>
                 <Input
                   value={form.amount}
                   onChange={(e) => handleChange("amount", e.target.value)}

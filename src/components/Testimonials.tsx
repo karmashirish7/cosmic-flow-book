@@ -1,10 +1,23 @@
 import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 
-const testimonials = [
-  { name: "P. Shrestha", location: "Kathmandu, Nepal", text: "I had a positive experience overall. I wasn't entirely sure what questions to ask at first, but you guided the conversation well and answered my concerns thoughtfully. The session was helpful, informative, detailed and easy to understand.", rating: 5 },
+interface Testimonial {
+  /** Displayed under a pseudonym — the review text is the client's, the name is not. */
+  name: string;
+  location?: string;
+  text: string;
+  rating: number;
+}
+
+// Reviews received from clients, published under pseudonyms.
+const testimonials: Testimonial[] = [
+  { name: "A. Sharma", location: "Kathmandu, Nepal", text: "I had a positive experience overall. I wasn't entirely sure what questions to ask at first, but you guided the conversation well and answered my concerns thoughtfully. The session was helpful, informative, detailed and easy to understand. Overall I'm satisfied with the consultation and appreciate the time and effort by you.", rating: 5 },
+  { name: "S. Pradhan", location: "Kathmandu, Nepal", text: "Shirish Ji was super sweet and considerate enough to explain everything about my placements, especially since I was already interested in them. He explained everything clearly, suggested amazing remedies, and was a great listener. I highly recommend him if you're looking for answers in life. 10/10!", rating: 5 },
+  { name: "R. Joshi", location: "Kathmandu, Nepal", text: "I am very satisfied with the online consultation. The consultation was professional, informative, and easy to understand. I truly appreciate the support and guidance. I highly recommend this service.", rating: 5 },
+  { name: "B. Koirala", location: "Kathmandu, Nepal", text: "He listened closely, answered kindly, and made the whole thing feel easy to follow. I left feeling more grounded and more hopeful.", rating: 5 },
+  { name: "P. Lamichhane", location: "Kathmandu, Nepal", text: "I never thought astrology can be this deep.", rating: 5 },
+  { name: "T. Dangol", location: "Kathmandu, Nepal", text: "The session was good. I liked the way he explained the things.", rating: 5 },
   { name: "R. Gurung", location: "Pokhara, Nepal", text: "Mero birth chart ekdam sahi thiyo. Career ko baare ma diyeko salah le thulo decision confidently garna sajilo banayo. Dhanyabaad!", rating: 5 },
-  { name: "A. Karki", location: "Lalitpur, Nepal", text: "I am very satisfied with the online consultation. It was professional, informative, and easy to understand. I truly appreciate the support and guidance. I highly recommend this service.", rating: 5 },
   { name: "G. Tamang", location: "Dharan, Nepal", text: "Pahila ta malai bishwas thiena, tara relationship ko timing ko prediction ekdam thik nikliyo. Saanchai talented hunuhuncha.", rating: 5 },
   { name: "B. Thapa", location: "Bhaktapur, Nepal", text: "The remedies suggested were practical and effective. I noticed positive changes within a few weeks of the consultation.", rating: 5 },
   { name: "H. Poudel", location: "Butwal, Nepal", text: "Business suru garne timing ko prediction ekdam sateek thiyo. Diyeko paisa ko purai value paye.", rating: 5 },
@@ -16,7 +29,7 @@ const testimonials = [
   { name: "S. Magar", location: "Hetauda, Nepal", text: "Mero career ka prashna haru ko ekdam clear jawaf paye. Kunai vague kura bhaena, sabai practical thiyo.", rating: 4 },
 ];
 
-const Card = ({ t }: { t: (typeof testimonials)[number] }) => (
+const Card = ({ t }: { t: Testimonial }) => (
   <div className="rounded-2xl border border-border/60 bg-card p-6 w-[300px] shrink-0 flex flex-col shadow-sm">
     <div className="flex gap-1 mb-4">
       {Array.from({ length: t.rating }).map((_, j) => (
@@ -28,7 +41,7 @@ const Card = ({ t }: { t: (typeof testimonials)[number] }) => (
     </p>
     <div>
       <p className="font-semibold text-foreground text-sm">{t.name}</p>
-      <p className="text-xs text-muted-foreground">{t.location}</p>
+      {t.location && <p className="text-xs text-muted-foreground">{t.location}</p>}
     </div>
   </div>
 );

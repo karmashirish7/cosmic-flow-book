@@ -18,7 +18,7 @@ const Navbar = () => {
             width={300}
             height={96}
             className="h-20 md:h-28 w-auto"
-            fetchPriority="high"
+            {...{ fetchpriority: "high" }}
             decoding="async"
           />
         </picture>

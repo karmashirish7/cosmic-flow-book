@@ -1,12 +1,14 @@
 import { motion } from "framer-motion";
 import { CheckCircle2, Calendar, MessageCircle } from "lucide-react";
 import { useBrand } from "@/brand";
+import { formatPayableAmount, type Region } from "@/pricing";
 
 interface SuccessScreenProps {
   data: Record<string, string>;
+  region: Region;
 }
 
-const SuccessScreen = ({ data }: SuccessScreenProps) => {
+const SuccessScreen = ({ data, region }: SuccessScreenProps) => {
   const brand = useBrand();
   const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(data.service + " - " + brand.name)}&dates=${data.date?.replace(/-/g, "")}/${data.date?.replace(/-/g, "")}&details=${encodeURIComponent("Consultation with " + data.assignedTo)}`;
 
@@ -39,7 +41,7 @@ const SuccessScreen = ({ data }: SuccessScreenProps) => {
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Date & Time</span>
-              <span className="text-foreground font-medium">{data.date} at {data.time}</span>
+              <span className="text-foreground font-medium">{data.date} at {data.time} NPT</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Astrologer</span>
@@ -47,7 +49,7 @@ const SuccessScreen = ({ data }: SuccessScreenProps) => {
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Amount Paid</span>
-              <span className="text-gold font-semibold">NPR {Number(data.amount || 0).toLocaleString()}</span>
+              <span className="text-gold font-semibold">{formatPayableAmount(data.amount, region)}</span>
             </div>
           </div>
 

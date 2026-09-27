@@ -2,69 +2,37 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, MessageCircle } from "lucide-react";
 import fonepayQr from "@/assets/fonepay-qr.png";
 import { useBrand } from "@/brand";
+import { NPR_EQUIVALENT_NOTE, WHATSAPP_NUMBER, formatAmount, type Region } from "@/pricing";
+import { buildBookingMessage } from "@/lib/bookingMessage";
 
 interface QRPaymentModalProps {
   open: boolean;
   amount: number;
+  region: Region;
   bookingData: Record<string, string>;
   onPaymentSuccess: () => void;
   onClose: () => void;
 }
 
-const formatDate = (dateStr: string) => {
-  if (!dateStr) return "";
-  try {
-    return new Date(dateStr).toLocaleDateString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  } catch {
-    return dateStr;
-  }
-};
-
 const QRPaymentModal = ({
   open,
   amount,
+  region,
   bookingData,
   onPaymentSuccess,
   onClose,
 }: QRPaymentModalProps) => {
   const brand = useBrand();
+
   const handleSendScreenshot = () => {
-    const birthDetails = [bookingData.dob, bookingData.birthTime, bookingData.birthPlace]
-      .filter(Boolean)
-      .join(", ");
-
-    const lines = [
-      `Namaste! I'd like to confirm my consultation booking with *${brand.name}*.`,
-      ``,
-      `*Booking Details:*`,
-      `• *Service:* ${bookingData.service}`,
-      `• *Amount Paid:* NPR ${Number(amount || 0).toLocaleString()}`,
-      `• *Preferred Date:* ${formatDate(bookingData.date)}`,
-      `• *Preferred Time:* ${bookingData.time}`,
-      bookingData.email ? `• *Email:* ${bookingData.email}` : null,
-      `• *Phone:* ${bookingData.phone}`,
-    ];
-
-    if (birthDetails) {
-      lines.push(``, `*Birth Details:*`, `${birthDetails}`);
-    }
-
-    if (bookingData.notes) {
-      lines.push(``, `*Notes:*`, `${bookingData.notes}`);
-    }
-
-    lines.push(
-      ``,
-      `Payment has been completed. Kindly find my payment screenshot attached.`
-    );
-
-    const message = lines.filter((l) => l !== null).join("\n");
-    window.open(`https://wa.me/9779705216077?text=${encodeURIComponent(message)}`, "_blank");
+    const message = buildBookingMessage({
+      brandName: brand.name,
+      amount,
+      region,
+      bookingData,
+      paymentLine: "Payment has been completed. Kindly find my payment screenshot attached.",
+    });
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
     onPaymentSuccess();
   };
 
@@ -90,6 +58,7 @@ const QRPaymentModal = ({
           <button
             onClick={onClose}
             className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10"
+            aria-label="Close"
           >
             <X className="h-5 w-5" />
           </button>
@@ -97,7 +66,11 @@ const QRPaymentModal = ({
           {/* Header */}
           <div className="px-6 pt-7 pb-4 text-center space-y-1">
             <h3 className="text-[17px] font-bold leading-snug" style={{ color: "#7B1A1A" }}>
-              Please pay NPR {Number(amount || 0).toLocaleString()} and<br />
+              Please pay {formatAmount(amount, region)}
+              {region === "international" && (
+                <span className="font-semibold"> {NPR_EQUIVALENT_NOTE}</span>
+              )}{" "}
+              and<br />
               send the screenshot on WhatsApp
             </h3>
             <p className="text-sm" style={{ color: "#C05050" }}>
