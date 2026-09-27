@@ -26,6 +26,25 @@ const NPT_SLOTS = Array.from({ length: 28 }, (_, i) => {
   return { h: Math.floor(total / 60), m: total % 60 };
 });
 
+/** Fields the booking cannot be submitted without, labelled as they read on screen. */
+const REQUIRED_FIELDS = [
+  { field: "name", label: "Name" },
+  { field: "phone", label: "Phone Number" },
+  { field: "dob", label: "Date of Birth" },
+  { field: "birthTime", label: "Birth Time" },
+  { field: "birthPlace", label: "Birth Place" },
+  { field: "service", label: "Service Type" },
+  { field: "date", label: "Date" },
+  { field: "time", label: "Preferred Time Slot" },
+];
+
+/** "Name, Phone Number and Birth Time" */
+const listFields = (fields: string[]) => {
+  const labels = REQUIRED_FIELDS.filter(({ field }) => fields.includes(field)).map((f) => f.label);
+  if (labels.length <= 1) return labels.join("");
+  return `${labels.slice(0, -1).join(", ")} and ${labels[labels.length - 1]}`;
+};
+
 interface BookingFormProps {
   region: Region;
   onSubmit: (data: Record<string, string>) => void;
@@ -34,6 +53,7 @@ interface BookingFormProps {
 const BookingForm = ({ region, onSubmit }: BookingFormProps) => {
   const brand = useBrand();
   const [searchParams] = useSearchParams();
+  const [missing, setMissing] = useState<string[]>([]);
 
   const [form, setForm] = useState({
     name: "",
@@ -95,6 +115,7 @@ const BookingForm = ({ region, onSubmit }: BookingFormProps) => {
   }, [region]);
 
   const handleServiceChange = useCallback((value: string) => {
+    if (value) setMissing((prev) => prev.filter((f) => f !== "service"));
     const price = priceFor(value, region);
     setForm((prev) => ({
       ...prev,
@@ -110,11 +131,15 @@ const BookingForm = ({ region, onSubmit }: BookingFormProps) => {
 
   const handleChange = (field: string, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
+    // Drop the field from the outstanding list as soon as it is filled in.
+    if (value) setMissing((prev) => (prev.includes(field) ? prev.filter((f) => f !== field) : prev));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name || !form.phone || !form.dob || !form.birthTime || !form.birthPlace || !form.date || !form.time || !form.service) return;
+    const empty = REQUIRED_FIELDS.filter(({ field }) => !form[field as keyof typeof form]);
+    setMissing(empty.map(({ field }) => field));
+    if (empty.length > 0) return;
     onSubmit({ ...form, location: region === "nepal" ? "nepal" : "outside" });
   };
 
@@ -203,6 +228,7 @@ const BookingForm = ({ region, onSubmit }: BookingFormProps) => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           onSubmit={handleSubmit}
+          noValidate
           className="glass-strong rounded-2xl p-6 md:p-10 space-y-8 scroll-mt-20 max-w-3xl mx-auto"
         >
           {/* Client Information */}
@@ -380,12 +406,20 @@ const BookingForm = ({ region, onSubmit }: BookingFormProps) => {
             </div>
           </div>
 
-          <button
-            type="submit"
-            className="w-full btn-primary-glow rounded-xl py-4 text-base font-semibold tracking-wide"
-          >
-            Schedule Consultation
-          </button>
+          {/* Button and message share one block so the form's row spacing does not
+              leave a gap under the button while the message is empty. */}
+          <div>
+            <button
+              type="submit"
+              className="w-full btn-primary-glow rounded-xl py-4 text-base font-semibold tracking-wide"
+            >
+              Schedule Consultation
+            </button>
+
+            <p aria-live="polite" className="text-center text-sm font-medium text-destructive empty:hidden mt-3">
+              {missing.length > 0 && `Please fill in ${listFields(missing)} before scheduling.`}
+            </p>
+          </div>
         </motion.form>
       </div>
     </section>
