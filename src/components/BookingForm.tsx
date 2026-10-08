@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
+import { format } from "date-fns";
 import { Calendar, Clock, User, MessageCircle } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { Input } from "@/components/ui/input";
@@ -12,7 +13,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Calendar as CalendarPicker } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useBrand } from "@/brand";
+import {
+  BOOKING_DATE_HINT,
+  CLOSED_WEEKDAYS,
+  earliestBookingDate,
+  fromDateValue,
+  isBookableDate,
+  toDateValue,
+} from "@/lib/bookingDates";
 import { CURRENCY, NPR_EQUIVALENT_NOTE, SERVICES, formatAmount, priceFor, type Region } from "@/pricing";
 
 const fmt12 = (h: number, m: number) => {
@@ -54,6 +65,9 @@ const BookingForm = ({ region, onSubmit }: BookingFormProps) => {
   const brand = useBrand();
   const [searchParams] = useSearchParams();
   const [missing, setMissing] = useState<string[]>([]);
+  const [dateOpen, setDateOpen] = useState(false);
+  const [dateUnavailable, setDateUnavailable] = useState(false);
+
 
   const [form, setForm] = useState({
     name: "",
@@ -71,6 +85,10 @@ const BookingForm = ({ region, onSubmit }: BookingFormProps) => {
     amount: "",
     consultationNotes: "",
   });
+
+  // Recomputed per render so a page left open overnight still offers a valid range.
+  const earliestDate = earliestBookingDate();
+  const selectedDate = fromDateValue(form.date);
 
   // Prefill from URL params
   useEffect(() => {
@@ -133,14 +151,29 @@ const BookingForm = ({ region, onSubmit }: BookingFormProps) => {
     setForm((prev) => ({ ...prev, [field]: value }));
     // Drop the field from the outstanding list as soon as it is filled in.
     if (value) setMissing((prev) => (prev.includes(field) ? prev.filter((f) => f !== field) : prev));
+    if (field === "date") setDateUnavailable(false);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const empty = REQUIRED_FIELDS.filter(({ field }) => !form[field as keyof typeof form]);
+    // Whitespace alone is not an answer, so compare on the trimmed value.
+    const empty = REQUIRED_FIELDS.filter(
+      ({ field }) => !String(form[field as keyof typeof form] ?? "").trim(),
+    );
     setMissing(empty.map(({ field }) => field));
-    if (empty.length > 0) return;
-    onSubmit({ ...form, location: region === "nepal" ? "nepal" : "outside" });
+
+    // The picker cannot offer an unavailable day, but a stale selection can survive
+    // midnight or a pre-filled URL, so the rule is enforced here too.
+    const chosen = fromDateValue(form.date);
+    const dateUnavailable = empty.length === 0 && (!chosen || !isBookableDate(chosen));
+    setDateUnavailable(dateUnavailable);
+
+    if (empty.length > 0 || dateUnavailable) return;
+    onSubmit({
+      ...form,
+      name: form.name.trim(),
+      location: region === "nepal" ? "nepal" : "outside",
+    });
   };
 
   const inputClass = "bg-input/50 border-border/50 text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/30";
@@ -335,13 +368,39 @@ const BookingForm = ({ region, onSubmit }: BookingFormProps) => {
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <Label className="text-muted-foreground text-xs mb-1.5 block">Date *</Label>
-                <Input
-                  value={form.date}
-                  onChange={(e) => handleChange("date", e.target.value)}
-                  type="date"
-                  required
-                  className={inputClass}
-                />
+                <Popover open={dateOpen} onOpenChange={setDateOpen}>
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      className={`${inputClass} flex h-10 w-full items-center justify-between rounded-md border px-3 py-2 text-sm`}
+                    >
+                      <span className={selectedDate ? "" : "text-muted-foreground"}>
+                        {selectedDate ? format(selectedDate, "d MMMM yyyy") : "Pick a date"}
+                      </span>
+                      <Calendar className="h-4 w-4 text-foreground" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <CalendarPicker
+                      mode="single"
+                      selected={selectedDate}
+                      defaultMonth={selectedDate ?? earliestDate}
+                      fromDate={earliestDate}
+                      disabled={[{ before: earliestDate }, { dayOfWeek: CLOSED_WEEKDAYS }]}
+                      // Today is never bookable here, so drop the "today" fill that
+                      // otherwise reads as an already-selected date.
+                      classNames={{ day_today: "" }}
+                      onSelect={(day) => {
+                        if (!day) return;
+                        handleChange("date", toDateValue(day));
+                        setDateOpen(false);
+                      }}
+                    />
+                    <p className="border-t border-border/50 px-3 py-2 text-[11px] text-muted-foreground">
+                      {BOOKING_DATE_HINT}
+                    </p>
+                  </PopoverContent>
+                </Popover>
               </div>
               <div>
                 <Label className="text-muted-foreground text-xs mb-1.5 block">Service Type *</Label>
@@ -417,7 +476,11 @@ const BookingForm = ({ region, onSubmit }: BookingFormProps) => {
             </button>
 
             <p aria-live="polite" className="text-center text-sm font-medium text-destructive empty:hidden mt-3">
-              {missing.length > 0 && `Please fill in ${listFields(missing)} before scheduling.`}
+              {missing.length > 0
+                ? `Please fill in ${listFields(missing)} before scheduling.`
+                : dateUnavailable
+                  ? `That consultation date is no longer available. ${BOOKING_DATE_HINT}`
+                  : ""}
             </p>
           </div>
         </motion.form>
