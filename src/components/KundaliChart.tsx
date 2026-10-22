@@ -38,23 +38,25 @@ const LINE = '#8B1E1E'
 
 interface Props {
   title: string
+  /** Draw the title above the chart (print). On screen the card header names the chart instead. */
+  showTitle?: boolean
   lagnaSign: number
   houses: Record<string, number>
   degrees?: Record<string, number>
   retrograde?: Record<string, boolean>
 }
 
-const KundaliChart = forwardRef<SVGSVGElement, Props>(({ title, lagnaSign, houses, degrees, retrograde }, ref) => (
+const KundaliChart = forwardRef<SVGSVGElement, Props>(({ title, showTitle = true, lagnaSign, houses, degrees, retrograde }, ref) => (
   <svg
     ref={ref}
-    viewBox="0 0 400 430"
+    viewBox={`0 0 400 ${showTitle ? 430 : 400}`}
     xmlns="http://www.w3.org/2000/svg"
     role="img"
     aria-label={`${title} chart`}
     style={{ display: 'block', width: '100%', height: 'auto' }}
   >
-    <rect width={400} height={430} fill="#FFFFFF" />
-    <g transform="translate(0,30)">
+    <rect width={400} height={showTitle ? 430 : 400} fill="#FFFFFF" />
+    <g transform={showTitle ? 'translate(0,30)' : undefined}>
       {Object.values(POLYGONS).map((p, i) => (
         <polygon key={i} points={p} fill={i === 0 ? '#FBEFEF' : '#FFFFFF'} stroke={LINE} strokeWidth={1.2} />
       ))}
@@ -86,9 +88,11 @@ const KundaliChart = forwardRef<SVGSVGElement, Props>(({ title, lagnaSign, house
         )
       })}
     </g>
-    <text x={200} y={18} textAnchor="middle" fontFamily="Cinzel, Georgia, serif" fontSize={15} fontWeight={700} fill={LINE}>
-      {title}
-    </text>
+    {showTitle && (
+      <text x={200} y={18} textAnchor="middle" fontFamily="Cinzel, Georgia, serif" fontSize={15} fontWeight={700} fill={LINE}>
+        {title}
+      </text>
+    )}
   </svg>
 ))
 

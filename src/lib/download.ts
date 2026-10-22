@@ -1,7 +1,23 @@
-/** Renders an inline SVG to a PNG at `scale`× and downloads it. */
-export async function downloadSvgAsPng(svg: SVGSVGElement, filename: string, scale = 3): Promise<void> {
-  const { width, height } = svg.viewBox.baseVal
-  const xml = new XMLSerializer().serializeToString(svg)
+const TITLE_BAND = 34
+
+/**
+ * Renders an inline SVG to a PNG at `scale`× and downloads it. A `title` is
+ * drawn in a band above the image, so the file says which chart it is.
+ */
+export async function downloadSvgAsPng(svg: SVGSVGElement, filename: string, title?: string, scale = 3): Promise<void> {
+  const { width, height: bodyHeight } = svg.viewBox.baseVal
+  const body = svg.cloneNode(true) as SVGSVGElement
+  body.setAttribute('width', String(width))
+  body.setAttribute('height', String(bodyHeight))
+  body.removeAttribute('style')
+
+  const band = title ? TITLE_BAND : 0
+  const height = bodyHeight + band
+  const escape = (t: string) => t.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]!)
+  const xml = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`
+    + `<rect width="${width}" height="${height}" fill="#FFFFFF"/>`
+    + (title ? `<text x="${width / 2}" y="22" text-anchor="middle" font-family="Cinzel, Georgia, serif" font-size="15" font-weight="700" fill="#8B1E1E">${escape(title)}</text>` : '')
+    + `<g transform="translate(0,${band})">${new XMLSerializer().serializeToString(body)}</g></svg>`
   const img = new Image()
   img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(xml)}`
   await img.decode()

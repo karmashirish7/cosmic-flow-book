@@ -156,6 +156,11 @@ const houseOf = (rashi: number, lagnaRashi: number) => ((rashi - lagnaRashi + 12
 
 // ─── Birth form ───────────────────────────────────────────────────────────────
 
+/** Chart card header: the D1 title box and the varga dropdown look identical. */
+const chartLabelClass = 'mb-1 block text-[11px] uppercase tracking-wider text-muted-foreground'
+const chartHeaderClass = 'mb-3 flex h-11 w-full items-center rounded-lg border border-border/50 bg-input/50 px-3 font-serif text-sm sm:text-base font-semibold text-gold'
+const vargaLabel = (v: { key: string; name: string; signifies: string }) => `${v.key} · ${v.name} (${v.signifies})`
+
 const inputClass = 'bg-input/50 border-border/50 text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/30'
 const selectClass = `flex h-10 w-full rounded-md border px-3 py-2 text-sm ${inputClass}`
 
@@ -476,8 +481,8 @@ function Results({ details, data, onReset }: { details: BirthDetails; data: Kund
   const d9 = vargaCharts.D9
   const dashaNow = currentDasha.slice(0, 3).map(p => grahaName(p.lord)).join(' – ')  // MD – AD – PD
 
-  const savePng = (svg: SVGSVGElement | null, key: string) => {
-    if (svg) downloadSvgAsPng(svg, `${fileBase}-${key.toLowerCase()}.png`).catch(e => alert((e as Error).message))
+  const savePng = (svg: SVGSVGElement | null, key: string, title: string) => {
+    if (svg) downloadSvgAsPng(svg, `${fileBase}-${key.toLowerCase()}.png`, title).catch(e => alert((e as Error).message))
   }
 
   return (
@@ -538,27 +543,33 @@ function Results({ details, data, onReset }: { details: BirthDetails; data: Kund
 
       {/* D1 + selected varga */}
       <section className="grid md:grid-cols-2 gap-4 sm:gap-6 print:hidden">
+        {/* Both cards share one layout: label, a header box of equal height, chart, download. */}
         <div className="glass rounded-2xl p-3 sm:p-4">
-          <KundaliChart ref={rashiRef} title="D1 · Rashi (Lagna)" lagnaSign={lagnaRashi}
+          <span className={chartLabelClass}>Birth chart</span>
+          <div className={chartHeaderClass}>
+            <span className="truncate">D1 · Rashi (Lagna chart)</span>
+          </div>
+          <KundaliChart ref={rashiRef} title="D1 · Rashi" showTitle={false} lagnaSign={lagnaRashi}
             houses={d1.houses} degrees={d1.degrees} retrograde={d1.retrograde} />
-          <button type="button" onClick={() => savePng(rashiRef.current, 'D1')}
+          <button type="button" onClick={() => savePng(rashiRef.current, 'D1', 'D1 · Rashi (Lagna chart)')}
             className="mt-3 inline-flex items-center gap-1.5 text-xs text-gold hover:underline">
             <Download className="h-3.5 w-3.5" /> Download PNG
           </button>
         </div>
         <div className="glass rounded-2xl p-3 sm:p-4">
-          <label className="mb-3 block">
-            <span className="mb-1 block text-[11px] uppercase tracking-wider text-muted-foreground">Divisional chart</span>
-            <select value={varga} onChange={e => setVarga(e.target.value)}
-              className={`${selectClass} font-semibold`}>
+          <label htmlFor="varga-select" className={chartLabelClass}>Divisional chart</label>
+          <div className="relative">
+            <select id="varga-select" value={varga} onChange={e => setVarga(e.target.value)}
+              className={`${chartHeaderClass} appearance-none cursor-pointer pr-9 focus:outline-none focus:border-primary`}>
               {VARGAS.filter(v => v.key !== 'D1' && vargaCharts[v.key]).map(v => (
-                <option key={v.key} value={v.key}>{v.key} · {v.name} — {v.signifies}</option>
+                <option key={v.key} value={v.key}>{vargaLabel(v)}</option>
               ))}
             </select>
-          </label>
-          <KundaliChart ref={vargaRef} title={`${selected.key} · ${selected.name}`}
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gold" />
+          </div>
+          <KundaliChart ref={vargaRef} title={`${selected.key} · ${selected.name}`} showTitle={false}
             lagnaSign={vargaCharts[varga].lagna} houses={vargaCharts[varga].houses} />
-          <button type="button" onClick={() => savePng(vargaRef.current, varga)}
+          <button type="button" onClick={() => savePng(vargaRef.current, varga, vargaLabel(selected))}
             className="mt-3 inline-flex items-center gap-1.5 text-xs text-gold hover:underline">
             <Download className="h-3.5 w-3.5" /> Download PNG
           </button>
