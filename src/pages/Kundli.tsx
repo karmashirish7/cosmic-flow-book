@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { searchCities, type City } from '@/lib/cities'
 import { downloadSvgAsPng, slugify } from '@/lib/download'
+import { panchangAt } from '@/lib/panchang'
 import { ASTROKARMAZ } from '@/brand'
 
 // ─── API shapes (Akashvani Partner API, trimmed by /api/kundli) ───────────────
@@ -52,6 +53,13 @@ interface KundliResponse {
   }
   currentDasha: DashaPeriod[]
   dashas: DashaPeriod[]
+  /** The Vedic day of the birth (sunrise to sunrise); null if the API could not provide it */
+  panchang: {
+    date: { ad: string; bs: string | null }
+    vaar: { number: number; name: string; nameNe: string }
+    sunrise: string
+    sunset: string
+  } | null
 }
 
 interface BirthDetails {
@@ -421,6 +429,19 @@ function DashaTable({ dashas }: { dashas: DashaPeriod[] }) {
   )
 }
 
+function SummaryGrid({ items, className = '' }: { items: [string, string][]; className?: string }) {
+  return (
+    <dl className={`grid grid-cols-2 gap-x-4 gap-y-3 text-sm ${className}`}>
+      {items.map(([k, v]) => (
+        <div key={k}>
+          <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">{k}</dt>
+          <dd className="font-semibold mt-0.5">{v}</dd>
+        </div>
+      ))}
+    </dl>
+  )
+}
+
 function Results({ details, data, onReset }: { details: BirthDetails; data: KundliResponse; onReset: () => void }) {
   const [varga, setVarga] = useState('D9')
   const rashiRef = useRef<SVGSVGElement>(null)
@@ -448,6 +469,10 @@ function Results({ details, data, onReset }: { details: BirthDetails; data: Kund
   const fileBase = slugify(details.name || `kundli-${details.year}-${details.month}-${details.day}`)
   const selected = VARGAS.find(v => v.key === varga)!
   const moon = chart.positions.find(p => p.graha === 'moon')
+  const sun = chart.positions.find(p => p.graha === 'sun')
+  const birthPanchang = sun && moon ? panchangAt(sun.longitude, moon.longitude) : null
+  const localTime = (iso: string) =>
+    new Date(iso).toLocaleTimeString('en-GB', { timeZone: chart.tzId, hour: '2-digit', minute: '2-digit' })
   const d9 = vargaCharts.D9
   const dashaNow = currentDasha.slice(0, 3).map(p => grahaName(p.lord)).join(' – ')  // MD – AD – PD
 
@@ -483,19 +508,29 @@ function Results({ details, data, onReset }: { details: BirthDetails; data: Kund
             </button>
           </div>
         </div>
-        <dl className="mt-5 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-          {[
-            ['Lagna', chart.lagna ? `${RASHIS[chart.lagna.rashi - 1]} ${dms(chart.lagna.degreeInRashi)}` : '—'],
-            ['Moon sign', moon ? RASHIS[moon.rashi - 1] : '—'],
-            ['Nakshatra', moon ? `${NAKSHATRAS[moon.nakshatra - 1]} (pada ${moon.pada})` : '—'],
-            ['Current dasha', dashaNow || '—'],
-          ].map(([k, v]) => (
-            <div key={k}>
-              <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">{k}</dt>
-              <dd className="font-semibold mt-0.5">{v}</dd>
-            </div>
-          ))}
-        </dl>
+        <SummaryGrid className="mt-5 md:grid-cols-5" items={[
+          ['Lagna', chart.lagna ? `${RASHIS[chart.lagna.rashi - 1]} ${dms(chart.lagna.degreeInRashi)}` : '—'],
+          ['Rashi (Moon sign)', moon ? RASHIS[moon.rashi - 1] : '—'],
+          ['Sun sign', sun ? RASHIS[sun.rashi - 1] : '—'],
+          ['Nakshatra', moon ? `${NAKSHATRAS[moon.nakshatra - 1]} (pada ${moon.pada})` : '—'],
+          ['Current dasha', dashaNow || '—'],
+        ]} />
+
+        {birthPanchang && (
+          <div className="mt-5 border-t border-border/50 pt-4">
+            <h3 className="font-serif text-sm font-semibold text-gold mb-3">Panchang at birth</h3>
+            <SummaryGrid className="md:grid-cols-4" items={[
+              ['Vaar', data.panchang ? `${data.panchang.vaar.name} (${data.panchang.vaar.nameNe})` : '—'],
+              ['Tithi', birthPanchang.tithi.name],
+              ['Nakshatra', NAKSHATRAS[birthPanchang.nakshatra - 1]],
+              ['Yoga', birthPanchang.yoga.name],
+              ['Karana', birthPanchang.karana],
+              ['Paksha', `${birthPanchang.tithi.paksha} paksha`],
+              ['Sunrise', data.panchang ? localTime(data.panchang.sunrise) : '—'],
+              ['Sunset', data.panchang ? localTime(data.panchang.sunset) : '—'],
+            ]} />
+          </div>
+        )}
         <p className="mt-4 text-[11px] text-muted-foreground">
           Ayanamsa {chart.ayanamsa.toFixed(4)}° (True Chitra Paksha) · whole-sign houses · mean nodes · Akashvani engine {data.engineVersion}
         </p>

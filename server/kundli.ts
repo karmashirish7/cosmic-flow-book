@@ -35,6 +35,43 @@ const INPUT_ERRORS: Record<string, string> = {
   BS_OUT_OF_RANGE: 'This Nepali (BS) date is outside the supported range. Please enter the date in AD instead.',
 }
 
+/** YYYY-MM-DD of an instant on the wall calendar of `tz`. */
+const localDate = (iso: string, tz: string) =>
+  new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(iso))
+
+const previousDate = (ymd: string) => {
+  const [y, m, d] = ymd.split('-').map(Number)
+  return new Date(Date.UTC(y, m - 1, d - 1)).toISOString().slice(0, 10)
+}
+
+/**
+ * The panchang of the Vedic day the birth falls in. That day runs sunrise to
+ * sunrise, so a birth before sunrise belongs to the previous civil date.
+ * Optional: a failure here (e.g. a key without the `panchang` scope) is logged
+ * and the chart is still returned.
+ */
+async function birthDayPanchang(base: string, key: string, utcInstant: string, tz: string | undefined, lat: number, lon: number) {
+  if (!utcInstant || !tz) return null
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const fetchDay = async (date: string): Promise<any> => {
+    const q = new URLSearchParams({ date, lat: String(lat), lon: String(lon), tz })
+    const res = await fetch(`${base}/panchang?${q}`, { headers: { 'X-API-Key': key } })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const body: any = await res.json().catch(() => null)
+    if (!res.ok || !body?.data?.panchang) throw new Error(`${res.status} ${body?.error?.code ?? ''} ${body?.error?.message ?? ''}`)
+    return body.data.panchang
+  }
+
+  try {
+    let day = await fetchDay(localDate(utcInstant, tz))
+    if (Date.parse(utcInstant) < Date.parse(day.sunrise)) day = await fetchDay(previousDate(day.date.ad))
+    return { date: day.date, vaar: day.vaar, sunrise: day.sunrise, sunset: day.sunset }
+  } catch (e) {
+    console.error('[kundli] panchang unavailable:', (e as Error).message)
+    return null
+  }
+}
+
 export async function handleKundli(req: Request, env: KundliEnv): Promise<Response> {
   if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405)
 
@@ -89,7 +126,9 @@ export async function handleKundli(req: Request, env: KundliEnv): Promise<Respon
 
   // Pass on only what the page shows (the yogini tree and engine internals stay behind).
   const { chart, currentDasha, dashas, engineVersion } = payload.data
+  const panchang = await birthDayPanchang(base, key, chart.utcInstant, chart.place?.tzId, lat, lon)
   return json({
+    panchang,
     engineVersion,
     chart: {
       ayanamsa: chart.ayanamsa,
