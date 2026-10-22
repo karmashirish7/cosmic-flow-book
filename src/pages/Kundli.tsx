@@ -6,72 +6,150 @@ import KundaliChart from '@/components/KundaliChart'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { searchCities, type City } from '@/lib/cities'
-import { VARGAS, buildVargaChart, divisionOf } from '@/lib/vargas'
 import { downloadSvgAsPng, slugify } from '@/lib/download'
 import { ASTROKARMAZ } from '@/brand'
 
-// ─── API shapes (from the Akashvani API via /api/kundli) ──────────────────────
+// ─── API shapes (Akashvani Partner API, trimmed by /api/kundli) ───────────────
 
-interface Position {
+type Graha = 'sun' | 'moon' | 'mars' | 'mercury' | 'jupiter' | 'venus' | 'saturn' | 'rahu' | 'ketu'
+
+interface GrahaPosition {
+  graha: Graha
   longitude: number
-  sign: string
-  signNumber: number
-  degrees: number
-  dms: string
-  nakshatra: string
-  nakshatraPada: number
+  rashi: number
+  degreeInRashi: number
+  nakshatra: number
+  pada: number
+  retrograde: boolean
+  combust: boolean
+  dignity: string
+  house: number
 }
 
-interface Antardasha { lord: string; start: string; end: string }
-interface Mahadasha extends Antardasha { years: number; antardashas: Antardasha[] }
+interface VargaChart {
+  varga: string
+  lagnaRashi: number | null
+  positions: { graha: Graha; rashi: number; vargottama?: boolean }[]
+}
+
+interface DashaPeriod {
+  lord: string
+  from: string
+  to: string
+  level: number
+  children?: DashaPeriod[]
+}
 
 interface KundliResponse {
+  engineVersion: string
   chart: {
     ayanamsa: number
-    lagna: Position
-    lagnaSign: number
-    planets: Record<string, Position>
-    houseNumbers: Record<string, number>
+    utcInstant: string
+    tzId: string
+    lagna: { longitude: number; rashi: number; degreeInRashi: number } | null
+    positions: GrahaPosition[]
+    vargas: VargaChart[]
   }
-  dashas: Mahadasha[]
+  currentDasha: DashaPeriod[]
+  dashas: DashaPeriod[]
 }
 
 interface BirthDetails {
   name: string
-  birthDate: string
-  birthTime: string
+  calendar: 'AD' | 'BS'
+  year: number
+  month: number
+  day: number
+  hour: number
+  minute: number
   place: string
   lat: number
   lon: number
-  timezone: string
 }
 
-const SIGN_NAMES = [
+// ─── Reference data ───────────────────────────────────────────────────────────
+
+const RASHIS = [
   'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
   'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces',
 ]
 
-const PLANET_ORDER = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn', 'Rahu', 'Ketu']
+const NAKSHATRAS = [
+  'Ashwini', 'Bharani', 'Krittika', 'Rohini', 'Mrigashira', 'Ardra',
+  'Punarvasu', 'Pushya', 'Ashlesha', 'Magha', 'Purva Phalguni', 'Uttara Phalguni',
+  'Hasta', 'Chitra', 'Swati', 'Vishakha', 'Anuradha', 'Jyeshtha',
+  'Mula', 'Purva Ashadha', 'Uttara Ashadha', 'Shravana', 'Dhanishtha', 'Shatabhisha',
+  'Purva Bhadrapada', 'Uttara Bhadrapada', 'Revati',
+]
+
+const BS_MONTHS = [
+  'Baisakh', 'Jestha', 'Asar', 'Shrawan', 'Bhadra', 'Ashwin',
+  'Kartik', 'Mangsir', 'Poush', 'Magh', 'Falgun', 'Chaitra',
+]
+
+const GRAHA_NAMES: Record<Graha, string> = {
+  sun: 'Sun', moon: 'Moon', mars: 'Mars', mercury: 'Mercury', jupiter: 'Jupiter',
+  venus: 'Venus', saturn: 'Saturn', rahu: 'Rahu', ketu: 'Ketu',
+}
+
+const VARGAS: { key: string; name: string; signifies: string }[] = [
+  { key: 'D1',  name: 'Rashi',          signifies: 'Body, overall life' },
+  { key: 'D2',  name: 'Hora',           signifies: 'Wealth' },
+  { key: 'D3',  name: 'Drekkana',       signifies: 'Siblings, courage' },
+  { key: 'D4',  name: 'Chaturthamsa',   signifies: 'Property, fortune' },
+  { key: 'D7',  name: 'Saptamsa',       signifies: 'Children' },
+  { key: 'D9',  name: 'Navamsa',        signifies: 'Spouse, dharma' },
+  { key: 'D10', name: 'Dasamsa',        signifies: 'Career' },
+  { key: 'D12', name: 'Dwadasamsa',     signifies: 'Parents' },
+  { key: 'D16', name: 'Shodasamsa',     signifies: 'Vehicles, comforts' },
+  { key: 'D20', name: 'Vimsamsa',       signifies: 'Spiritual practice' },
+  { key: 'D24', name: 'Chaturvimsamsa', signifies: 'Education' },
+  { key: 'D27', name: 'Bhamsa',         signifies: 'Strength, stamina' },
+  { key: 'D30', name: 'Trimsamsa',      signifies: 'Misfortunes' },
+  { key: 'D40', name: 'Khavedamsa',     signifies: 'Maternal legacy' },
+  { key: 'D45', name: 'Akshavedamsa',   signifies: 'Paternal legacy' },
+  { key: 'D60', name: 'Shashtiamsa',    signifies: 'Past karma' },
+]
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-/** Nepal moved from +05:30 to +05:45 on 1 Jan 1986; the city list stores today's offset. */
-function suggestTimezone(city: City, birthDate: string): string {
-  if (city.country === 'Nepal' && birthDate && birthDate < '1986-01-01') return '+05:30'
-  return city.tz
+const cityLabel = (c: City) => [c.name, c.state, c.country].filter(Boolean).join(', ')
+const grahaName = (g: string) => GRAHA_NAMES[g as Graha] ?? g
+const pad2 = (n: number) => String(n).padStart(2, '0')
+
+/** 9.6192 → 9°37'09" */
+function dms(deg: number): string {
+  const totalSec = Math.round(deg * 3600)
+  const d = Math.floor(totalSec / 3600)
+  const m = Math.floor((totalSec % 3600) / 60)
+  return `${d}°${pad2(m)}'${pad2(totalSec % 60)}"`
 }
 
-const cityLabel = (c: City) => [c.name, c.state, c.country].filter(Boolean).join(', ')
-
 const fmtDate = (iso: string) =>
-  new Date(`${iso}T00:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+  new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 
-const today = () => new Date().toISOString().slice(0, 10)
-const isCurrent = (p: { start: string; end: string }) => p.start <= today() && today() < p.end
+const fmtBirthDate = (d: BirthDetails) =>
+  d.calendar === 'BS'
+    ? `${d.day} ${BS_MONTHS[d.month - 1]} ${d.year} BS`
+    : new Date(Date.UTC(d.year, d.month - 1, d.day)).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })
+
+const isCurrent = (p: { from: string; to: string }) => {
+  const now = Date.now()
+  return Date.parse(p.from) <= now && now < Date.parse(p.to)
+}
+
+const yearsBetween = (from: string, to: string) =>
+  ((Date.parse(to) - Date.parse(from)) / (365.2425 * 86400000)).toFixed(1)
+
+const todayIso = () => new Date().toISOString().slice(0, 10)
+
+/** House of a rashi counted from the lagna rashi (whole-sign). */
+const houseOf = (rashi: number, lagnaRashi: number) => ((rashi - lagnaRashi + 12) % 12) + 1
 
 // ─── Birth form ───────────────────────────────────────────────────────────────
 
 const inputClass = 'bg-input/50 border-border/50 text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/30'
+const selectClass = `flex h-10 w-full rounded-md border px-3 py-2 text-sm ${inputClass}`
 
 function BirthForm({ loading, error, onSubmit }: {
   loading: boolean
@@ -79,7 +157,11 @@ function BirthForm({ loading, error, onSubmit }: {
   onSubmit: (d: BirthDetails) => void
 }) {
   const [name, setName] = useState('')
-  const [birthDate, setBirthDate] = useState('')
+  const [calendar, setCalendar] = useState<'AD' | 'BS'>('AD')
+  const [adDate, setAdDate] = useState('')
+  const [bsYear, setBsYear] = useState('')
+  const [bsMonth, setBsMonth] = useState('')
+  const [bsDay, setBsDay] = useState('')
   const [birthTime, setBirthTime] = useState('')
   const [query, setQuery] = useState('')
   const [city, setCity] = useState<City | null>(null)
@@ -87,7 +169,6 @@ function BirthForm({ loading, error, onSubmit }: {
   const [manual, setManual] = useState(false)
   const [lat, setLat] = useState('')
   const [lon, setLon] = useState('')
-  const [timezone, setTimezone] = useState('')
   const [formError, setFormError] = useState<string | null>(null)
   const cityRef = useRef<HTMLDivElement>(null)
 
@@ -101,38 +182,36 @@ function BirthForm({ loading, error, onSubmit }: {
     return () => document.removeEventListener('mousedown', close)
   }, [])
 
-  // Re-suggest the offset when the date crosses a historical change (e.g. Nepal 1986).
-  useEffect(() => {
-    if (city && !manual) setTimezone(suggestTimezone(city, birthDate))
-  }, [city, birthDate, manual])
-
   const pickCity = (c: City) => {
     setCity(c)
     setQuery(cityLabel(c))
-    setLat(String(c.lat))
-    setLon(String(c.lon))
     setShowSug(false)
   }
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault()
+    const [y, m, d] = calendar === 'AD'
+      ? adDate.split('-').map(Number)
+      : [Number(bsYear), Number(bsMonth), Number(bsDay)]
+    const [hour, minute] = birthTime.split(':').map(Number)
+    const latN = manual ? Number(lat) : city?.lat
+    const lonN = manual ? Number(lon) : city?.lon
+
     const missing = [
-      !birthDate && 'date of birth',
+      !(y && m && d) && 'date of birth',
       !birthTime && 'time of birth',
       !manual && !city && 'place of birth',
-      manual && (lat === '' || lon === '') && 'latitude and longitude',
-      !/^[+-]\d{1,2}:\d{2}$/.test(timezone) && 'timezone (e.g. +05:45)',
+      manual && (lat === '' || lon === '' || !Number.isFinite(latN) || !Number.isFinite(lonN)) && 'latitude and longitude',
     ].filter(Boolean)
     if (missing.length) { setFormError(`Please fill in: ${missing.join(', ')}.`); return }
     setFormError(null)
+
     onSubmit({
       name: name.trim(),
-      birthDate,
-      birthTime,
+      calendar, year: y, month: m, day: d, hour, minute,
       place: manual ? `${lat}, ${lon}` : cityLabel(city!),
-      lat: Number(lat),
-      lon: Number(lon),
-      timezone,
+      lat: latN!,
+      lon: lonN!,
     })
   }
 
@@ -143,17 +222,42 @@ function BirthForm({ loading, error, onSubmit }: {
           <Label className="text-muted-foreground text-xs mb-1.5 block">Name (optional)</Label>
           <Input className={inputClass} placeholder="e.g. Sita Sharma" value={name} onChange={e => setName(e.target.value)} />
         </div>
-        <div>
+
+        <div className="md:col-span-2">
           <Label className="text-muted-foreground text-xs mb-1.5 block">Date of Birth *</Label>
-          <Input type="date" className={inputClass} value={birthDate} max={today()} onChange={e => setBirthDate(e.target.value)} />
+          <div className="mb-2 inline-flex rounded-lg border border-border p-0.5 text-xs">
+            {(['AD', 'BS'] as const).map(c => (
+              <button key={c} type="button" onClick={() => setCalendar(c)}
+                className={`rounded-md px-3 py-1 font-semibold transition-colors ${calendar === c ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
+                {c === 'AD' ? 'AD (English)' : 'BS (Nepali)'}
+              </button>
+            ))}
+          </div>
+          {calendar === 'AD' ? (
+            <Input type="date" className={inputClass} value={adDate} min="1900-01-01" max={todayIso()} onChange={e => setAdDate(e.target.value)} />
+          ) : (
+            <div className="grid grid-cols-3 gap-2">
+              <Input inputMode="numeric" className={inputClass} placeholder="Year e.g. 2050" value={bsYear}
+                onChange={e => setBsYear(e.target.value.replace(/\D/g, '').slice(0, 4))} />
+              <select className={selectClass} value={bsMonth} onChange={e => setBsMonth(e.target.value)}>
+                <option value="">Month</option>
+                {BS_MONTHS.map((mo, i) => <option key={mo} value={i + 1}>{mo}</option>)}
+              </select>
+              <select className={selectClass} value={bsDay} onChange={e => setBsDay(e.target.value)}>
+                <option value="">Day</option>
+                {Array.from({ length: 32 }, (_, i) => <option key={i} value={i + 1}>{i + 1}</option>)}
+              </select>
+            </div>
+          )}
         </div>
+
         <div>
           <Label className="text-muted-foreground text-xs mb-1.5 block">Time of Birth *</Label>
           <Input type="time" className={inputClass} value={birthTime} onChange={e => setBirthTime(e.target.value)} />
         </div>
 
         {!manual ? (
-          <div ref={cityRef} className="relative md:col-span-2">
+          <div ref={cityRef} className="relative">
             <Label className="text-muted-foreground text-xs mb-1.5 block">Place of Birth *</Label>
             <div className="relative">
               <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
@@ -187,33 +291,26 @@ function BirthForm({ loading, error, onSubmit }: {
             )}
           </div>
         ) : (
-          <>
+          <div className="grid grid-cols-2 gap-2">
             <div>
-              <Label className="text-muted-foreground text-xs mb-1.5 block">Latitude * (N +, S −)</Label>
+              <Label className="text-muted-foreground text-xs mb-1.5 block">Latitude * (N +)</Label>
               <Input inputMode="decimal" className={inputClass} placeholder="27.7172" value={lat} onChange={e => setLat(e.target.value)} />
             </div>
             <div>
-              <Label className="text-muted-foreground text-xs mb-1.5 block">Longitude * (E +, W −)</Label>
+              <Label className="text-muted-foreground text-xs mb-1.5 block">Longitude * (E +)</Label>
               <Input inputMode="decimal" className={inputClass} placeholder="85.3240" value={lon} onChange={e => setLon(e.target.value)} />
             </div>
-          </>
+          </div>
         )}
-
-        <div>
-          <Label className="text-muted-foreground text-xs mb-1.5 block">Timezone (UTC offset) *</Label>
-          <Input className={inputClass} placeholder="+05:45" value={timezone} onChange={e => setTimezone(e.target.value.trim())} />
-        </div>
-        <div className="flex items-end">
-          <button type="button" className="text-xs text-gold underline underline-offset-2 pb-3"
-            onClick={() => { setManual(m => !m); setCity(null); setQuery('') }}>
-            {manual ? 'Search by city instead' : 'Enter coordinates manually'}
-          </button>
-        </div>
       </div>
 
-      <p className="text-[11px] text-muted-foreground leading-relaxed">
-        The timezone is filled from the city. Adjust it if daylight saving or a historical offset applied at birth.
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-muted-foreground">
+        <span>The timezone is worked out from the place, including Nepal's pre-1986 offset.</span>
+        <button type="button" className="text-gold underline underline-offset-2"
+          onClick={() => { setManual(m => !m); setCity(null); setQuery('') }}>
+          {manual ? 'Search by city instead' : 'Enter coordinates manually'}
+        </button>
+      </div>
 
       {(formError || error) && (
         <p className="rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
@@ -232,31 +329,31 @@ function BirthForm({ loading, error, onSubmit }: {
 
 // ─── Results ──────────────────────────────────────────────────────────────────
 
-function DashaTable({ dashas }: { dashas: Mahadasha[] }) {
-  const [open, setOpen] = useState<string | null>(() => dashas.find(isCurrent)?.start ?? null)
+function DashaTable({ dashas }: { dashas: DashaPeriod[] }) {
+  const [open, setOpen] = useState<string | null>(() => dashas.find(isCurrent)?.from ?? null)
 
   return (
     <div className="divide-y divide-border/60 rounded-2xl border border-border/60 overflow-hidden">
       {dashas.map(md => {
         const current = isCurrent(md)
-        const expanded = open === md.start
+        const expanded = open === md.from
         return (
-          <div key={md.start} className="break-inside-avoid">
-            <button type="button" onClick={() => setOpen(expanded ? null : md.start)}
+          <div key={md.from} className="break-inside-avoid">
+            <button type="button" onClick={() => setOpen(expanded ? null : md.from)}
               className={`w-full flex items-center gap-3 px-4 py-3 text-left text-sm transition-colors ${current ? 'bg-secondary' : 'hover:bg-muted'}`}>
-              <span className="font-semibold w-20">{md.lord}</span>
-              <span className="text-muted-foreground flex-1">{fmtDate(md.start)} – {fmtDate(md.end)}</span>
-              <span className="text-xs text-muted-foreground hidden sm:inline">{md.years} yrs</span>
+              <span className="font-semibold w-20">{grahaName(md.lord)}</span>
+              <span className="text-muted-foreground flex-1">{fmtDate(md.from)} – {fmtDate(md.to)}</span>
+              <span className="text-xs text-muted-foreground hidden sm:inline">{yearsBetween(md.from, md.to)} yrs</span>
               {current && <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold text-primary-foreground">Now</span>}
               <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform print:hidden ${expanded ? 'rotate-180' : ''}`} />
             </button>
             {/* Printing expands every period. */}
             <div className={`${expanded ? 'grid' : 'hidden'} print:grid grid-cols-1 sm:grid-cols-3 gap-x-4 gap-y-1 px-4 pb-3 pt-1 bg-muted/40`}>
-              {md.antardashas.map(ad => (
-                <div key={ad.start}
+              {(md.children ?? []).map(ad => (
+                <div key={ad.from}
                   className={`flex justify-between gap-2 rounded-md px-2 py-1 text-xs ${isCurrent(ad) ? 'bg-primary/10 font-semibold text-primary' : 'text-foreground/80'}`}>
-                  <span>{md.lord}–{ad.lord}</span>
-                  <span className="text-muted-foreground">{fmtDate(ad.start)}</span>
+                  <span>{grahaName(md.lord)}–{grahaName(ad.lord)}</span>
+                  <span className="text-muted-foreground">{fmtDate(ad.from)}</span>
                 </div>
               ))}
             </div>
@@ -271,27 +368,31 @@ function Results({ details, data, onReset }: { details: BirthDetails; data: Kund
   const [varga, setVarga] = useState('D9')
   const rashiRef = useRef<SVGSVGElement>(null)
   const vargaRef = useRef<SVGSVGElement>(null)
-  const { chart, dashas } = data
+  const { chart, dashas, currentDasha } = data
+  const lagnaRashi = chart.lagna?.rashi ?? 1
 
-  const longitudes = useMemo(
-    () => Object.fromEntries(PLANET_ORDER.filter(p => chart.planets[p]).map(p => [p, chart.planets[p].longitude])),
-    [chart],
-  )
-  const charts = useMemo(
-    () => Object.fromEntries(VARGAS.map(v => [v.key, buildVargaChart(divisionOf(v.key), chart.lagna.longitude, longitudes)])),
-    [chart, longitudes],
-  )
-  const degrees = useMemo(
-    () => Object.fromEntries(PLANET_ORDER.filter(p => chart.planets[p]).map(p => [p, chart.planets[p].degrees])),
-    [chart],
-  )
+  const d1 = useMemo(() => ({
+    houses: Object.fromEntries(chart.positions.map(p => [grahaName(p.graha), p.house])),
+    degrees: Object.fromEntries(chart.positions.map(p => [grahaName(p.graha), Math.floor(p.degreeInRashi)])),
+    retrograde: Object.fromEntries(chart.positions.map(p => [grahaName(p.graha), p.retrograde])),
+  }), [chart])
+
+  /** Each varga as the chart component needs it: lagna rashi + planet → house. */
+  const vargaCharts = useMemo(() => Object.fromEntries(chart.vargas.map(v => {
+    const lagna = v.lagnaRashi ?? lagnaRashi
+    return [v.varga, {
+      lagna,
+      houses: Object.fromEntries(v.positions.map(p => [grahaName(p.graha), houseOf(p.rashi, lagna)])),
+      positions: v.positions,
+    }]
+  })), [chart, lagnaRashi])
 
   const who = details.name || 'Birth Chart'
-  const fileBase = slugify(details.name || `kundli-${details.birthDate}`)
+  const fileBase = slugify(details.name || `kundli-${details.year}-${details.month}-${details.day}`)
   const selected = VARGAS.find(v => v.key === varga)!
-  const moon = chart.planets.Moon
-  const currentMd = dashas.find(isCurrent)
-  const currentAd = currentMd?.antardashas.find(isCurrent)
+  const moon = chart.positions.find(p => p.graha === 'moon')
+  const d9 = vargaCharts.D9
+  const dashaNow = currentDasha.slice(0, 2).map(p => grahaName(p.lord)).join(' – ')
 
   const savePng = (svg: SVGSVGElement | null, key: string) => {
     if (svg) downloadSvgAsPng(svg, `${fileBase}-${key.toLowerCase()}.png`).catch(e => alert((e as Error).message))
@@ -302,7 +403,7 @@ function Results({ details, data, onReset }: { details: BirthDetails; data: Kund
       {/* Print-only header */}
       <div className="hidden print:flex items-center justify-between border-b border-border pb-3">
         <img src={ASTROKARMAZ.logoPng} alt={ASTROKARMAZ.name} className="h-14 w-auto" />
-        <p className="text-xs text-muted-foreground">Generated {fmtDate(today())}</p>
+        <p className="text-xs text-muted-foreground">Generated {fmtDate(new Date().toISOString())}</p>
       </div>
 
       {/* Summary */}
@@ -311,7 +412,7 @@ function Results({ details, data, onReset }: { details: BirthDetails; data: Kund
           <div>
             <h2 className="font-serif text-2xl font-bold text-gold">{who}</h2>
             <p className="text-sm text-muted-foreground mt-1">
-              {fmtDate(details.birthDate)} · {details.birthTime} (UTC{details.timezone}) · {details.place}
+              {fmtBirthDate(details)} · {pad2(details.hour)}:{pad2(details.minute)} ({chart.tzId}) · {details.place}
             </p>
           </div>
           <div className="flex flex-wrap gap-2 print:hidden">
@@ -327,10 +428,10 @@ function Results({ details, data, onReset }: { details: BirthDetails; data: Kund
         </div>
         <dl className="mt-5 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           {[
-            ['Lagna', `${chart.lagna.sign} ${chart.lagna.dms}`],
-            ['Moon sign', moon?.sign ?? '—'],
-            ['Nakshatra', moon ? `${moon.nakshatra} (pada ${moon.nakshatraPada})` : '—'],
-            ['Current dasha', currentMd ? `${currentMd.lord}${currentAd ? ` – ${currentAd.lord}` : ''}` : '—'],
+            ['Lagna', chart.lagna ? `${RASHIS[chart.lagna.rashi - 1]} ${dms(chart.lagna.degreeInRashi)}` : '—'],
+            ['Moon sign', moon ? RASHIS[moon.rashi - 1] : '—'],
+            ['Nakshatra', moon ? `${NAKSHATRAS[moon.nakshatra - 1]} (pada ${moon.pada})` : '—'],
+            ['Current dasha', dashaNow || '—'],
           ].map(([k, v]) => (
             <div key={k}>
               <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">{k}</dt>
@@ -338,14 +439,16 @@ function Results({ details, data, onReset }: { details: BirthDetails; data: Kund
             </div>
           ))}
         </dl>
-        <p className="mt-4 text-[11px] text-muted-foreground">Lahiri ayanamsa {chart.ayanamsa.toFixed(4)}° · whole-sign houses</p>
+        <p className="mt-4 text-[11px] text-muted-foreground">
+          Ayanamsa {chart.ayanamsa.toFixed(4)}° (True Chitra Paksha) · whole-sign houses · mean nodes · Akashvani engine {data.engineVersion}
+        </p>
       </section>
 
       {/* D1 + selected varga */}
       <section className="grid md:grid-cols-2 gap-6 print:hidden">
         <div className="glass rounded-2xl p-4">
-          <KundaliChart ref={rashiRef} title="D1 · Rashi (Lagna)" lagnaSign={chart.lagnaSign}
-            houses={chart.houseNumbers} degrees={degrees} />
+          <KundaliChart ref={rashiRef} title="D1 · Rashi (Lagna)" lagnaSign={lagnaRashi}
+            houses={d1.houses} degrees={d1.degrees} retrograde={d1.retrograde} />
           <button type="button" onClick={() => savePng(rashiRef.current, 'D1')}
             className="mt-3 inline-flex items-center gap-1.5 text-xs text-gold hover:underline">
             <Download className="h-3.5 w-3.5" /> Download PNG
@@ -353,7 +456,7 @@ function Results({ details, data, onReset }: { details: BirthDetails; data: Kund
         </div>
         <div className="glass rounded-2xl p-4">
           <KundaliChart ref={vargaRef} title={`${selected.key} · ${selected.name}`}
-            lagnaSign={charts[varga].lagnaSign} houses={charts[varga].houses} />
+            lagnaSign={vargaCharts[varga].lagna} houses={vargaCharts[varga].houses} />
           <div className="mt-3 flex items-center justify-between gap-2">
             <span className="text-xs text-muted-foreground">{selected.signifies}</span>
             <button type="button" onClick={() => savePng(vargaRef.current, varga)}
@@ -367,7 +470,7 @@ function Results({ details, data, onReset }: { details: BirthDetails; data: Kund
       <section className="print:hidden">
         <h3 className="font-serif text-lg font-semibold text-gold mb-3">Divisional charts</h3>
         <div className="flex flex-wrap gap-2">
-          {VARGAS.filter(v => v.key !== 'D1').map(v => (
+          {VARGAS.filter(v => v.key !== 'D1' && vargaCharts[v.key]).map(v => (
             <button key={v.key} type="button" onClick={() => setVarga(v.key)} title={v.signifies}
               className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${v.key === varga
                 ? 'border-primary bg-primary text-primary-foreground'
@@ -385,26 +488,44 @@ function Results({ details, data, onReset }: { details: BirthDetails; data: Kund
           <table className="w-full text-sm">
             <thead className="bg-secondary text-left text-xs uppercase tracking-wider text-secondary-foreground">
               <tr>
-                {['Planet', 'Sign', 'Degree', 'Nakshatra', 'Pada', 'House', 'D9 sign'].map(h => (
+                {['Planet', 'Sign', 'Degree', 'Nakshatra', 'House', 'Dignity', 'D9 sign'].map(h => (
                   <th key={h} className="px-4 py-2.5 font-semibold whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody className="divide-y divide-border/60">
-              {[['Lagna', chart.lagna] as const, ...PLANET_ORDER.filter(p => chart.planets[p]).map(p => [p, chart.planets[p]] as const)]
-                .map(([p, pos]) => (
-                  <tr key={p}>
-                    <td className="px-4 py-2 font-semibold">{p}</td>
-                    <td className="px-4 py-2">{pos.sign}</td>
-                    <td className="px-4 py-2 font-mono text-xs">{pos.dms}</td>
-                    <td className="px-4 py-2">{pos.nakshatra}</td>
-                    <td className="px-4 py-2">{pos.nakshatraPada}</td>
-                    <td className="px-4 py-2">{p === 'Lagna' ? 1 : chart.houseNumbers[p]}</td>
-                    <td className="px-4 py-2">
-                      {SIGN_NAMES[(p === 'Lagna' ? charts.D9.lagnaSign : charts.D9.signs[p]) - 1]}
+              {chart.lagna && (
+                <tr>
+                  <td className="px-4 py-2 font-semibold">Lagna</td>
+                  <td className="px-4 py-2">{RASHIS[chart.lagna.rashi - 1]}</td>
+                  <td className="px-4 py-2 font-mono text-xs">{dms(chart.lagna.degreeInRashi)}</td>
+                  <td className="px-4 py-2">{NAKSHATRAS[Math.floor(chart.lagna.longitude / (360 / 27))]}</td>
+                  <td className="px-4 py-2">1</td>
+                  <td className="px-4 py-2">—</td>
+                  <td className="px-4 py-2">{d9 ? RASHIS[d9.lagna - 1] : '—'}</td>
+                </tr>
+              )}
+              {chart.positions.map(p => {
+                const nav = d9?.positions.find(x => x.graha === p.graha)
+                const flags = [p.retrograde && 'R', p.combust && 'combust'].filter(Boolean).join(', ')
+                return (
+                  <tr key={p.graha}>
+                    <td className="px-4 py-2 font-semibold whitespace-nowrap">
+                      {grahaName(p.graha)}
+                      {flags && <span className="ml-1 text-[10px] font-medium text-primary">({flags})</span>}
+                    </td>
+                    <td className="px-4 py-2">{RASHIS[p.rashi - 1]}</td>
+                    <td className="px-4 py-2 font-mono text-xs">{dms(p.degreeInRashi)}</td>
+                    <td className="px-4 py-2 whitespace-nowrap">{NAKSHATRAS[p.nakshatra - 1]} · {p.pada}</td>
+                    <td className="px-4 py-2">{p.house || '—'}</td>
+                    <td className="px-4 py-2 capitalize whitespace-nowrap">{p.dignity.replace('_', ' ')}</td>
+                    <td className="px-4 py-2 whitespace-nowrap">
+                      {nav ? RASHIS[nav.rashi - 1] : '—'}
+                      {nav?.vargottama && <span className="ml-1 text-[10px] font-medium text-primary">vargottama</span>}
                     </td>
                   </tr>
-                ))}
+                )
+              })}
             </tbody>
           </table>
         </div>
@@ -420,10 +541,15 @@ function Results({ details, data, onReset }: { details: BirthDetails; data: Kund
       <section className="hidden print:block" style={{ breakBefore: 'page' }}>
         <h3 className="font-serif text-lg font-semibold text-gold mb-3">Divisional charts</h3>
         <div className="grid grid-cols-3 gap-4">
-          {VARGAS.map(v => (
+          {VARGAS.filter(v => vargaCharts[v.key]).map(v => (
             <div key={v.key} className="break-inside-avoid">
-              <KundaliChart title={`${v.key} · ${v.name}`} lagnaSign={charts[v.key].lagnaSign}
-                houses={charts[v.key].houses} degrees={v.key === 'D1' ? degrees : undefined} />
+              {v.key === 'D1' ? (
+                <KundaliChart title="D1 · Rashi" lagnaSign={lagnaRashi} houses={d1.houses}
+                  degrees={d1.degrees} retrograde={d1.retrograde} />
+              ) : (
+                <KundaliChart title={`${v.key} · ${v.name}`} lagnaSign={vargaCharts[v.key].lagna}
+                  houses={vargaCharts[v.key].houses} />
+              )}
             </div>
           ))}
         </div>
@@ -453,7 +579,10 @@ export default function Kundli() {
       const res = await fetch('/api/kundli', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ birthDate: d.birthDate, birthTime: d.birthTime, timezone: d.timezone, lat: d.lat, lon: d.lon }),
+        body: JSON.stringify({
+          calendar: d.calendar, year: d.year, month: d.month, day: d.day,
+          hour: d.hour, minute: d.minute, lat: d.lat, lon: d.lon, placeName: d.place,
+        }),
       })
       const body = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(body.error ?? `Request failed (${res.status})`)

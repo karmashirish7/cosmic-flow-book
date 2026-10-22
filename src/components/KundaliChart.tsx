@@ -41,9 +41,10 @@ interface Props {
   lagnaSign: number
   houses: Record<string, number>
   degrees?: Record<string, number>
+  retrograde?: Record<string, boolean>
 }
 
-const KundaliChart = forwardRef<SVGSVGElement, Props>(({ title, lagnaSign, houses, degrees }, ref) => (
+const KundaliChart = forwardRef<SVGSVGElement, Props>(({ title, lagnaSign, houses, degrees, retrograde }, ref) => (
   <svg
     ref={ref}
     viewBox="0 0 400 430"
@@ -72,7 +73,8 @@ const KundaliChart = forwardRef<SVGSVGElement, Props>(({ title, lagnaSign, house
             <text x={x} y={startY} fontSize={11} fontWeight={600} fill="#9CA3AF">{sign}</text>
             {lines.map((p, i) => {
               const deg = degrees?.[p]
-              const label = p === 'Asc' ? 'Asc' : `${PLANET_ABBR[p] ?? p}${deg !== undefined ? ` ${deg}°` : ''}`
+              const label = p === 'Asc' ? 'Asc'
+                : `${PLANET_ABBR[p] ?? p}${deg !== undefined ? ` ${deg}°` : ''}${retrograde?.[p] ? ' R' : ''}`
               return (
                 <text key={p} x={x} y={startY + lineH * (i + 1)} fontSize={11} fontWeight={700}
                   fill={p === 'Asc' ? LINE : PLANET_COLORS[p] ?? '#111827'}>

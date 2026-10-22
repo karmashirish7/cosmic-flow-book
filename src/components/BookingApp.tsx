@@ -165,12 +165,12 @@ const BookingApp = ({ brand, themeClass, showStarField = true }: BookingAppProps
                     </button>
                   </div>
 
-                  <div className="px-4 mb-2 flex justify-center">
+                  <div className="px-4 mt-3 mb-2 flex justify-center md:hidden">
                     <Link
                       to="/kundli"
-                      className="inline-flex items-center gap-1.5 text-xs font-medium text-gold underline-offset-2 hover:underline"
+                      className="btn-primary-glow inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm tracking-wide"
                     >
-                      <Sparkles className="h-3.5 w-3.5" /> Generate your free Kundli, dasha &amp; divisional charts
+                      <Sparkles className="h-4 w-4" /> Generate Kundli
                     </Link>
                   </div>
 
