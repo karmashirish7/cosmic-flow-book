@@ -1,14 +1,19 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "cosmic-flow-book",
+  "main": "worker/index.ts",
   "compatibility_date": "2026-05-09",
   "observability": {
     "enabled": true
   },
   "assets": {
     "directory": "./dist",
-    "not_found_handling": "single-page-application"
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
   },
+  // AKASHVANI_API_URL and AKASHVANI_API_KEY are secrets — set them with
+  // `npx wrangler secret put <NAME>`, never here. Locally they live in .dev.vars.
   "compatibility_flags": [
     "nodejs_compat"
   ]

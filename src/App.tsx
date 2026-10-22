@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-route
 import { useEffect } from "react";
 import AstroKarmaz from "./pages/AstroKarmaz";
 import AiPredictor from "./pages/AiPredictor";
+import Kundli from "./pages/Kundli";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
           {/* Legacy link — the Astrokarmaz site now lives at the root. */}
           <Route path="/astrokarmaz" element={<Navigate to="/" replace />} />
           <Route path="/ai-predictor" element={<AiPredictor />} />
+          <Route path="/kundli" element={<Kundli />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

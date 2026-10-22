@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
-import { MapPin, Globe2 } from "lucide-react";
+import { Link } from "react-router-dom";
+import { MapPin, Globe2, Sparkles } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import StarField from "@/components/StarField";
 import RegionGate from "@/components/RegionGate";
@@ -162,6 +163,15 @@ const BookingApp = ({ brand, themeClass, showStarField = true }: BookingAppProps
                       </span>
                       <span className="text-gold underline underline-offset-2">Change</span>
                     </button>
+                  </div>
+
+                  <div className="px-4 mb-2 flex justify-center">
+                    <Link
+                      to="/kundli"
+                      className="inline-flex items-center gap-1.5 text-xs font-medium text-gold underline-offset-2 hover:underline"
+                    >
+                      <Sparkles className="h-3.5 w-3.5" /> Generate your free Kundli, dasha &amp; divisional charts
+                    </Link>
                   </div>
 
                   <BookingForm region={region} onSubmit={handleBookingSubmit} />
