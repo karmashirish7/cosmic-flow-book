@@ -40,13 +40,15 @@ interface Props {
   title: string
   /** Draw the title above the chart (print). On screen the card header names the chart instead. */
   showTitle?: boolean
+  /** Larger lettering for small renders (PDF divisional-chart grid); best without degrees */
+  compact?: boolean
   lagnaSign: number
   houses: Record<string, number>
   degrees?: Record<string, number>
   retrograde?: Record<string, boolean>
 }
 
-const KundaliChart = forwardRef<SVGSVGElement, Props>(({ title, showTitle = true, lagnaSign, houses, degrees, retrograde }, ref) => (
+const KundaliChart = forwardRef<SVGSVGElement, Props>(({ title, showTitle = true, compact = false, lagnaSign, houses, degrees, retrograde }, ref) => (
   <svg
     ref={ref}
     viewBox={`0 0 400 ${showTitle ? 430 : 400}`}
@@ -67,18 +69,19 @@ const KundaliChart = forwardRef<SVGSVGElement, Props>(({ title, showTitle = true
         const sign = ((lagnaSign - 1 + house - 1) % 12) + 1
         const inHouse = Object.entries(houses).filter(([, h]) => h === house).map(([p]) => p)
         const lines = [house === 1 ? 'Asc' : null, ...inHouse].filter(Boolean) as string[]
-        const lineH = 13
+        const fontSize = compact ? 14 : 11
+        const lineH = compact ? 15 : 13
         const startY = y - ((lines.length + 1) * lineH) / 2 + lineH / 2
 
         return (
           <g key={house} fontFamily="Inter, Arial, sans-serif" textAnchor="middle" dominantBaseline="middle">
-            <text x={x} y={startY} fontSize={11} fontWeight={600} fill="#9CA3AF">{sign}</text>
+            <text x={x} y={startY} fontSize={fontSize - 1} fontWeight={600} fill="#9CA3AF">{sign}</text>
             {lines.map((p, i) => {
               const deg = degrees?.[p]
               const label = p === 'Asc' ? 'Asc'
                 : `${PLANET_ABBR[p] ?? p}${deg !== undefined ? ` ${deg}°` : ''}${retrograde?.[p] ? ' R' : ''}`
               return (
-                <text key={p} x={x} y={startY + lineH * (i + 1)} fontSize={11} fontWeight={700}
+                <text key={p} x={x} y={startY + lineH * (i + 1)} fontSize={fontSize} fontWeight={700}
                   fill={p === 'Asc' ? LINE : PLANET_COLORS[p] ?? '#111827'}>
                   {label}
                 </text>
