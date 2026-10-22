@@ -216,7 +216,7 @@ function BirthForm({ loading, error, onSubmit }: {
   }
 
   return (
-    <form onSubmit={submit} className="glass-strong rounded-2xl p-6 md:p-10 space-y-5 max-w-2xl mx-auto">
+    <form onSubmit={submit} className="glass-strong rounded-2xl p-4 sm:p-6 md:p-10 space-y-5 max-w-2xl mx-auto">
       <div className="grid md:grid-cols-2 gap-4">
         <div className="md:col-span-2">
           <Label className="text-muted-foreground text-xs mb-1.5 block">Name (optional)</Label>
@@ -237,7 +237,7 @@ function BirthForm({ loading, error, onSubmit }: {
             <Input type="date" className={inputClass} value={adDate} min="1900-01-01" max={todayIso()} onChange={e => setAdDate(e.target.value)} />
           ) : (
             <div className="grid grid-cols-3 gap-2">
-              <Input inputMode="numeric" className={inputClass} placeholder="Year e.g. 2050" value={bsYear}
+              <Input inputMode="numeric" className={inputClass} placeholder="Year" value={bsYear}
                 onChange={e => setBsYear(e.target.value.replace(/\D/g, '').slice(0, 4))} />
               <select className={selectClass} value={bsMonth} onChange={e => setBsMonth(e.target.value)}>
                 <option value="">Month</option>
@@ -329,33 +329,90 @@ function BirthForm({ loading, error, onSubmit }: {
 
 // ─── Results ──────────────────────────────────────────────────────────────────
 
+const NowBadge = () => (
+  <span className="shrink-0 rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold text-primary-foreground">Now</span>
+)
+
+/** One period row: lord, dates (under the lord on phones), Now badge, chevron. */
+function PeriodRow({ label, period, expanded, expandable, onToggle, className }: {
+  label: string
+  period: DashaPeriod
+  expanded: boolean
+  expandable: boolean
+  onToggle: () => void
+  className: string
+}) {
+  const current = isCurrent(period)
+  return (
+    <button type="button" onClick={onToggle} disabled={!expandable}
+      className={`w-full flex items-center gap-2 sm:gap-3 text-left transition-colors ${current ? 'bg-secondary' : expandable ? 'hover:bg-muted' : ''} ${className}`}>
+      <span className="flex-1 min-w-0 sm:flex sm:items-center sm:gap-3">
+        <span className="block font-semibold sm:w-36 sm:shrink-0 truncate">{label}</span>
+        <span className="block text-xs sm:text-[inherit] text-muted-foreground">
+          {fmtDate(period.from)} – {fmtDate(period.to)}
+        </span>
+      </span>
+      {period.level === 1 && (
+        <span className="hidden sm:inline text-xs text-muted-foreground">{yearsBetween(period.from, period.to)} yrs</span>
+      )}
+      {current && <NowBadge />}
+      {expandable && (
+        <ChevronDown className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform print:hidden ${expanded ? 'rotate-180' : ''}`} />
+      )}
+    </button>
+  )
+}
+
+/** Mahadasha → antardasha → pratyantardasha. Opens on the periods running now. */
 function DashaTable({ dashas }: { dashas: DashaPeriod[] }) {
-  const [open, setOpen] = useState<string | null>(() => dashas.find(isCurrent)?.from ?? null)
+  const [openMd, setOpenMd] = useState<string | null>(() => dashas.find(isCurrent)?.from ?? null)
+  const [openAd, setOpenAd] = useState<string | null>(
+    () => dashas.find(isCurrent)?.children?.find(isCurrent)?.from ?? null,
+  )
 
   return (
     <div className="divide-y divide-border/60 rounded-2xl border border-border/60 overflow-hidden">
       {dashas.map(md => {
-        const current = isCurrent(md)
-        const expanded = open === md.from
+        const mdOpen = openMd === md.from
         return (
-          <div key={md.from} className="break-inside-avoid">
-            <button type="button" onClick={() => setOpen(expanded ? null : md.from)}
-              className={`w-full flex items-center gap-3 px-4 py-3 text-left text-sm transition-colors ${current ? 'bg-secondary' : 'hover:bg-muted'}`}>
-              <span className="font-semibold w-20">{grahaName(md.lord)}</span>
-              <span className="text-muted-foreground flex-1">{fmtDate(md.from)} – {fmtDate(md.to)}</span>
-              <span className="text-xs text-muted-foreground hidden sm:inline">{yearsBetween(md.from, md.to)} yrs</span>
-              {current && <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold text-primary-foreground">Now</span>}
-              <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform print:hidden ${expanded ? 'rotate-180' : ''}`} />
-            </button>
-            {/* Printing expands every period. */}
-            <div className={`${expanded ? 'grid' : 'hidden'} print:grid grid-cols-1 sm:grid-cols-3 gap-x-4 gap-y-1 px-4 pb-3 pt-1 bg-muted/40`}>
-              {(md.children ?? []).map(ad => (
-                <div key={ad.from}
-                  className={`flex justify-between gap-2 rounded-md px-2 py-1 text-xs ${isCurrent(ad) ? 'bg-primary/10 font-semibold text-primary' : 'text-foreground/80'}`}>
-                  <span>{grahaName(md.lord)}–{grahaName(ad.lord)}</span>
-                  <span className="text-muted-foreground">{fmtDate(ad.from)}</span>
-                </div>
-              ))}
+          <div key={md.from}>
+            <PeriodRow label={grahaName(md.lord)} period={md} expanded={mdOpen} expandable={!!md.children?.length}
+              onToggle={() => setOpenMd(mdOpen ? null : md.from)} className="px-4 py-3 text-sm" />
+
+            {/* Printing lists every antardasha; pratyantardashas print only where opened. */}
+            <div className={`${mdOpen ? 'block' : 'hidden'} print:block bg-muted/30 border-t border-border/40 pl-3 sm:pl-6`}>
+              <p className="px-3 pt-2 pb-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+                Antardasha in {grahaName(md.lord)}
+              </p>
+              {(md.children ?? []).map(ad => {
+                const adOpen = openAd === ad.from
+                return (
+                  <div key={ad.from} className="break-inside-avoid">
+                    <PeriodRow label={`${grahaName(md.lord)} – ${grahaName(ad.lord)}`} period={ad}
+                      expanded={adOpen} expandable={!!ad.children?.length}
+                      onToggle={() => setOpenAd(adOpen ? null : ad.from)} className="px-3 py-2 text-xs sm:text-sm rounded-md" />
+
+                    {adOpen && (
+                      <div className="ml-3 sm:ml-6 mb-2 border-l-2 border-primary/30 pl-2">
+                        <p className="px-2 pt-1 pb-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+                          Pratyantardasha
+                        </p>
+                        <div className="max-w-xl">
+                          {(ad.children ?? []).map(pd => (
+                            <div key={pd.from}
+                              className={`flex items-center justify-between gap-2 rounded-md px-2 py-1.5 text-xs ${isCurrent(pd) ? 'bg-primary/10 font-semibold text-primary' : ''}`}>
+                              <span>{grahaName(pd.lord)}</span>
+                              <span className="text-muted-foreground text-right">
+                                {fmtDate(pd.from)} – {fmtDate(pd.to)}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
             </div>
           </div>
         )
@@ -392,7 +449,7 @@ function Results({ details, data, onReset }: { details: BirthDetails; data: Kund
   const selected = VARGAS.find(v => v.key === varga)!
   const moon = chart.positions.find(p => p.graha === 'moon')
   const d9 = vargaCharts.D9
-  const dashaNow = currentDasha.slice(0, 2).map(p => grahaName(p.lord)).join(' – ')
+  const dashaNow = currentDasha.slice(0, 3).map(p => grahaName(p.lord)).join(' – ')  // MD – AD – PD
 
   const savePng = (svg: SVGSVGElement | null, key: string) => {
     if (svg) downloadSvgAsPng(svg, `${fileBase}-${key.toLowerCase()}.png`).catch(e => alert((e as Error).message))
@@ -407,21 +464,21 @@ function Results({ details, data, onReset }: { details: BirthDetails; data: Kund
       </div>
 
       {/* Summary */}
-      <section className="glass rounded-2xl p-6 break-inside-avoid">
+      <section className="glass rounded-2xl p-4 sm:p-6 break-inside-avoid">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h2 className="font-serif text-2xl font-bold text-gold">{who}</h2>
+            <h2 className="font-serif text-xl sm:text-2xl font-bold text-gold break-words">{who}</h2>
             <p className="text-sm text-muted-foreground mt-1">
               {fmtBirthDate(details)} · {pad2(details.hour)}:{pad2(details.minute)} ({chart.tzId}) · {details.place}
             </p>
           </div>
-          <div className="flex flex-wrap gap-2 print:hidden">
+          <div className="grid grid-cols-2 sm:flex gap-2 w-full sm:w-auto print:hidden">
             <button type="button" onClick={() => window.print()}
-              className="btn-primary-glow inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm">
+              className="btn-primary-glow inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl px-3 sm:px-4 py-2 text-sm">
               <FileDown className="h-4 w-4" /> Download PDF
             </button>
             <button type="button" onClick={onReset}
-              className="inline-flex items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm hover:bg-muted transition-colors">
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-border px-3 sm:px-4 py-2 text-sm hover:bg-muted transition-colors">
               <RotateCcw className="h-4 w-4" /> New chart
             </button>
           </div>
@@ -445,8 +502,8 @@ function Results({ details, data, onReset }: { details: BirthDetails; data: Kund
       </section>
 
       {/* D1 + selected varga */}
-      <section className="grid md:grid-cols-2 gap-6 print:hidden">
-        <div className="glass rounded-2xl p-4">
+      <section className="grid md:grid-cols-2 gap-4 sm:gap-6 print:hidden">
+        <div className="glass rounded-2xl p-3 sm:p-4">
           <KundaliChart ref={rashiRef} title="D1 · Rashi (Lagna)" lagnaSign={lagnaRashi}
             houses={d1.houses} degrees={d1.degrees} retrograde={d1.retrograde} />
           <button type="button" onClick={() => savePng(rashiRef.current, 'D1')}
@@ -454,37 +511,64 @@ function Results({ details, data, onReset }: { details: BirthDetails; data: Kund
             <Download className="h-3.5 w-3.5" /> Download PNG
           </button>
         </div>
-        <div className="glass rounded-2xl p-4">
+        <div className="glass rounded-2xl p-3 sm:p-4">
+          <label className="mb-3 block">
+            <span className="mb-1 block text-[11px] uppercase tracking-wider text-muted-foreground">Divisional chart</span>
+            <select value={varga} onChange={e => setVarga(e.target.value)}
+              className={`${selectClass} font-semibold`}>
+              {VARGAS.filter(v => v.key !== 'D1' && vargaCharts[v.key]).map(v => (
+                <option key={v.key} value={v.key}>{v.key} · {v.name} — {v.signifies}</option>
+              ))}
+            </select>
+          </label>
           <KundaliChart ref={vargaRef} title={`${selected.key} · ${selected.name}`}
             lagnaSign={vargaCharts[varga].lagna} houses={vargaCharts[varga].houses} />
-          <div className="mt-3 flex items-center justify-between gap-2">
-            <span className="text-xs text-muted-foreground">{selected.signifies}</span>
-            <button type="button" onClick={() => savePng(vargaRef.current, varga)}
-              className="inline-flex items-center gap-1.5 text-xs text-gold hover:underline">
-              <Download className="h-3.5 w-3.5" /> Download PNG
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <section className="print:hidden">
-        <h3 className="font-serif text-lg font-semibold text-gold mb-3">Divisional charts</h3>
-        <div className="flex flex-wrap gap-2">
-          {VARGAS.filter(v => v.key !== 'D1' && vargaCharts[v.key]).map(v => (
-            <button key={v.key} type="button" onClick={() => setVarga(v.key)} title={v.signifies}
-              className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${v.key === varga
-                ? 'border-primary bg-primary text-primary-foreground'
-                : 'border-border hover:border-primary/60'}`}>
-              <strong>{v.key}</strong> {v.name}
-            </button>
-          ))}
+          <button type="button" onClick={() => savePng(vargaRef.current, varga)}
+            className="mt-3 inline-flex items-center gap-1.5 text-xs text-gold hover:underline">
+            <Download className="h-3.5 w-3.5" /> Download PNG
+          </button>
         </div>
       </section>
 
       {/* Planet positions */}
       <section className="break-inside-avoid">
         <h3 className="font-serif text-lg font-semibold text-gold mb-3">Planetary positions</h3>
-        <div className="overflow-x-auto rounded-2xl border border-border/60">
+
+        {/* Phones: one card per graha */}
+        <div className="md:hidden print:hidden divide-y divide-border/60 rounded-2xl border border-border/60">
+          {chart.lagna && (
+            <div className="px-4 py-3">
+              <div className="flex items-baseline justify-between gap-2 text-sm">
+                <span className="font-semibold">Lagna</span>
+                <span>{RASHIS[chart.lagna.rashi - 1]} <span className="font-mono text-xs">{dms(chart.lagna.degreeInRashi)}</span></span>
+              </div>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                {NAKSHATRAS[Math.floor(chart.lagna.longitude / (360 / 27))]} · House 1{d9 ? ` · D9 ${RASHIS[d9.lagna - 1]}` : ''}
+              </p>
+            </div>
+          )}
+          {chart.positions.map(p => {
+            const nav = d9?.positions.find(x => x.graha === p.graha)
+            const flags = [p.retrograde && 'R', p.combust && 'combust'].filter(Boolean).join(', ')
+            return (
+              <div key={p.graha} className="px-4 py-3">
+                <div className="flex items-baseline justify-between gap-2 text-sm">
+                  <span className="font-semibold">
+                    {grahaName(p.graha)}
+                    {flags && <span className="ml-1 text-[10px] font-medium text-primary">({flags})</span>}
+                  </span>
+                  <span>{RASHIS[p.rashi - 1]} <span className="font-mono text-xs">{dms(p.degreeInRashi)}</span></span>
+                </div>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {NAKSHATRAS[p.nakshatra - 1]} {p.pada} · House {p.house || '—'} · <span className="capitalize">{p.dignity.replace('_', ' ')}</span>
+                  {nav && <> · D9 {RASHIS[nav.rashi - 1]}{nav.vargottama && <span className="text-primary"> (vargottama)</span>}</>}
+                </p>
+              </div>
+            )
+          })}
+        </div>
+
+        <div className="hidden md:block print:block overflow-x-auto rounded-2xl border border-border/60">
           <table className="w-full text-sm">
             <thead className="bg-secondary text-left text-xs uppercase tracking-wider text-secondary-foreground">
               <tr>

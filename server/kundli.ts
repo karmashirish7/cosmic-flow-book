@@ -68,7 +68,7 @@ export async function handleKundli(req: Request, env: KundliEnv): Promise<Respon
         // coordinates, including historical offsets such as Nepal before 1986.
         birth: { calendar, year, month, day, hour, minute, timeConfidence: 'exact', place: { name, lat, lon } },
         include: ['dashas'],
-        dashaDepth: 2,
+        dashaDepth: 3, // mahadasha → antardasha → pratyantardasha
       }),
     })
   } catch (e) {
