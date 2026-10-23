@@ -149,6 +149,34 @@ export function orbitPath(key: Exclude<PlanetKey, 'sun' | 'moon'> | 'earth', dat
   return out
 }
 
+/**
+ * Every position the 3D scene needs at one instant, sharing a single rotation:
+ * heliocentric (Sun at origin) and geocentric (Earth at origin) vectors, AU,
+ * ecliptic of date. Cheap enough to call every animation frame.
+ */
+export function scenePositions(date: Date) {
+  const t = A.MakeTime(date)
+  const rot = A.Rotation_EQJ_ECT(t)
+  const earth = A.RotateVector(rot, A.HelioVector(A.Body.Earth, t))
+  const helio = { earth: xyz(earth) } as Record<PlanetKey | 'earth', Vec3>
+  const geo = {} as Record<PlanetKey, Vec3>
+  for (const p of PLANETS) {
+    if (p.key === 'sun') {
+      helio.sun = [0, 0, 0]
+      geo.sun = [-earth.x, -earth.y, -earth.z]
+    } else if (p.key === 'moon') {
+      const m = A.RotateVector(rot, A.GeoMoon(t))
+      geo.moon = xyz(m)
+      helio.moon = [earth.x + m.x, earth.y + m.y, earth.z + m.z]
+    } else {
+      const h = A.RotateVector(rot, A.HelioVector(p.body, t))
+      helio[p.key] = xyz(h)
+      geo[p.key] = [h.x - earth.x, h.y - earth.y, h.z - earth.z]
+    }
+  }
+  return { helio, geo }
+}
+
 // ─── Lunar nodes ──────────────────────────────────────────────────────────────
 
 /** Mean ascending node (Rahu), tropical of date, degrees. Same polynomial as the Akashvani engine. */
