@@ -9,8 +9,9 @@
  *     → true ecliptic and equinox of date (Rotation_EQJ_ECT: precession + nutation)
  *     → sidereal = tropical − ayanamsa (True Chitra Paksha: Spica fixed at 180°)
  *
- * Every 3D position, heliocentric or geocentric, is in that ecliptic-of-date
- * frame: x towards the equinox of date, z towards the north ecliptic pole, in AU.
+ * For the sky view, ecliptic-of-date and J2000 directions are rotated onto the
+ * observer's horizon (astronomy-engine's HOR frame: x north, y west, z zenith),
+ * and the grahas get topocentric altitude and azimuth.
  *
  * Rahu/Ketu: the mean node is the standard polynomial (as in the engine); the
  * true node is the osculating node, the line where the plane of the Moon's
@@ -31,24 +32,21 @@ export interface BodyInfo {
   name: string
   /** Mean equatorial radius, km */
   radiusKm: number
-  /** Sidereal orbital period around the Sun, days (Moon: around Earth) */
-  periodDays: number
 }
 
 export const PLANETS: BodyInfo[] = [
-  { key: 'sun',     body: A.Body.Sun,     name: 'Sun',     radiusKm: 695_700, periodDays: 0 },
-  { key: 'moon',    body: A.Body.Moon,    name: 'Moon',    radiusKm: 1_737.4, periodDays: 27.321661 },
-  { key: 'mercury', body: A.Body.Mercury, name: 'Mercury', radiusKm: 2_439.7, periodDays: 87.969 },
-  { key: 'venus',   body: A.Body.Venus,   name: 'Venus',   radiusKm: 6_051.8, periodDays: 224.701 },
-  { key: 'mars',    body: A.Body.Mars,    name: 'Mars',    radiusKm: 3_389.5, periodDays: 686.98 },
-  { key: 'jupiter', body: A.Body.Jupiter, name: 'Jupiter', radiusKm: 69_911,  periodDays: 4_332.59 },
-  { key: 'saturn',  body: A.Body.Saturn,  name: 'Saturn',  radiusKm: 58_232,  periodDays: 10_759.22 },
-  { key: 'uranus',  body: A.Body.Uranus,  name: 'Uranus',  radiusKm: 25_362,  periodDays: 30_688.5 },
-  { key: 'neptune', body: A.Body.Neptune, name: 'Neptune', radiusKm: 24_622,  periodDays: 60_182 },
-  { key: 'pluto',   body: A.Body.Pluto,   name: 'Pluto',   radiusKm: 1_188.3, periodDays: 90_560 },
+  { key: 'sun',     body: A.Body.Sun,     name: 'Sun',     radiusKm: 695_700 },
+  { key: 'moon',    body: A.Body.Moon,    name: 'Moon',    radiusKm: 1_737.4 },
+  { key: 'mercury', body: A.Body.Mercury, name: 'Mercury', radiusKm: 2_439.7 },
+  { key: 'venus',   body: A.Body.Venus,   name: 'Venus',   radiusKm: 6_051.8 },
+  { key: 'mars',    body: A.Body.Mars,    name: 'Mars',    radiusKm: 3_389.5 },
+  { key: 'jupiter', body: A.Body.Jupiter, name: 'Jupiter', radiusKm: 69_911 },
+  { key: 'saturn',  body: A.Body.Saturn,  name: 'Saturn',  radiusKm: 58_232 },
+  { key: 'uranus',  body: A.Body.Uranus,  name: 'Uranus',  radiusKm: 25_362 },
+  { key: 'neptune', body: A.Body.Neptune, name: 'Neptune', radiusKm: 24_622 },
+  { key: 'pluto',   body: A.Body.Pluto,   name: 'Pluto',   radiusKm: 1_188.3 },
 ]
 
-export const EARTH = { name: 'Earth', radiusKm: 6_371, periodDays: 365.256363 }
 export const AU_KM = 149_597_870.7
 /** Mean inclination of the Moon's orbit to the ecliptic, degrees */
 export const MOON_INCLINATION = 5.145
@@ -125,58 +123,6 @@ export function dailyMotion(body: A.Body, date: Date): number {
   return angleDiff(after, before)
 }
 
-/** Heliocentric position, ecliptic of date, AU. The Sun is the origin; the Moon rides with Earth. */
-export function heliocentric(key: PlanetKey | 'earth', date: Date): Vec3 {
-  if (key === 'sun') return [0, 0, 0]
-  const t = A.MakeTime(date)
-  if (key === 'moon') {
-    const e = toEct(A.HelioVector(A.Body.Earth, t), t)
-    const m = toEct(A.GeoVector(A.Body.Moon, t, false), t)
-    return [e.x + m.x, e.y + m.y, e.z + m.z]
-  }
-  const body = key === 'earth' ? A.Body.Earth : PLANETS.find(p => p.key === key)!.body
-  return xyz(toEct(A.HelioVector(body, t), t))
-}
-
-/** One full heliocentric orbit sampled around `date` (ecliptic of date, AU), for orbit lines. */
-export function orbitPath(key: Exclude<PlanetKey, 'sun' | 'moon'> | 'earth', date: Date, samples = 180): Vec3[] {
-  const period = key === 'earth' ? EARTH.periodDays : PLANETS.find(p => p.key === key)!.periodDays
-  const start = date.getTime() - (period / 2) * 86_400_000
-  const out: Vec3[] = []
-  for (let i = 0; i <= samples; i++) {
-    out.push(heliocentric(key, new Date(start + (period * 86_400_000 * i) / samples)))
-  }
-  return out
-}
-
-/**
- * Every position the 3D scene needs at one instant, sharing a single rotation:
- * heliocentric (Sun at origin) and geocentric (Earth at origin) vectors, AU,
- * ecliptic of date. Cheap enough to call every animation frame.
- */
-export function scenePositions(date: Date) {
-  const t = A.MakeTime(date)
-  const rot = A.Rotation_EQJ_ECT(t)
-  const earth = A.RotateVector(rot, A.HelioVector(A.Body.Earth, t))
-  const helio = { earth: xyz(earth) } as Record<PlanetKey | 'earth', Vec3>
-  const geo = {} as Record<PlanetKey, Vec3>
-  for (const p of PLANETS) {
-    if (p.key === 'sun') {
-      helio.sun = [0, 0, 0]
-      geo.sun = [-earth.x, -earth.y, -earth.z]
-    } else if (p.key === 'moon') {
-      const m = A.RotateVector(rot, A.GeoMoon(t))
-      geo.moon = xyz(m)
-      helio.moon = [earth.x + m.x, earth.y + m.y, earth.z + m.z]
-    } else {
-      const h = A.RotateVector(rot, A.HelioVector(p.body, t))
-      helio[p.key] = xyz(h)
-      geo[p.key] = [h.x - earth.x, h.y - earth.y, h.z - earth.z]
-    }
-  }
-  return { helio, geo }
-}
-
 // ─── Lunar nodes ──────────────────────────────────────────────────────────────
 
 /** Mean ascending node (Rahu), tropical of date, degrees. Same polynomial as the Akashvani engine. */
@@ -249,14 +195,48 @@ export const fmtDeg = (d: number) => {
   return `${Math.floor(m / 60)}°${String(m % 60).padStart(2, '0')}′`
 }
 
-// ─── Events ───────────────────────────────────────────────────────────────────
+// ─── The sky from a place on Earth ────────────────────────────────────────────
 
 export interface Observer { lat: number; lon: number; name: string }
 export const KATHMANDU: Observer = { lat: 27.7172, lon: 85.324, name: 'Kathmandu' }
 
+const observerOf = (o: Observer) => new A.Observer(o.lat, o.lon, 0)
+
+/**
+ * Rotations onto the observer's horizon (HOR: x north, y west, z zenith), in
+ * astronomy-engine's matrix format: from the true ecliptic of date (zodiac,
+ * nodes, Moon's path) and from the J2000 equator (catalogue stars).
+ */
+export function skyRotations(date: Date, obs: Observer) {
+  const t = A.MakeTime(date)
+  const o = observerOf(obs)
+  return {
+    ectToHor: A.CombineRotation(A.Rotation_ECT_EQD(t), A.Rotation_EQD_HOR(t, o)),
+    eqjToHor: A.Rotation_EQJ_HOR(t, o),
+  }
+}
+
+/** Topocentric altitude and azimuth (degrees; azimuth from north through east), without refraction. */
+export function horizontal(body: A.Body, date: Date, obs: Observer) {
+  const o = observerOf(obs)
+  const eq = A.Equator(body, date, o, true, true)
+  const h = A.Horizon(date, o, eq.ra, eq.dec)
+  return { alt: h.altitude, az: h.azimuth }
+}
+
+/** Altitude and azimuth of a point on the ecliptic (tropical longitude, latitude 0) */
+export function eclipticToHorizontal(tropicalLon: number, date: Date, obs: Observer, rot = skyRotations(date, obs).ectToHor) {
+  const a = tropicalLon * DEG
+  const v = A.RotateVector(rot, new A.Vector(Math.cos(a), Math.sin(a), 0, A.MakeTime(date)))
+  const s = A.SphereFromVector(v)
+  return { alt: s.lat, az: norm360(-s.lon) }
+}
+
+// ─── Events ───────────────────────────────────────────────────────────────────
+
 /** Next rise and set after `date` within two days, or null (e.g. circumpolar). */
 export function riseSet(body: A.Body, date: Date, obs: Observer) {
-  const o = new A.Observer(obs.lat, obs.lon, 0)
+  const o = observerOf(obs)
   return {
     rise: A.SearchRiseSet(body, o, +1, date, 2)?.date ?? null,
     set: A.SearchRiseSet(body, o, -1, date, 2)?.date ?? null,
@@ -297,6 +277,11 @@ export interface PlanetState extends SiderealPlace {
   distAU: number
   speed: number
   retrograde: boolean
+  /** Topocentric, degrees */
+  alt: number
+  az: number
+  /** Visual magnitude */
+  mag: number
 }
 
 export function snapshot(date: Date, obs: Observer, nodeType: NodeType) {
@@ -304,7 +289,12 @@ export function snapshot(date: Date, obs: Observer, nodeType: NodeType) {
   const planets: PlanetState[] = PLANETS.map(p => {
     const g = geocentric(p.body, date)
     const speed = dailyMotion(p.body, date)
-    return { key: p.key, name: p.name, lon: g.lon, lat: g.lat, distAU: g.distAU, speed, retrograde: speed < 0, ...siderealPlace(g.lon, ayan) }
+    const h = horizontal(p.body, date, obs)
+    const mag = p.key === 'sun' ? -26.7 : A.Illumination(p.body, date).mag
+    return {
+      key: p.key, name: p.name, lon: g.lon, lat: g.lat, distAU: g.distAU, speed, retrograde: speed < 0,
+      alt: h.alt, az: h.az, mag, ...siderealPlace(g.lon, ayan),
+    }
   })
   const rahu = rahuLongitude(date, nodeType)
   const sun = planets[0]

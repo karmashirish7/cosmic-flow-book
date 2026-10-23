@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import fixtures from './ephemeris.fixtures.json'
 import {
-  PLANETS, angleDiff, ascendant, ayanamsa, eclipseSeason, geocentric, meanNode,
-  moonAtNode, norm360, osculatingNode, rahuLongitude, siderealPlace, snapshot, KATHMANDU,
+  PLANETS, angleDiff, ascendant, ayanamsa, eclipseSeason, eclipticToHorizontal, geocentric, horizontal,
+  meanNode, moonAtNode, norm360, osculatingNode, rahuLongitude, siderealPlace, snapshot, KATHMANDU,
 } from './ephemeris'
 
 const horizons = fixtures.horizons.dates as Record<string, Record<string, { lon: number; lat: number } | number>>
@@ -101,4 +101,36 @@ describe('eclipse season and node crossings', () => {
     expect(moonAtNode(191, -0.1, 10)).toBe('ketu')
     expect(moonAtNode(50, 3, 10)).toBeNull()
   })
+})
+
+describe('the sky from Kathmandu', () => {
+  const topo = fixtures.horizonsTopocentric.dates as Record<string, Record<string, { az: number; alt: number }>>
+  for (const iso of Object.keys(topo)) {
+    it(`altitude and azimuth match JPL Horizons on ${iso}`, () => {
+      for (const [key, ref] of Object.entries(topo[iso])) {
+        const body = PLANETS.find(p => p.key === key)!.body
+        const h = horizontal(body, new Date(iso), KATHMANDU)
+        expect(Math.abs(h.alt - ref.alt)).toBeLessThan(0.05)
+        // azimuth is meaningless near the zenith/nadir; scale the check by cos(alt)
+        expect(Math.abs(angleDiff(h.az, ref.az)) * Math.cos(ref.alt * Math.PI / 180)).toBeLessThan(0.05)
+      }
+    })
+  }
+
+  for (const iso of dates) {
+    it(`the lagna sits on the eastern horizon on ${iso}`, () => {
+      const d = new Date(iso)
+      const h = eclipticToHorizontal(ascendant(d, KATHMANDU.lat, KATHMANDU.lon), d, KATHMANDU)
+      expect(Math.abs(h.alt)).toBeLessThan(0.02)
+      expect(h.az).toBeGreaterThan(0)
+      expect(h.az).toBeLessThan(180)
+    })
+    it(`the Sun lies on the drawn ecliptic on ${iso}`, () => {
+      const d = new Date(iso)
+      const sun = horizontal(PLANETS[0].body, d, KATHMANDU)
+      const onEcliptic = eclipticToHorizontal(geocentric(PLANETS[0].body, d).lon, d, KATHMANDU)
+      expect(Math.abs(sun.alt - onEcliptic.alt)).toBeLessThan(0.02)
+      expect(Math.abs(angleDiff(sun.az, onEcliptic.az)) * Math.cos(sun.alt * Math.PI / 180)).toBeLessThan(0.02)
+    })
+  }
 })
