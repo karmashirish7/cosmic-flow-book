@@ -196,7 +196,7 @@ function Stars({ frame, showNames, land }: { frame: MutableRefObject<Frame>; sho
   return (
     <group ref={group}>
       <StarPoints radius={R_STARS} opacity={() => 1 - 0.97 * frame.current.day} />
-      <ZodiacFigures radius={R_STARS * 0.995} opacity={() => 1 - 0.75 * frame.current.day} />
+      <ZodiacFigures radius={R_STARS * 0.995} opacity={() => 1 - 0.6 * frame.current.day} />
       {showNames && <StarNames radius={R_STARS} hidden={hidden} />}
       {showNames && <ConstellationNames radius={R_STARS} hidden={hidden} />}
     </group>
@@ -245,7 +245,7 @@ function Zodiac({ frame, snap, onSelect, land }: {
     const f = frame.current
     if (nodes.current) nodes.current.rotation.z = f.rahuSid * RAD
     // translucent, so the constellation patterns behind it show through
-    if (beltMat.current) beltMat.current.opacity = 0.72 - 0.25 * f.day
+    if (beltMat.current) beltMat.current.opacity = 0.95 - 0.2 * f.day
     if (pulse.current) {
       const s = 7 + 3 * Math.sin(clock.elapsedTime * 5)
       pulse.current.scale.set(s, s, 1)
@@ -469,9 +469,51 @@ function LookControls({ view, frame, selected, sim }: {
   return null
 }
 
+// ─── Zoom transition ──────────────────────────────────────────────────────────
+
+const WIDE_FOV = 125
+
+/**
+ * Switching views: 'out' widens the field of view (zooming out, toward space)
+ * before the other view takes over; 'in' arrives wide and narrows to `baseFov`.
+ */
+function ZoomTransition({ view, transition, baseFov, onDone, sim }: {
+  view: MutableRefObject<View>
+  transition: 'in' | 'out' | null
+  baseFov: number
+  onDone: () => void
+  sim: MutableRefObject<Sim>
+}) {
+  const anim = useRef<{ start: number; from: number; to: number; secs: number } | null>(null)
+  useEffect(() => {
+    if (!transition) return
+    if (sim.current.reducedMotion) {
+      if (transition === 'in') view.current.fov = baseFov
+      onDone()
+      return
+    }
+    anim.current = transition === 'in'
+      ? { start: -1, from: WIDE_FOV, to: baseFov, secs: 1.1 }
+      : { start: -1, from: view.current.fov, to: WIDE_FOV, secs: 0.7 }
+    if (transition === 'in') view.current.fov = WIDE_FOV
+    // run once per transition
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [transition])
+
+  useFrame(({ clock }) => {
+    const a = anim.current
+    if (!a) return
+    if (a.start < 0) a.start = clock.elapsedTime
+    const k = Math.min(1, (clock.elapsedTime - a.start) / a.secs)
+    view.current.fov = a.from + (a.to - a.from) * k * k * (3 - 2 * k)
+    if (k >= 1) { anim.current = null; onDone() }
+  })
+  return null
+}
+
 // ─── Scene ────────────────────────────────────────────────────────────────────
 
-export default function SkyDome({ sim, view, snap, selected, onSelect, land, starNames }: {
+export default function SkyDome({ sim, view, snap, selected, onSelect, land, starNames, transition, baseFov, onTransitionEnd }: {
   sim: MutableRefObject<Sim>
   view: MutableRefObject<View>
   snap: Snapshot
@@ -479,6 +521,9 @@ export default function SkyDome({ sim, view, snap, selected, onSelect, land, sta
   onSelect: (k: Selectable) => void
   land: boolean
   starNames: boolean
+  transition: 'in' | 'out' | null
+  baseFov: number
+  onTransitionEnd: () => void
 }) {
   const frame = useSkyFrame(sim)
   return (
@@ -493,6 +538,8 @@ export default function SkyDome({ sim, view, snap, selected, onSelect, land, sta
           onSelect={() => onSelect(p.key)} land={land} />
       ))}
       <Ground land={land} frame={frame} />
+      {/* before LookControls, so it applies the animated field of view the same frame */}
+      <ZoomTransition view={view} transition={transition} baseFov={baseFov} onDone={onTransitionEnd} sim={sim} />
       <LookControls view={view} frame={frame} selected={selected} sim={sim} />
     </>
   )

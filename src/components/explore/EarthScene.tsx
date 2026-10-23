@@ -8,8 +8,9 @@
  * log-compressed so all stay in view; directions are exact.
  */
 import { useEffect, useMemo, useRef, type MutableRefObject } from 'react'
-import { useFrame, useLoader } from '@react-three/fiber'
+import { useFrame, useLoader, useThree } from '@react-three/fiber'
 import { Html, Line, OrbitControls } from '@react-three/drei'
+import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import * as THREE from 'three'
 import {
   MOON_INCLINATION, PLANETS, RASHIS, ayanamsa, earthToEcliptic, fmtDeg, geocentric, observerEcliptic,
@@ -135,8 +136,12 @@ const ATMO_FRAG = /* glsl */ `
     gl_FragColor = vec4(vec3(0.35, 0.6, 1.0) * rim * lit, rim * lit);
   }`
 
+const EARTH_MAPS = ['/textures/earth/day.jpg', '/textures/earth/night.jpg']
+// Fetch the maps as soon as Explore loads, so switching to the Sky view never waits on them
+useLoader.preload(THREE.TextureLoader, EARTH_MAPS)
+
 function Earth({ frame, observerName }: { frame: MutableRefObject<Frame>; observerName: string }) {
-  const [dayMap, nightMap] = useLoader(THREE.TextureLoader, ['/textures/earth/day.jpg', '/textures/earth/night.jpg'])
+  const [dayMap, nightMap] = useLoader(THREE.TextureLoader, EARTH_MAPS)
   useMemo(() => { for (const t of [dayMap, nightMap]) { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8 } }, [dayMap, nightMap])
   const group = useRef<THREE.Group>(null)
   const pin = useRef<THREE.Group>(null)
@@ -236,7 +241,7 @@ function Sky({ frame, snap, names, onSelect }: {
 
       <group ref={sid}>
         <mesh geometry={belt} renderOrder={2}>
-          <meshBasicMaterial map={tex} transparent opacity={0.8} side={THREE.DoubleSide} depthWrite={false} toneMapped={false} />
+          <meshBasicMaterial map={tex} transparent opacity={0.95} side={THREE.DoubleSide} depthWrite={false} toneMapped={false} />
         </mesh>
 
         {/* Rashi names pop up in this view */}
@@ -399,15 +404,71 @@ function SunLight({ frame }: { frame: MutableRefObject<Frame> }) {
   return <directionalLight ref={light} intensity={2.6} color="#FFF6E8" />
 }
 
+// ─── Zoom transition ──────────────────────────────────────────────────────────
+
+const ease = (k: number) => k * k * (3 - 2 * k)
+
+/**
+ * Switching views: 'in' starts just above the viewer's pin and pulls back to
+ * `home` (zooming out into space); 'out' dives toward the pin (zooming in to
+ * the ground) before the other view takes over.
+ */
+function CameraDirector({ frame, transition, home, onDone, sim }: {
+  frame: MutableRefObject<Frame>
+  transition: 'in' | 'out' | null
+  home: [number, number, number]
+  onDone: () => void
+  sim: MutableRefObject<Sim>
+}) {
+  const camera = useThree(s => s.camera)
+  const controls = useThree(s => s.controls) as OrbitControlsImpl | null
+  const anim = useRef<{ start: number; from: THREE.Vector3; kind: 'in' | 'out' } | null>(null)
+
+  useEffect(() => {
+    if (!transition) return
+    if (sim.current.reducedMotion) { onDone(); return }
+    anim.current = { start: -1, from: camera.position.clone(), kind: transition }
+    // run once per transition
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [transition])
+
+  useFrame(({ clock }) => {
+    const a = anim.current
+    const pin = frame.current.pin
+    if (!a || pin.lengthSq() === 0) return
+    if (a.start < 0) a.start = clock.elapsedTime
+    const secs = a.kind === 'in' ? 2.0 : 1.4
+    const k = Math.min(1, (clock.elapsedTime - a.start) / secs)
+    const overPin = pin.clone().normalize().multiplyScalar(R_EARTH * 1.25)
+    const homeV = new THREE.Vector3(...home)
+    if (a.kind === 'in') camera.position.lerpVectors(overPin, homeV, ease(k))
+    else camera.position.lerpVectors(a.from, overPin, ease(k))
+    if (controls) {
+      controls.enabled = k >= 1
+      controls.target.set(0, 0, 0)
+    }
+    camera.lookAt(0, 0, 0)
+    if (k >= 1) {
+      anim.current = null
+      controls?.update()
+      onDone()
+    }
+  })
+  return null
+}
+
 // ─── Scene ────────────────────────────────────────────────────────────────────
 
-export default function EarthScene({ sim, snap, selected, onSelect, names, observerName }: {
+export default function EarthScene({ sim, snap, selected, onSelect, names, observerName, transition, home, onTransitionEnd }: {
   sim: MutableRefObject<Sim>
   snap: Snapshot
   selected: Selectable | null
   onSelect: (k: Selectable) => void
   names: boolean
   observerName: string
+  transition: 'in' | 'out' | null
+  home: [number, number, number]
+  onTransitionEnd: () => void
 }) {
   const frame = useEarthFrame(sim)
   return (
@@ -422,7 +483,8 @@ export default function EarthScene({ sim, snap, selected, onSelect, names, obser
         <Graha key={p.key} id={p.key} frame={frame} snap={snap} selected={selected === p.key}
           onSelect={() => onSelect(p.key)} names={names} />
       ))}
-      <OrbitControls makeDefault enableDamping dampingFactor={0.08} minDistance={4} maxDistance={64} target={[0, 0, 0]} />
+      <OrbitControls makeDefault enableDamping dampingFactor={0.08} minDistance={3} maxDistance={64} target={[0, 0, 0]} />
+      <CameraDirector frame={frame} transition={transition} home={home} onDone={onTransitionEnd} sim={sim} />
     </>
   )
 }

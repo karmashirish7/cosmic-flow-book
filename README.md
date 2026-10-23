@@ -76,10 +76,10 @@ Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/c
 
 The `/explore` page has two views:
 
-- **Sky view**: the sky as seen from the ground. The camera stands at the observer (Kathmandu by default, any city,
+- **Earth view**: the sky as seen from the ground. The camera stands at the observer (Kathmandu by default, any city,
   typed coordinates or the device's location) and looks around a sky sphere with the horizon line, the grahas, the
   sidereal zodiac belt, the zodiac constellations' star patterns, Rahu and Ketu, and real stars.
-- **Earth view**: the Earth from outside (NASA day and night maps, lit by the real Sun, turned by sidereal time)
+- **Sky view**: the Earth from outside (NASA day and night maps, lit by the real Sun, turned by sidereal time)
   with a pin at the observer, each graha in its true geocentric direction at a compressed distance, and a line from
   Earth through each graha to the constellation behind it on the celestial sphere. The scene is in `src/components/explore/`, the astronomy in `src/lib/ephemeris.ts`, a pure
 module on [astronomy-engine](https://github.com/cosinekitty/astronomy) (MIT). It uses the same conventions as the
@@ -113,7 +113,7 @@ through one matrix: horizon ← ecliptic of date ← rotate by the ayanamsa. In 
 - *Eclipse season*: the Sun within 18° of either node. The next eclipses come from astronomy-engine's
   `SearchGlobalSolarEclipse` and `SearchLunarEclipse`.
 
-**Earth view** places the globe with `earthToEcliptic`: Earth-fixed coordinates turned about the pole by apparent
+**The Sky view** places the globe with `earthToEcliptic`: Earth-fixed coordinates turned about the pole by apparent
 sidereal time, then from the equator of date to the ecliptic of date. The pin uses astronomy-engine's
 `ObserverVector`; tests check the two agree within 0.25°.
 

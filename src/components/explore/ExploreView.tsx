@@ -1,7 +1,7 @@
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import {
-  Compass, Earth, Eye, EyeOff, Maximize2, Minimize2, Moon, Pause, Play, SkipForward, Star, Sun, Telescope, X,
+  Compass, Earth, Eye, EyeOff, Maximize2, Minimize2, Moon, Orbit, Pause, Play, SkipForward, Star, Sun, X,
 } from 'lucide-react'
 import {
   KATHMANDU, NAKSHATRAS, PLANETS, RASHIS, eclipticToHorizontal, fmtDeg, nextEclipses, riseSet, snapshot,
@@ -79,7 +79,10 @@ export default function ExploreView() {
   const [nodeType, setNodeTypeState] = useState<NodeType>('mean')
   const [observer, setObserverState] = useState<Observer>(KATHMANDU)
   const [selected, setSelected] = useState<Selectable | null>(null)
-  const [mode, setMode] = useState<'sky' | 'earth'>('sky')
+  // 'ground': Earth view, standing at the observer looking up · 'space': Sky view, the Earth from outside
+  const [mode, setMode] = useState<'ground' | 'space'>('ground')
+  const [transition, setTransition] = useState<{ phase: 'out' | 'in'; to: 'ground' | 'space' } | null>(null)
+  const [fade, setFade] = useState(false)
   const [land, setLand] = useState(false)
   const [names, setNames] = useState(true)
   const [daylight, setDaylightState] = useState(true)
@@ -141,11 +144,23 @@ export default function ExploreView() {
     setSelected(s => ORDER[(s ? ORDER.indexOf(s) + 1 : 0) % ORDER.length])
   }, [])
 
-  // Names pop up each time the Earth view opens
-  const switchMode = (m: 'sky' | 'earth') => {
-    setMode(m)
-    if (m === 'earth') setNames(true)
+  /** Zoom out of the current view, swap scenes behind a brief fade, then zoom into the new one */
+  const switchMode = (m: 'ground' | 'space') => {
+    if (m === mode || transition) return
+    if (m === 'space') setNames(true)   // names pop up each time the Sky view opens
+    setTransition({ phase: 'out', to: m })
   }
+  const onTransitionEnd = () => {
+    if (!transition) return
+    if (transition.phase === 'in') { setTransition(null); return }
+    setFade(true)
+    setMode(transition.to)
+    setTransition({ phase: 'in', to: transition.to })
+    requestAnimationFrame(() => requestAnimationFrame(() => setFade(false)))
+  }
+  const sceneTransition = transition ? transition.phase : null
+  const baseFov = window.innerWidth < 640 ? 90 : 72
+  const spaceHome: [number, number, number] = window.innerWidth < 640 ? [0, 14, 30] : [0, 7.5, 15]
 
   const faceZodiac = () => {
     setSelected(null)
@@ -199,40 +214,44 @@ export default function ExploreView() {
   return (
     <div ref={container}
       className={`relative w-full overflow-hidden bg-[#04050B] text-white select-none ${fullscreen ? 'h-full' : 'h-[78vh] min-h-[560px] rounded-2xl'}`}>
-      {/* A fresh canvas per view: the Sky view looks out from the ground, the Earth view orbits the globe */}
+      {/* A fresh canvas per view: the Earth view looks up from the ground, the Sky view orbits the globe */}
       <Canvas
         key={mode}
         frameloop={active ? 'always' : 'never'}
         dpr={[1, 2]}
-        camera={mode === 'sky'
+        camera={mode === 'ground'
           ? { position: [0, 0, 0], fov: view.current.fov, near: 0.1, far: 1000 }
-          : { position: window.innerWidth < 640 ? [0, 14, 30] : [0, 7.5, 15], fov: 50, near: 0.05, far: 400 }}
+          : { position: spaceHome, fov: 50, near: 0.05, far: 400 }}
         gl={{ antialias: true }}
         onPointerMissed={() => setSelected(null)}
       >
-        {mode === 'sky' ? (
+        {mode === 'ground' ? (
           <SkyDome sim={sim} view={view} snap={snap} selected={selected} onSelect={setSelected}
-            land={land} starNames={names} />
+            land={land} starNames={names} transition={sceneTransition} baseFov={baseFov} onTransitionEnd={onTransitionEnd} />
         ) : (
           <Suspense fallback={null}>
             <EarthScene sim={sim} snap={snap} selected={selected} onSelect={setSelected}
-              names={names} observerName={observer.name} />
+              names={names} observerName={observer.name}
+              transition={sceneTransition} home={spaceHome} onTransitionEnd={onTransitionEnd} />
           </Suspense>
         )}
       </Canvas>
+      {/* Covers the moment one scene hands over to the other */}
+      <div className={`pointer-events-none absolute inset-0 z-30 bg-black ${fade ? 'opacity-100' : 'opacity-0 transition-opacity duration-500'}`} />
 
       {/* ── Top: heading and toggles ── */}
       <div className="pointer-events-none absolute inset-x-0 top-0 z-40 flex flex-wrap items-start justify-between gap-2 p-3">
         <div className="pointer-events-auto flex flex-wrap items-center gap-1.5">
           <div className="inline-flex rounded-xl border border-white/15 bg-black/50 p-1 backdrop-blur">
-            {([['sky', 'Sky view', Telescope], ['earth', 'Earth view', Earth]] as const).map(([m, label, Icon]) => (
-              <button key={m} type="button" onClick={() => switchMode(m)}
+            {([['ground', 'Earth view', Earth], ['space', 'Sky view', Orbit]] as const).map(([m, label, Icon]) => (
+              <button key={m} type="button" onClick={() => switchMode(m)} disabled={!!transition}
+                title={m === 'ground' ? 'Stand on Earth at your place and look up at the sky' : 'See the Earth from outside, with sight lines to each graha'}
                 className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${mode === m ? 'bg-[#8B1E1E] text-white' : 'text-white/70 hover:text-white'}`}>
                 <Icon className="h-3.5 w-3.5" /> {label}
               </button>
             ))}
           </div>
-          {mode === 'sky' && (
+          {mode === 'ground' && (
             <button type="button" onClick={faceZodiac} title="Face the zodiac"
               className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-black/50 px-3 py-1.5 text-xs backdrop-blur hover:bg-white/10">
               <Compass className="h-4 w-4 text-[#F2C14E]" />
@@ -245,7 +264,7 @@ export default function ExploreView() {
             title="Rahu/Ketu: mean node (Vedic standard) or true (osculating) node">
             ☊ {nodeType === 'mean' ? 'Mean node' : 'True node'}
           </button>
-          {mode === 'sky' && (
+          {mode === 'ground' && (
             <>
               <button type="button" className={btn} onClick={() => setLand(!land)}
                 title={land ? 'Hide the land: the horizon stays as a line' : 'Show the land below the horizon'}>

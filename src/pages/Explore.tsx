@@ -28,8 +28,8 @@ export default function Explore() {
             </h1>
             <p className="text-muted-foreground text-sm md:text-base">
               The sky above you right now: the grahas, Rahu and Ketu on the sidereal zodiac, and the real stars of
-              the nakshatras. Look up from the ground in Sky view, or see the Earth from outside in Earth view, with a
-              line from Earth through each graha to the constellation behind it.
+              the nakshatras. Look up from the ground in Earth view, or zoom out to the Sky view to see the Earth from
+              outside, with a line from Earth through each graha to the constellation behind it.
             </p>
             <div className="constellation-line w-24 mx-auto mt-4" />
           </div>
