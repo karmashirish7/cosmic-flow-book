@@ -5,6 +5,9 @@
 import * as THREE from 'three'
 import { NAKSHATRAS, RASHIS } from '@/lib/ephemeris'
 
+/** Purva Phalguni → P. Phalguni, Uttara Bhadrapada → U. Bhadrapada, so the belt stays light */
+const shortNakshatra = (name: string) => name.replace(/^Purva /, 'P. ').replace(/^Uttara /, 'U. ')
+
 /**
  * The zodiac belt: a light guide along the ecliptic, drawn in sidereal
  * longitude (0° = start of Mesha), so the constellation patterns stay the main
@@ -60,7 +63,7 @@ export function zodiacBeltTexture(width = 4096, height = 512): THREE.CanvasTextu
     ctx.strokeStyle = 'rgba(190, 170, 240, 0.45)'
     ctx.lineWidth = 1.2
     vline(i * span, mid, mid + height * 0.1)
-    label(NAKSHATRAS[i], i * span + span / 2, mid + height * 0.07, `${Math.round(height * 0.042)}px Arial, sans-serif`, 'rgba(220, 210, 255, 0.7)')
+    label(shortNakshatra(NAKSHATRAS[i]), i * span + span / 2, mid + height * 0.07, `${Math.round(height * 0.042)}px Arial, sans-serif`, 'rgba(220, 210, 255, 0.7)')
   }
 
   const tex = new THREE.CanvasTexture(c)
