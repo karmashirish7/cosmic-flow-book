@@ -1,14 +1,17 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import {
-  Compass, Eye, EyeOff, LocateFixed, Maximize2, Minimize2, Moon, Pause, Play, SkipForward, Star, Sun, X,
+  Compass, Earth, Eye, EyeOff, Maximize2, Minimize2, Moon, Pause, Play, SkipForward, Star, Sun, Telescope, X,
 } from 'lucide-react'
 import {
   KATHMANDU, NAKSHATRAS, PLANETS, RASHIS, eclipticToHorizontal, fmtDeg, nextEclipses, riseSet, snapshot,
   type NodeType, type Observer,
 } from '@/lib/ephemeris'
 import { panchangAt } from '@/lib/panchang'
-import SkyDome, { type Selectable, type Sim, type View } from './SkyDome'
+import SkyDome from './SkyDome'
+import EarthScene from './EarthScene'
+import LocationPicker from './LocationPicker'
+import type { Selectable, Sim, View } from './shared'
 import heroBg from '@/assets/hero-bg.jpg'
 
 const DAY = 86_400_000
@@ -76,10 +79,10 @@ export default function ExploreView() {
   const [nodeType, setNodeTypeState] = useState<NodeType>('mean')
   const [observer, setObserverState] = useState<Observer>(KATHMANDU)
   const [selected, setSelected] = useState<Selectable | null>(null)
-  const [seeThrough, setSeeThrough] = useState(false)
-  const [starNames, setStarNames] = useState(true)
+  const [mode, setMode] = useState<'sky' | 'earth'>('sky')
+  const [land, setLand] = useState(false)
+  const [names, setNames] = useState(true)
   const [daylight, setDaylightState] = useState(true)
-  const [locating, setLocating] = useState(false)
   const [active, setActive] = useState(true)
   const [fullscreen, setFullscreen] = useState(false)
   const [heading, setHeading] = useState({ az: view.current.az, alt: view.current.alt })
@@ -134,19 +137,15 @@ export default function ExploreView() {
     else container.current?.requestFullscreen?.()
   }
 
-  const locate = () => {
-    if (!navigator.geolocation) return
-    setLocating(true)
-    navigator.geolocation.getCurrentPosition(
-      p => { setObserver({ lat: p.coords.latitude, lon: p.coords.longitude, name: 'your location' }); setLocating(false) },
-      () => setLocating(false),
-      { maximumAge: 600_000, timeout: 10_000 },
-    )
-  }
-
   const nextObject = useCallback(() => {
     setSelected(s => ORDER[(s ? ORDER.indexOf(s) + 1 : 0) % ORDER.length])
   }, [])
+
+  // Names pop up each time the Earth view opens
+  const switchMode = (m: 'sky' | 'earth') => {
+    setMode(m)
+    if (m === 'earth') setNames(true)
+  }
 
   const faceZodiac = () => {
     setSelected(null)
@@ -175,10 +174,10 @@ export default function ExploreView() {
     [selNode, snapTime, observer],
   )
 
-  // Turning to something below the horizon would show only ground, so let the ground go see-through
+  // Turning to something below the horizon would show only land, so hide the land
   const selAlt = selPlanet?.alt ?? selNodeHor?.alt ?? null
   useEffect(() => {
-    if (selAlt !== null && selAlt < 0) setSeeThrough(true)
+    if (selAlt !== null && selAlt < 0) setLand(false)
     // only when the selection changes, not as it moves
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected])
@@ -200,47 +199,71 @@ export default function ExploreView() {
   return (
     <div ref={container}
       className={`relative w-full overflow-hidden bg-[#04050B] text-white select-none ${fullscreen ? 'h-full' : 'h-[78vh] min-h-[560px] rounded-2xl'}`}>
+      {/* A fresh canvas per view: the Sky view looks out from the ground, the Earth view orbits the globe */}
       <Canvas
+        key={mode}
         frameloop={active ? 'always' : 'never'}
         dpr={[1, 2]}
-        camera={{ position: [0, 0, 0], fov: view.current.fov, near: 0.1, far: 1000 }}
+        camera={mode === 'sky'
+          ? { position: [0, 0, 0], fov: view.current.fov, near: 0.1, far: 1000 }
+          : { position: window.innerWidth < 640 ? [0, 14, 30] : [0, 7.5, 15], fov: 50, near: 0.05, far: 400 }}
         gl={{ antialias: true }}
         onPointerMissed={() => setSelected(null)}
       >
-        <SkyDome sim={sim} view={view} snap={snap} selected={selected} onSelect={setSelected}
-          seeThrough={seeThrough} starNames={starNames} />
+        {mode === 'sky' ? (
+          <SkyDome sim={sim} view={view} snap={snap} selected={selected} onSelect={setSelected}
+            land={land} starNames={names} />
+        ) : (
+          <Suspense fallback={null}>
+            <EarthScene sim={sim} snap={snap} selected={selected} onSelect={setSelected}
+              names={names} observerName={observer.name} />
+          </Suspense>
+        )}
       </Canvas>
 
       {/* ── Top: heading and toggles ── */}
       <div className="pointer-events-none absolute inset-x-0 top-0 z-40 flex flex-wrap items-start justify-between gap-2 p-3">
-        <button type="button" onClick={faceZodiac} title="Face the zodiac"
-          className="pointer-events-auto inline-flex items-center gap-2 rounded-xl border border-white/15 bg-black/50 px-3 py-1.5 text-xs backdrop-blur hover:bg-white/10">
-          <Compass className="h-4 w-4 text-[#F2C14E]" />
-          <span>Facing <b>{compassPoint(heading.az)}</b> {heading.az.toFixed(0)}° · {heading.alt >= 0 ? 'up' : 'down'} {Math.abs(heading.alt).toFixed(0)}°</span>
-        </button>
+        <div className="pointer-events-auto flex flex-wrap items-center gap-1.5">
+          <div className="inline-flex rounded-xl border border-white/15 bg-black/50 p-1 backdrop-blur">
+            {([['sky', 'Sky view', Telescope], ['earth', 'Earth view', Earth]] as const).map(([m, label, Icon]) => (
+              <button key={m} type="button" onClick={() => switchMode(m)}
+                className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${mode === m ? 'bg-[#8B1E1E] text-white' : 'text-white/70 hover:text-white'}`}>
+                <Icon className="h-3.5 w-3.5" /> {label}
+              </button>
+            ))}
+          </div>
+          {mode === 'sky' && (
+            <button type="button" onClick={faceZodiac} title="Face the zodiac"
+              className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-black/50 px-3 py-1.5 text-xs backdrop-blur hover:bg-white/10">
+              <Compass className="h-4 w-4 text-[#F2C14E]" />
+              <span>Facing <b>{compassPoint(heading.az)}</b> {heading.az.toFixed(0)}° · {heading.alt >= 0 ? 'up' : 'down'} {Math.abs(heading.alt).toFixed(0)}°</span>
+            </button>
+          )}
+        </div>
         <div className="pointer-events-auto flex flex-wrap justify-end gap-1.5">
           <button type="button" className={btn} onClick={() => setNodeType(nodeType === 'mean' ? 'true' : 'mean')}
             title="Rahu/Ketu: mean node (Vedic standard) or true (osculating) node">
             ☊ {nodeType === 'mean' ? 'Mean node' : 'True node'}
           </button>
-          <button type="button" className={btn} onClick={() => setSeeThrough(!seeThrough)}
-            title="Show grahas below the horizon through the ground">
-            {seeThrough ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />} {seeThrough ? 'See-through ground' : 'Solid ground'}
-          </button>
-          <button type="button" className={btn} onClick={() => setDaylight(!daylight)}
-            title={daylight ? 'Hide daylight to see the stars and nakshatras at any hour' : 'Show the real daytime sky'}>
-            {daylight ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />} {daylight ? 'Daylight on' : 'Daylight off'}
-          </button>
-          <button type="button" className={btn} onClick={() => setStarNames(!starNames)} title="Star names">
-            <Star className="h-3.5 w-3.5" /> {starNames ? 'Names on' : 'Names off'}
+          {mode === 'sky' && (
+            <>
+              <button type="button" className={btn} onClick={() => setLand(!land)}
+                title={land ? 'Hide the land: the horizon stays as a line' : 'Show the land below the horizon'}>
+                {land ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />} {land ? 'Land shown' : 'Show land'}
+              </button>
+              <button type="button" className={btn} onClick={() => setDaylight(!daylight)}
+                title={daylight ? 'Hide daylight to see the stars and nakshatras at any hour' : 'Show the real daytime sky'}>
+                {daylight ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />} {daylight ? 'Daylight on' : 'Daylight off'}
+              </button>
+            </>
+          )}
+          <button type="button" className={btn} onClick={() => setNames(!names)} title="Names of rashis, constellations and stars">
+            <Star className="h-3.5 w-3.5" /> {names ? 'Names on' : 'Names off'}
           </button>
           <button type="button" className={btn} onClick={nextObject} title="Turn to the next graha">
             <SkipForward className="h-3.5 w-3.5" /> Next
           </button>
-          <button type="button" className={btn} onClick={locate} disabled={locating}
-            title="See the sky from your location">
-            <LocateFixed className="h-3.5 w-3.5" /> {locating ? 'Locating…' : observer === KATHMANDU ? 'Kathmandu' : 'My location'}
-          </button>
+          <LocationPicker observer={observer} onChange={setObserver} buttonClass={btn} />
           <button type="button" className={btn} onClick={toggleFullscreen} title="Fullscreen" aria-label="Fullscreen">
             {fullscreen ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
           </button>

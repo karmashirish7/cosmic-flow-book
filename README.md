@@ -74,9 +74,14 @@ Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/c
 
 ## Explore view: coordinates and lunar nodes
 
-The `/explore` page shows the sky as seen from the ground: the camera stands at the observer (Kathmandu, or the
-visitor's location) and looks around a sky sphere with the horizon, the grahas, the sidereal zodiac belt, Rahu and
-Ketu, and real stars. The scene is in `src/components/explore/`, the astronomy in `src/lib/ephemeris.ts`, a pure
+The `/explore` page has two views:
+
+- **Sky view**: the sky as seen from the ground. The camera stands at the observer (Kathmandu by default, any city,
+  typed coordinates or the device's location) and looks around a sky sphere with the horizon line, the grahas, the
+  sidereal zodiac belt, the zodiac constellations' star patterns, Rahu and Ketu, and real stars.
+- **Earth view**: the Earth from outside (NASA day and night maps, lit by the real Sun, turned by sidereal time)
+  with a pin at the observer, each graha in its true geocentric direction at a compressed distance, and a line from
+  Earth through each graha to the constellation behind it on the celestial sphere. The scene is in `src/components/explore/`, the astronomy in `src/lib/ephemeris.ts`, a pure
 module on [astronomy-engine](https://github.com/cosinekitty/astronomy) (MIT). It uses the same conventions as the
 Akashvani engine behind the Kundli page, so both always agree.
 
@@ -108,10 +113,17 @@ through one matrix: horizon ← ecliptic of date ← rotate by the ayanamsa. In 
 - *Eclipse season*: the Sun within 18° of either node. The next eclipses come from astronomy-engine's
   `SearchGlobalSolarEclipse` and `SearchLunarEclipse`.
 
+**Earth view** places the globe with `earthToEcliptic`: Earth-fixed coordinates turned about the pole by apparent
+sidereal time, then from the equator of date to the ecliptic of date. The pin uses astronomy-engine's
+`ObserverVector`; tests check the two agree within 0.25°.
+
 **Stars**: `src/components/explore/stars.json` holds the 2,865 stars of magnitude 5.5 or brighter from the
 [HYG Database](https://github.com/astronexus/HYG-Database) v4.1 by astronexus, licensed
 [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/); the extract (J2000 position, magnitude, B−V
-colour) is shared under the same licence.
+colour) is shared under the same licence. `constellations.json` holds simplified stick figures of the 12 zodiac
+constellations, drawn on HYG star positions (same licence).
+
+**Earth textures**: NASA Visible Earth imagery (public domain); see `public/textures/earth/CREDITS.md`.
 
 **Tests** (`src/lib/ephemeris.test.ts`) compare against NASA JPL Horizons (all ten bodies within 20″ in ecliptic
 longitude, true node within 8″, Kathmandu altitude/azimuth within 0.05°) and against the Akashvani engine
