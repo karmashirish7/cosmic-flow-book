@@ -74,24 +74,27 @@ Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/c
 
 ## Explore view: coordinates and lunar nodes
 
-The `/explore` page (`src/components/explore/`) draws the sky from `src/lib/ephemeris.ts`, a pure module on
-[astronomy-engine](https://github.com/cosinekitty/astronomy) (MIT). It uses the same conventions as the
+The `/explore` page shows the sky as seen from the ground: the camera stands at the observer (Kathmandu, or the
+visitor's location) and looks around a sky sphere with the horizon, the grahas, the sidereal zodiac belt, Rahu and
+Ketu, and real stars. The scene is in `src/components/explore/`, the astronomy in `src/lib/ephemeris.ts`, a pure
+module on [astronomy-engine](https://github.com/cosinekitty/astronomy) (MIT). It uses the same conventions as the
 Akashvani engine behind the Kundli page, so both always agree.
 
 **Coordinate chain**
 
-1. **J2000 equatorial (EQJ).** What astronomy-engine returns: Earth's equator and equinox at 2000-01-01 12:00 TT.
-2. **True ecliptic and equinox of date.** `Rotation_EQJ_ECT` applies precession and nutation. Every longitude and
-   every 3D position (heliocentric and geocentric) is in this frame: x towards the equinox of date, z towards the
-   north ecliptic pole. Longitudes here are *tropical*.
+1. **J2000 equatorial (EQJ).** What astronomy-engine returns, and the frame of the star catalogue: Earth's
+   equator and equinox at 2000-01-01 12:00 TT.
+2. **True ecliptic and equinox of date (ECT).** `Rotation_EQJ_ECT` applies precession and nutation. Graha
+   longitudes here are *tropical*.
 3. **Sidereal.** `sidereal = tropical − ayanamsa`, with the True Chitra Paksha ayanamsa: Spica (Chitra) is placed
    at exactly 180°, computed from its J2000 position and proper motion. About 23.85° at J2000, growing ~50″ a year.
-   The zodiac ring in the scene is drawn in sidereal longitude and rotated by the ayanamsa, so Mesha 0° points at
-   tropical longitude = ayanamsa.
+4. **Horizon (HOR).** For the observer and instant, `Rotation_ECT_EQD` × `Rotation_EQD_HOR` turns ecliptic
+   directions onto the local horizon (x north, y west, z zenith); `Rotation_EQJ_HOR` does the same for the stars.
+   Grahas use topocentric `Equator` + `Horizon` (altitude/azimuth, no refraction), so the Moon's parallax is real.
 
-In the scene the ecliptic is the XZ plane and +Y is the north ecliptic pole: an ecliptic vector (x, y, z) is
-drawn at (x, z, −y). Distances are log-compressed by default (`6·log2(1 + AU)`); "True scale" in the heliocentric
-view is linear.
+The zodiac belt, the Moon's path, Rahu/Ketu and the lagna are built in sidereal ecliptic coordinates and drawn
+through one matrix: horizon ← ecliptic of date ← rotate by the ayanamsa. In the scene +X is east, +Y the zenith and
+−Z north, so a HOR vector (x, y, z) is drawn at (−y, z, −x). The lagna is the ecliptic point on the eastern horizon.
 
 **Rahu and Ketu**
 
@@ -100,9 +103,17 @@ view is linear.
 - *True node*: the osculating node. From the Moon's geocentric position r and velocity v (±1 hour difference) in the
   ecliptic of date, the orbit's angular momentum is h = r × v, and the ascending node points along ẑ × h. It wobbles
   up to about 1.7° around the mean node.
-- Ketu is always Rahu + 180°. The Moon's orbit is drawn tilted 5.145° about the nodal line.
+- Ketu is always Rahu + 180°. The Moon's path is drawn as a great circle tilted 5.145° to the ecliptic, crossing it
+  at the two nodes.
 - *Eclipse season*: the Sun within 18° of either node. The next eclipses come from astronomy-engine's
   `SearchGlobalSolarEclipse` and `SearchLunarEclipse`.
 
-**Tests** (`src/lib/ephemeris.test.ts`) compare against NASA JPL Horizons on three dates (all ten bodies within
-20″, true node within 8″) and against the Akashvani engine (ayanamsa and mean Rahu exact, Kathmandu lagna within 6″).
+**Stars**: `src/components/explore/stars.json` holds the 2,865 stars of magnitude 5.5 or brighter from the
+[HYG Database](https://github.com/astronexus/HYG-Database) v4.1 by astronexus, licensed
+[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/); the extract (J2000 position, magnitude, B−V
+colour) is shared under the same licence.
+
+**Tests** (`src/lib/ephemeris.test.ts`) compare against NASA JPL Horizons (all ten bodies within 20″ in ecliptic
+longitude, true node within 8″, Kathmandu altitude/azimuth within 0.05°) and against the Akashvani engine
+(ayanamsa and mean Rahu exact, lagna within 6″), and check that the lagna lies on the horizon and the Sun on the
+drawn ecliptic.

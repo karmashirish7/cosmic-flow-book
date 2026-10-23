@@ -27,8 +27,8 @@ export default function Explore() {
               Explore the <span className="gradient-gold-text">Sky</span>
             </h1>
             <p className="text-muted-foreground text-sm md:text-base">
-              Where the grahas are right now, on the sidereal zodiac. Switch between the Vedic (Earth-centred)
-              and the Sun-centred view, follow Rahu and Ketu, and scrub through time.
+              The sky above you right now: the grahas, Rahu and Ketu on the sidereal zodiac, and the real stars of
+              the nakshatras. Look around, tap a graha, or move through time.
             </p>
             <div className="constellation-line w-24 mx-auto mt-4" />
           </div>
@@ -36,9 +36,9 @@ export default function Explore() {
           <ExploreView />
 
           <p className="mt-3 text-center text-[11px] text-muted-foreground">
-            Drag to rotate, scroll or pinch to zoom, tap a graha or node for details. Positions from astronomy-engine,
-            sidereal by True Chitra Paksha ayanamsa (as in your Kundli). Distances and sizes are compressed so every
-            graha stays visible.
+            Drag to look around, scroll or pinch to zoom, tap a graha or node for details. Positions from
+            astronomy-engine, sidereal by True Chitra Paksha ayanamsa (as in your Kundli); grahas are drawn larger
+            than life so they stay visible. Stars: HYG Database (CC BY-SA 4.0).
           </p>
         </div>
       </main>

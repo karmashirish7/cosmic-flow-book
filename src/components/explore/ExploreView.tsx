@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import {
-  Globe2, LocateFixed, Maximize2, Minimize2, Pause, Play, Ruler, SkipForward, Sun, X,
+  Compass, Eye, EyeOff, LocateFixed, Maximize2, Minimize2, Moon, Pause, Play, SkipForward, Star, Sun, X,
 } from 'lucide-react'
 import {
-  KATHMANDU, NAKSHATRAS, PLANETS, RASHIS, fmtDeg, nextEclipses, riseSet, snapshot,
+  KATHMANDU, NAKSHATRAS, PLANETS, RASHIS, eclipticToHorizontal, fmtDeg, nextEclipses, riseSet, snapshot,
   type NodeType, type Observer,
 } from '@/lib/ephemeris'
 import { panchangAt } from '@/lib/panchang'
-import SkyScene, { type Selectable, type Sim, type ViewMode } from './SkyScene'
+import SkyDome, { type Selectable, type Sim, type View } from './SkyDome'
 import heroBg from '@/assets/hero-bg.jpg'
 
 const DAY = 86_400_000
@@ -17,6 +17,8 @@ const SLIDER_DAYS = 20 * 365   // ±20 years around today
 const SPEEDS = [
   { label: 'Paused', v: 0 },
   { label: 'Live', v: 1 },
+  { label: '1 min / s', v: 60 },
+  { label: '10 min / s', v: 600 },
   { label: '1 hour / s', v: 3_600 },
   { label: '1 day / s', v: 86_400 },
   { label: '1 month / s', v: 2_629_800 },
@@ -24,6 +26,7 @@ const SPEEDS = [
 ]
 
 const ORDER: Selectable[] = [...PLANETS.map(p => p.key), 'rahu', 'ketu']
+const COMPASS = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
 
 const hasWebGL = () => {
   try {
@@ -41,48 +44,59 @@ const fmtWhen = (d: Date) =>
   d.toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 const fmtTime = (d: Date | null) =>
   d ? d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : '—'
+const fmtDay = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 const place = (p: { rashi: number; degree: number }) => `${RASHIS[p.rashi].sa} (${RASHIS[p.rashi].en}) ${fmtDeg(p.degree)}`
+const compassPoint = (az: number) => COMPASS[Math.round(az / 45) % 8]
 
-const btn = 'inline-flex items-center justify-center gap-1.5 rounded-lg border border-white/15 bg-black/45 px-2.5 py-1.5 text-xs font-medium text-white/90 backdrop-blur transition-colors hover:bg-white/10 disabled:opacity-40 disabled:hover:bg-black/45'
+/** Start facing the highest part of the zodiac, so the belt is in view */
+function initialView(date: Date, obs: Observer, narrow: boolean): View {
+  let best = { alt: -90, az: 180 }
+  for (let lon = 0; lon < 360; lon += 5) {
+    const h = eclipticToHorizontal(lon, date, obs)
+    if (h.alt > best.alt) best = h
+  }
+  // portrait screens see less sideways, so centre the belt rather than looking just under it
+  const alt = narrow ? best.alt : best.alt - 15
+  return { az: best.az, alt: Math.min(narrow ? 60 : 45, Math.max(12, alt)), fov: narrow ? 90 : 72, follow: false }
+}
+
+const btn = 'inline-flex items-center justify-center gap-1.5 rounded-lg border border-white/15 bg-black/45 px-2.5 py-1.5 text-xs font-medium text-white/90 backdrop-blur transition-colors hover:bg-white/10 disabled:opacity-40'
 
 export default function ExploreView() {
   const container = useRef<HTMLDivElement>(null)
   const reducedMotion = useMemo(prefersReducedMotion, [])
   const webgl = useMemo(hasWebGL, [])
   const nowAtMount = useMemo(() => Date.now(), [])
-  // Narrow (portrait) screens need the camera further back to fit the zodiac ring
-  const startCamera = useMemo<[number, number, number]>(
-    () => (window.innerWidth < 640 ? [0, 78, 118] : [0, 34, 58]), [])
 
-  const sim = useRef<Sim>({
-    time: Date.now(), speed: 1, view: 'geo', blend: 1, nodeType: 'mean', trueScale: false, reducedMotion,
-  })
+  const sim = useRef<Sim>({ time: nowAtMount, speed: 1, nodeType: 'mean', observer: KATHMANDU, daylight: true, reducedMotion })
+  const view = useRef<View>(initialView(new Date(nowAtMount), KATHMANDU, window.innerWidth < 640))
 
-  const [time, setTime] = useState(sim.current.time)
+  const [time, setTime] = useState(nowAtMount)
   const [speed, setSpeedState] = useState(1)
-  const [view, setViewState] = useState<ViewMode>('geo')
   const [nodeType, setNodeTypeState] = useState<NodeType>('mean')
-  const [trueScale, setTrueScaleState] = useState(false)
+  const [observer, setObserverState] = useState<Observer>(KATHMANDU)
   const [selected, setSelected] = useState<Selectable | null>(null)
-  const [observer, setObserver] = useState<Observer>(KATHMANDU)
+  const [seeThrough, setSeeThrough] = useState(false)
+  const [starNames, setStarNames] = useState(true)
+  const [daylight, setDaylightState] = useState(true)
   const [locating, setLocating] = useState(false)
   const [active, setActive] = useState(true)
   const [fullscreen, setFullscreen] = useState(false)
+  const [heading, setHeading] = useState({ az: view.current.az, alt: view.current.alt })
 
   // Keep the shared sim ref and React state in step
   const setSpeed = (v: number) => { sim.current.speed = v; setSpeedState(v) }
-  const setView = (v: ViewMode) => {
-    sim.current.view = v
-    setViewState(v)
-    if (v === 'geo') { sim.current.trueScale = false; setTrueScaleState(false) }
-  }
   const setNodeType = (v: NodeType) => { sim.current.nodeType = v; setNodeTypeState(v) }
-  const setTrueScale = (v: boolean) => { sim.current.trueScale = v; setTrueScaleState(v) }
+  const setObserver = (o: Observer) => { sim.current.observer = o; setObserverState(o) }
+  const setDaylight = (v: boolean) => { sim.current.daylight = v; setDaylightState(v) }
   const jumpTo = (ms: number) => { sim.current.time = ms; setTime(ms) }
 
-  // Pull simulated time into React for the UI: 4×/s while playing fast, 1×/s live
+  // Pull simulated time and the view direction into React: 4×/s while playing fast, else 2×/s
   useEffect(() => {
-    const id = setInterval(() => setTime(sim.current.time), speed > 1 ? 250 : 1000)
+    const id = setInterval(() => {
+      setTime(sim.current.time)
+      setHeading({ az: view.current.az, alt: view.current.alt })
+    }, speed > 1 ? 250 : 500)
     return () => clearInterval(id)
   }, [speed])
 
@@ -134,6 +148,11 @@ export default function ExploreView() {
     setSelected(s => ORDER[(s ? ORDER.indexOf(s) + 1 : 0) % ORDER.length])
   }, [])
 
+  const faceZodiac = () => {
+    setSelected(null)
+    Object.assign(view.current, initialView(new Date(sim.current.time), observer, window.innerWidth < 640))
+  }
+
   const date = new Date(time)
   const live = speed === 1 && Math.abs(time - Date.now()) < 60_000
   const sliderDays = Math.round((time - nowAtMount) / DAY)
@@ -151,6 +170,18 @@ export default function ExploreView() {
     return riseSet(body, new Date(dayBucket * DAY), observer)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selPlanet?.key, dayBucket, observer])
+  const selNodeHor = useMemo(
+    () => (selNode ? eclipticToHorizontal(selNode.lon, new Date(snapTime), observer) : null),
+    [selNode, snapTime, observer],
+  )
+
+  // Turning to something below the horizon would show only ground, so let the ground go see-through
+  const selAlt = selPlanet?.alt ?? selNodeHor?.alt ?? null
+  useEffect(() => {
+    if (selAlt !== null && selAlt < 0) setSeeThrough(true)
+    // only when the selection changes, not as it moves
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected])
 
   if (!webgl) {
     return (
@@ -163,46 +194,54 @@ export default function ExploreView() {
     )
   }
 
+  const altAzRow = (alt: number, az: number): [string, string] =>
+    ['Position', `${alt >= 0 ? 'Up' : 'Below horizon'} ${Math.abs(alt).toFixed(1)}° · ${compassPoint(az)} ${az.toFixed(0)}°`]
+
   return (
     <div ref={container}
-      className={`relative w-full overflow-hidden bg-[#04050B] text-white ${fullscreen ? 'h-full' : 'h-[78vh] min-h-[560px] rounded-2xl'}`}>
+      className={`relative w-full overflow-hidden bg-[#04050B] text-white select-none ${fullscreen ? 'h-full' : 'h-[78vh] min-h-[560px] rounded-2xl'}`}>
       <Canvas
         frameloop={active ? 'always' : 'never'}
         dpr={[1, 2]}
-        camera={{ position: startCamera, fov: 50, near: 0.05, far: 2000 }}
+        camera={{ position: [0, 0, 0], fov: view.current.fov, near: 0.1, far: 1000 }}
         gl={{ antialias: true }}
         onPointerMissed={() => setSelected(null)}
       >
-        <SkyScene sim={sim} snap={snap} selected={selected} onSelect={setSelected} trueScale={trueScale} time={time} view={view} />
+        <SkyDome sim={sim} view={view} snap={snap} selected={selected} onSelect={setSelected}
+          seeThrough={seeThrough} starNames={starNames} />
       </Canvas>
 
-      {/* ── Top: view switch and toggles ── */}
+      {/* ── Top: heading and toggles ── */}
       <div className="pointer-events-none absolute inset-x-0 top-0 z-40 flex flex-wrap items-start justify-between gap-2 p-3">
-        <div className="pointer-events-auto inline-flex rounded-xl border border-white/15 bg-black/50 p-1 backdrop-blur">
-          {([['geo', 'Geocentric · Vedic', Globe2], ['helio', 'Heliocentric', Sun]] as const).map(([v, label, Icon]) => (
-            <button key={v} type="button" onClick={() => setView(v)}
-              className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${view === v ? 'bg-[#8B1E1E] text-white' : 'text-white/70 hover:text-white'}`}>
-              <Icon className="h-3.5 w-3.5" /> {label}
-            </button>
-          ))}
-        </div>
+        <button type="button" onClick={faceZodiac} title="Face the zodiac"
+          className="pointer-events-auto inline-flex items-center gap-2 rounded-xl border border-white/15 bg-black/50 px-3 py-1.5 text-xs backdrop-blur hover:bg-white/10">
+          <Compass className="h-4 w-4 text-[#F2C14E]" />
+          <span>Facing <b>{compassPoint(heading.az)}</b> {heading.az.toFixed(0)}° · {heading.alt >= 0 ? 'up' : 'down'} {Math.abs(heading.alt).toFixed(0)}°</span>
+        </button>
         <div className="pointer-events-auto flex flex-wrap justify-end gap-1.5">
           <button type="button" className={btn} onClick={() => setNodeType(nodeType === 'mean' ? 'true' : 'mean')}
             title="Rahu/Ketu: mean node (Vedic standard) or true (osculating) node">
             ☊ {nodeType === 'mean' ? 'Mean node' : 'True node'}
           </button>
-          <button type="button" className={btn} disabled={view === 'geo'} onClick={() => setTrueScale(!trueScale)}
-            title={view === 'geo' ? 'True scale is available in the heliocentric view' : 'Switch between compressed and true distances'}>
-            <Ruler className="h-3.5 w-3.5" /> {trueScale ? 'True scale' : 'Compressed'}
+          <button type="button" className={btn} onClick={() => setSeeThrough(!seeThrough)}
+            title="Show grahas below the horizon through the ground">
+            {seeThrough ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />} {seeThrough ? 'See-through ground' : 'Solid ground'}
           </button>
-          <button type="button" className={btn} onClick={nextObject} title="Fly to the next object">
+          <button type="button" className={btn} onClick={() => setDaylight(!daylight)}
+            title={daylight ? 'Hide daylight to see the stars and nakshatras at any hour' : 'Show the real daytime sky'}>
+            {daylight ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />} {daylight ? 'Daylight on' : 'Daylight off'}
+          </button>
+          <button type="button" className={btn} onClick={() => setStarNames(!starNames)} title="Star names">
+            <Star className="h-3.5 w-3.5" /> {starNames ? 'Names on' : 'Names off'}
+          </button>
+          <button type="button" className={btn} onClick={nextObject} title="Turn to the next graha">
             <SkipForward className="h-3.5 w-3.5" /> Next
           </button>
           <button type="button" className={btn} onClick={locate} disabled={locating}
-            title="Use your location for the lagna and rise/set times">
+            title="See the sky from your location">
             <LocateFixed className="h-3.5 w-3.5" /> {locating ? 'Locating…' : observer === KATHMANDU ? 'Kathmandu' : 'My location'}
           </button>
-          <button type="button" className={btn} onClick={toggleFullscreen} title="Fullscreen">
+          <button type="button" className={btn} onClick={toggleFullscreen} title="Fullscreen" aria-label="Fullscreen">
             {fullscreen ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
           </button>
         </div>
@@ -210,7 +249,7 @@ export default function ExploreView() {
 
       {/* ── Selected object ── */}
       {(selPlanet || selNode) && (
-        <div className="absolute right-3 top-16 z-40 w-[min(18rem,calc(100%-1.5rem))] rounded-xl border border-white/15 bg-black/70 p-4 text-sm backdrop-blur">
+        <div className="absolute right-3 top-28 sm:top-16 z-40 w-[min(18rem,calc(100%-1.5rem))] rounded-xl border border-white/15 bg-black/70 p-4 text-sm backdrop-blur">
           <div className="mb-2 flex items-start justify-between gap-2">
             <h3 className="font-serif text-lg font-bold text-[#F2C14E]">
               {selPlanet ? selPlanet.name : selected === 'rahu' ? 'Rahu ☊' : 'Ketu ☋'}
@@ -227,6 +266,8 @@ export default function ExploreView() {
                 ['Nakshatra', `${NAKSHATRAS[p.nakshatra]}, pada ${p.pada}`],
                 ['Motion', selNode ? 'Retrograde (always)' : selPlanet!.key === 'sun' || selPlanet!.key === 'moon' ? 'Direct' : selPlanet!.retrograde ? 'Retrograde ℞' : 'Direct'],
               ]
+              if (selPlanet) rows.push(altAzRow(selPlanet.alt, selPlanet.az))
+              if (selNodeHor) rows.push(altAzRow(selNodeHor.alt, selNodeHor.az))
               if (selPlanet && selPlanet.key !== 'sun') {
                 rows.push(['From Earth', selPlanet.key === 'moon'
                   ? `${Math.round(selPlanet.distAU * 149_597_870.7).toLocaleString()} km`
@@ -239,10 +280,12 @@ export default function ExploreView() {
               ))
             })()}
           </dl>
-          {selPlanet && <p className="mt-2 text-[10px] text-white/45">Rise and set for {observer.name}, in your device's time.</p>}
+          {selPlanet && <p className="mt-2 text-[10px] text-white/45">As seen from {observer.name}; times in your device's time zone.</p>}
           {selNode && (
             <p className="mt-2 text-[10px] leading-relaxed text-white/55">
-              {selected === 'rahu' ? 'North (ascending) node: where the Moon crosses the ecliptic going north.' : 'South (descending) node: exactly opposite Rahu.'}
+              {selected === 'rahu'
+                ? 'North node: where the Moon’s path (the faint circle) crosses the ecliptic going north.'
+                : 'South node: where the Moon’s path crosses the ecliptic going south, opposite Rahu.'}
             </p>
           )}
         </div>
@@ -253,8 +296,7 @@ export default function ExploreView() {
         {season.active && (
           <div className="mx-auto w-fit rounded-full border border-[#F2C14E]/50 bg-[#F2C14E]/15 px-3 py-1 text-center text-[11px] text-[#F6E7C1]">
             Eclipse season: Sun {season.separation.toFixed(1)}° from {season.node === 'rahu' ? 'Rahu' : 'Ketu'}
-            {eclipses && <> · next solar {eclipses.solar.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })} ({eclipses.solar.kind})
-              · next lunar {eclipses.lunar.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })} ({eclipses.lunar.kind})</>}
+            {eclipses && <> · next solar {fmtDay(eclipses.solar.date)} ({eclipses.solar.kind}) · next lunar {fmtDay(eclipses.lunar.date)} ({eclipses.lunar.kind})</>}
           </div>
         )}
 
@@ -276,7 +318,7 @@ export default function ExploreView() {
         </div>
 
         <input type="range" min={-SLIDER_DAYS} max={SLIDER_DAYS} step={1} value={Math.max(-SLIDER_DAYS, Math.min(SLIDER_DAYS, sliderDays))}
-          onChange={e => { if (speed === 1) setSpeed(0); jumpTo(nowAtMount + Number(e.target.value) * DAY) }}
+          onChange={e => { if (speed === 1) setSpeed(0); jumpTo(nowAtMount + Number(e.target.value) * DAY + (time - nowAtMount) % DAY) }}
           className="w-full accent-[#C0392B]" aria-label="Scrub time (±20 years)" />
 
         <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-white/80">
