@@ -232,6 +232,31 @@ export function eclipticToHorizontal(tropicalLon: number, date: Date, obs: Obser
   return { alt: s.lat, az: norm360(-s.lon) }
 }
 
+// ─── The Earth seen from outside ──────────────────────────────────────────────
+
+/**
+ * Earth's orientation: rotation (astronomy-engine format) from Earth-fixed
+ * coordinates (x towards 0° longitude on the equator, z towards the north pole)
+ * to the true ecliptic of date. Apparent sidereal time turns the Earth about
+ * its axis; the axis is tilted to the ecliptic by the obliquity of date.
+ */
+export function earthToEcliptic(date: Date): A.RotationMatrix {
+  const t = A.MakeTime(date)
+  const g = A.SiderealTime(t) * 15 * DEG
+  const c = Math.cos(g), sn = Math.sin(g)
+  // about z by +g, written in astronomy-engine's transposed layout (v′ᵢ = Σⱼ rot[j][i]·vⱼ)
+  const spin = new A.RotationMatrix([[c, sn, 0], [-sn, c, 0], [0, 0, 1]])
+  return A.CombineRotation(spin, A.Rotation_EQD_ECT(t))
+}
+
+/** The observer's position on Earth as a unit vector in the ecliptic of date (for the location pin) */
+export function observerEcliptic(date: Date, obs: Observer): Vec3 {
+  const t = A.MakeTime(date)
+  const v = A.RotateVector(A.Rotation_EQD_ECT(t), A.ObserverVector(t, observerOf(obs), true))
+  const l = Math.hypot(v.x, v.y, v.z)
+  return [v.x / l, v.y / l, v.z / l]
+}
+
 // ─── Events ───────────────────────────────────────────────────────────────────
 
 /** Next rise and set after `date` within two days, or null (e.g. circumpolar). */

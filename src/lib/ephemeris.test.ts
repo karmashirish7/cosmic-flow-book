@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import fixtures from './ephemeris.fixtures.json'
 import {
-  PLANETS, angleDiff, ascendant, ayanamsa, eclipseSeason, eclipticToHorizontal, geocentric, horizontal,
+  PLANETS, angleDiff, ascendant, ayanamsa, eclipseSeason, earthToEcliptic, eclipticToHorizontal, geocentric, horizontal, observerEcliptic,
   meanNode, moonAtNode, norm360, osculatingNode, rahuLongitude, siderealPlace, snapshot, KATHMANDU,
 } from './ephemeris'
 
@@ -131,6 +131,34 @@ describe('the sky from Kathmandu', () => {
       const onEcliptic = eclipticToHorizontal(geocentric(PLANETS[0].body, d).lon, d, KATHMANDU)
       expect(Math.abs(sun.alt - onEcliptic.alt)).toBeLessThan(0.02)
       expect(Math.abs(angleDiff(sun.az, onEcliptic.az)) * Math.cos(sun.alt * Math.PI / 180)).toBeLessThan(0.02)
+    })
+  }
+})
+
+describe('the Earth seen from outside', () => {
+  const RAD = Math.PI / 180
+  const fixed = (lat: number, lon: number): [number, number, number] =>
+    [Math.cos(lat * RAD) * Math.cos(lon * RAD), Math.cos(lat * RAD) * Math.sin(lon * RAD), Math.sin(lat * RAD)]
+  const rotate = (rot: { rot: number[][] }, v: [number, number, number]) =>
+    [0, 1, 2].map(i => rot.rot[0][i] * v[0] + rot.rot[1][i] * v[1] + rot.rot[2][i] * v[2])
+  const angle = (a: number[], b: number[]) =>
+    Math.acos(Math.min(1, a[0] * b[0] + a[1] * b[1] + a[2] * b[2])) / RAD
+
+  for (const iso of dates) {
+    it(`the texture orientation puts Kathmandu under the location pin on ${iso}`, () => {
+      const d = new Date(iso)
+      const fromTexture = rotate(earthToEcliptic(d), fixed(KATHMANDU.lat, KATHMANDU.lon))
+      // geodetic vs geocentric latitude differs by up to ~0.19°
+      expect(angle(fromTexture, observerEcliptic(d, KATHMANDU))).toBeLessThan(0.25)
+    })
+    it(`the observer's zenith is overhead on ${iso}`, () => {
+      const d = new Date(iso)
+      const z = observerEcliptic(d, KATHMANDU)
+      const lon = Math.atan2(z[1], z[0]) / RAD
+      const lat = Math.asin(z[2]) / RAD
+      // the ecliptic point under the zenith has altitude ≈ 90° − its ecliptic latitude offset
+      const h = eclipticToHorizontal(lon, d, KATHMANDU)
+      expect(Math.abs(h.alt - (90 - Math.abs(lat)))).toBeLessThan(0.3)
     })
   }
 })
