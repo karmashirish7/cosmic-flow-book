@@ -1,7 +1,7 @@
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import {
-  Compass, Earth, Eye, EyeOff, Maximize2, Minimize2, Moon, Orbit, Pause, Play, SkipForward, Star, Sun, X,
+  Compass, Earth, Eye, EyeOff, Maximize2, Minimize2, Moon, Orbit, Pause, Play, Star, Sun, X,
 } from 'lucide-react'
 import {
   KATHMANDU, NAKSHATRAS, PLANETS, RASHIS, eclipticToHorizontal, fmtDeg, nextEclipses, riseSet, snapshot,
@@ -11,6 +11,7 @@ import { panchangAt } from '@/lib/panchang'
 import SkyDome from './SkyDome'
 import EarthScene from './EarthScene'
 import LocationPicker from './LocationPicker'
+import PlanetPicker from './PlanetPicker'
 import type { Selectable, Sim, View } from './shared'
 import heroBg from '@/assets/hero-bg.jpg'
 
@@ -28,7 +29,6 @@ const SPEEDS = [
   { label: '1 year / s', v: 31_557_600 },
 ]
 
-const ORDER: Selectable[] = [...PLANETS.map(p => p.key), 'rahu', 'ketu']
 const COMPASS = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
 
 const hasWebGL = () => {
@@ -67,6 +67,8 @@ const btn = 'inline-flex items-center justify-center gap-1.5 rounded-lg border b
 
 export default function ExploreView() {
   const container = useRef<HTMLDivElement>(null)
+  const toolbar = useRef<HTMLDivElement>(null)
+  const [toolbarHeight, setToolbarHeight] = useState(56)
   const reducedMotion = useMemo(prefersReducedMotion, [])
   const webgl = useMemo(hasWebGL, [])
   const nowAtMount = useMemo(() => Date.now(), [])
@@ -135,14 +137,19 @@ export default function ExploreView() {
     return () => document.removeEventListener('fullscreenchange', onFs)
   }, [])
 
+  // The toolbar wraps onto more rows on narrow screens; keep the details panel below it
+  useEffect(() => {
+    const el = toolbar.current
+    if (!el) return
+    const ro = new ResizeObserver(() => setToolbarHeight(el.offsetHeight))
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
   const toggleFullscreen = () => {
     if (document.fullscreenElement) document.exitFullscreen()
     else container.current?.requestFullscreen?.()
   }
-
-  const nextObject = useCallback(() => {
-    setSelected(s => ORDER[(s ? ORDER.indexOf(s) + 1 : 0) % ORDER.length])
-  }, [])
 
   /** Zoom out of the current view, swap scenes behind a brief fade, then zoom into the new one */
   const switchMode = (m: 'ground' | 'space') => {
@@ -240,7 +247,7 @@ export default function ExploreView() {
       <div className={`pointer-events-none absolute inset-0 z-30 bg-black ${fade ? 'opacity-100' : 'opacity-0 transition-opacity duration-500'}`} />
 
       {/* ── Top: heading and toggles ── */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-40 flex flex-wrap items-start justify-between gap-2 p-3">
+      <div ref={toolbar} className="pointer-events-none absolute inset-x-0 top-0 z-40 flex flex-wrap items-start justify-between gap-2 p-3">
         <div className="pointer-events-auto flex flex-wrap items-center gap-1.5">
           <div className="inline-flex rounded-xl border border-white/15 bg-black/50 p-1 backdrop-blur">
             {([['ground', 'Earth view', Earth], ['space', 'Sky view', Orbit]] as const).map(([m, label, Icon]) => (
@@ -279,9 +286,7 @@ export default function ExploreView() {
           <button type="button" className={btn} onClick={() => setNames(!names)} title="Names of rashis, constellations and stars">
             <Star className="h-3.5 w-3.5" /> {names ? 'Names on' : 'Names off'}
           </button>
-          <button type="button" className={btn} onClick={nextObject} title="Turn to the next graha">
-            <SkipForward className="h-3.5 w-3.5" /> Next
-          </button>
+          <PlanetPicker snap={snap} selected={selected} onSelect={setSelected} buttonClass={btn} />
           <LocationPicker observer={observer} onChange={setObserver} buttonClass={btn} />
           <button type="button" className={btn} onClick={toggleFullscreen} title="Fullscreen" aria-label="Fullscreen">
             {fullscreen ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
@@ -291,7 +296,8 @@ export default function ExploreView() {
 
       {/* ── Selected object ── */}
       {(selPlanet || selNode) && (
-        <div className="absolute right-3 top-28 sm:top-16 z-40 w-[min(18rem,calc(100%-1.5rem))] rounded-xl border border-white/15 bg-black/70 p-4 text-sm backdrop-blur">
+        <div style={{ top: toolbarHeight + 4, maxHeight: `calc(100% - ${toolbarHeight + 150}px)` }}
+          className="absolute right-3 z-40 w-[min(18rem,calc(100%-1.5rem))] overflow-y-auto rounded-xl border border-white/15 bg-black/75 p-3 sm:p-4 text-xs sm:text-sm backdrop-blur">
           <div className="mb-2 flex items-start justify-between gap-2">
             <h3 className="font-serif text-lg font-bold text-[#F2C14E]">
               {selPlanet ? selPlanet.name : selected === 'rahu' ? 'Rahu ☊' : 'Ketu ☋'}
