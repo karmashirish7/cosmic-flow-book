@@ -3,10 +3,13 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import AstroKarmaz from "./pages/AstroKarmaz";
 import AiPredictor from "./pages/AiPredictor";
 import Kundli from "./pages/Kundli";
+
+// The 3D sky (three.js) loads only when someone opens Explore.
+const Explore = lazy(() => import("./pages/Explore"));
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +33,14 @@ const App = () => (
           <Route path="/astrokarmaz" element={<Navigate to="/" replace />} />
           <Route path="/ai-predictor" element={<AiPredictor />} />
           <Route path="/kundli" element={<Kundli />} />
+          <Route
+            path="/explore"
+            element={
+              <Suspense fallback={<div className="min-h-screen bg-background" />}>
+                <Explore />
+              </Suspense>
+            }
+          />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

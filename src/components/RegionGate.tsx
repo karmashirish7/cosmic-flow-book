@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { MapPin, Globe2, Sparkles } from "lucide-react";
+import { MapPin, Globe2, Orbit, Sparkles } from "lucide-react";
 import { useBrand } from "@/brand";
 import type { Region } from "@/pricing";
 
@@ -79,13 +79,21 @@ const RegionGate = ({ onSelect }: RegionGateProps) => {
         </div>
 
         <div className="mt-6 pt-6 border-t border-border/40">
-          <p className="text-xs text-muted-foreground mb-3">Just want your birth chart?</p>
-          <Link
-            to="/kundli"
-            className="btn-secondary-ghost inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold"
-          >
-            <Sparkles className="h-4 w-4" /> Generate Kundli
-          </Link>
+          <p className="text-xs text-muted-foreground mb-3">Just want your birth chart, or to see the sky?</p>
+          <div className="flex flex-wrap justify-center gap-2">
+            <Link
+              to="/kundli"
+              className="btn-secondary-ghost inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold"
+            >
+              <Sparkles className="h-4 w-4" /> Generate Kundli
+            </Link>
+            <Link
+              to="/explore"
+              className="btn-secondary-ghost inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold"
+            >
+              <Orbit className="h-4 w-4" /> Explore
+            </Link>
+          </div>
         </div>
 
         <p className="text-[11px] text-muted-foreground mt-7 leading-relaxed">

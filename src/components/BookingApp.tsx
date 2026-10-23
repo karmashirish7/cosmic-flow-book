@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Globe2, Sparkles } from "lucide-react";
+import { MapPin, Globe2, Orbit, Sparkles } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import StarField from "@/components/StarField";
 import RegionGate from "@/components/RegionGate";
@@ -165,12 +165,18 @@ const BookingApp = ({ brand, themeClass, showStarField = true }: BookingAppProps
                     </button>
                   </div>
 
-                  <div className="px-4 mt-3 mb-2 flex justify-center md:hidden">
+                  <div className="px-4 mt-3 mb-2 flex justify-center gap-2 md:hidden">
                     <Link
                       to="/kundli"
-                      className="btn-primary-glow inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm tracking-wide"
+                      className="btn-primary-glow inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm tracking-wide"
                     >
                       <Sparkles className="h-4 w-4" /> Generate Kundli
+                    </Link>
+                    <Link
+                      to="/explore"
+                      className="btn-secondary-ghost inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold"
+                    >
+                      <Orbit className="h-4 w-4" /> Explore
                     </Link>
                   </div>
 

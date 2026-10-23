@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Sparkles } from "lucide-react";
+import { Orbit, Sparkles } from "lucide-react";
 import { useBrand } from "@/brand";
 
 const Navbar = () => {
@@ -26,14 +26,24 @@ const Navbar = () => {
           />
         </picture>
 
-        {pathname !== "/kundli" && (
-          <Link
-            to="/kundli"
-            className="btn-primary-glow absolute right-4 top-1/2 -translate-y-1/2 hidden md:inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm"
-          >
-            <Sparkles className="h-4 w-4" /> Generate Kundli
-          </Link>
-        )}
+        <div className="absolute right-4 top-1/2 -translate-y-1/2 hidden md:flex items-center gap-2">
+          {pathname !== "/explore" && (
+            <Link
+              to="/explore"
+              className="btn-secondary-ghost inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold"
+            >
+              <Orbit className="h-4 w-4" /> Explore
+            </Link>
+          )}
+          {pathname !== "/kundli" && (
+            <Link
+              to="/kundli"
+              className="btn-primary-glow inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm"
+            >
+              <Sparkles className="h-4 w-4" /> Generate Kundli
+            </Link>
+          )}
+        </div>
       </div>
     </nav>
   );
