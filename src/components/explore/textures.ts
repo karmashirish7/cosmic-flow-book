@@ -6,13 +6,14 @@ import * as THREE from 'three'
 import { NAKSHATRAS, RASHIS } from '@/lib/ephemeris'
 
 /**
- * The zodiac belt: a strip along the ecliptic, drawn in sidereal longitude
- * (0° = start of Mesha), mapped onto a band around the sky.
+ * The zodiac belt: a light guide along the ecliptic, drawn in sidereal
+ * longitude (0° = start of Mesha), so the constellation patterns stay the main
+ * thing to see. No filled band: a fine ecliptic line with degree ticks, sign
+ * boundaries, each rashi's glyph and Sanskrit name, and small nakshatra names.
  *
  * Seen from inside the sky, longitude increases to the left (eastward when
  * facing south), so canvas x runs from 360° on the left to 0° on the right:
  * x = (1 − λ/360) · width. Top of the canvas is the north ecliptic edge.
- * Upper 60%: rashis (glyph, Sanskrit, English). Lower 40%: the 27 nakshatras.
  */
 export function zodiacBeltTexture(width = 4096, height = 512): THREE.CanvasTexture {
   const c = document.createElement('canvas')
@@ -20,12 +21,7 @@ export function zodiacBeltTexture(width = 4096, height = 512): THREE.CanvasTextu
   c.height = height
   const ctx = c.getContext('2d')!
   const x = (lon: number) => (1 - lon / 360) * width
-  const split = height * 0.6
-
-  ctx.fillStyle = 'rgba(139, 30, 30, 0.34)'
-  ctx.fillRect(0, 0, width, split)
-  ctx.fillStyle = 'rgba(40, 30, 70, 0.38)'
-  ctx.fillRect(0, split, width, height - split)
+  const mid = height * 0.5                       // the ecliptic itself
 
   const vline = (lon: number, y0: number, y1: number) => {
     ctx.beginPath(); ctx.moveTo(x(lon), y0); ctx.lineTo(x(lon), y1); ctx.stroke()
@@ -35,40 +31,36 @@ export function zodiacBeltTexture(width = 4096, height = 512): THREE.CanvasTextu
     ctx.fillStyle = color
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
+    ctx.shadowColor = 'rgba(0,0,0,0.85)'
+    ctx.shadowBlur = 6
     ctx.fillText(str, x(lon), y)
+    ctx.shadowBlur = 0
   }
 
-  // edges and the ecliptic itself (between the bands)
-  ctx.strokeStyle = 'rgba(242, 193, 78, 0.75)'
-  ctx.lineWidth = 3
-  for (const y of [1.5, split, height - 1.5]) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke() }
+  // the ecliptic: a fine line with 1° and 5° ticks
+  ctx.strokeStyle = 'rgba(242, 193, 78, 0.65)'
+  ctx.lineWidth = 2
+  ctx.beginPath(); ctx.moveTo(0, mid); ctx.lineTo(width, mid); ctx.stroke()
+  ctx.lineWidth = 1.2
+  for (let d = 0; d < 360; d++) vline(d, mid - (d % 5 === 0 ? 9 : 4), mid + (d % 5 === 0 ? 9 : 4))
 
-  // degree ticks along the ecliptic, longer every 5°
-  ctx.lineWidth = 1.5
-  ctx.strokeStyle = 'rgba(242, 193, 78, 0.6)'
-  for (let d = 0; d < 360; d++) vline(d, split - (d % 5 === 0 ? 22 : 10), split)
-
+  // rashi boundaries and labels above the line
   for (let i = 0; i < 12; i++) {
-    ctx.strokeStyle = 'rgba(242, 193, 78, 0.8)'
-    ctx.lineWidth = 3
-    vline(i * 30, 0, split)
-    const mid = i * 30 + 15
-    label(RASHIS[i].glyph + '\uFE0E', mid, split * 0.3, `${Math.round(split * 0.3)}px serif`, '#F6E7C1')
-    label(RASHIS[i].sa, mid, split * 0.62, `600 ${Math.round(split * 0.17)}px Georgia, serif`, '#FFFFFF')
-    label(RASHIS[i].en, mid, split * 0.82, `${Math.round(split * 0.1)}px Arial, sans-serif`, 'rgba(255,255,255,0.75)')
+    ctx.strokeStyle = 'rgba(242, 193, 78, 0.55)'
+    ctx.lineWidth = 2
+    vline(i * 30, mid - height * 0.38, mid + height * 0.12)
+    const m = i * 30 + 15
+    label(RASHIS[i].glyph + '\uFE0E', m, mid - height * 0.27, `${Math.round(height * 0.15)}px serif`, 'rgba(246, 231, 193, 0.9)')
+    label(RASHIS[i].sa, m, mid - height * 0.11, `600 ${Math.round(height * 0.075)}px Georgia, serif`, 'rgba(255, 255, 255, 0.85)')
   }
 
+  // nakshatras: short ticks and small names below the line
   const span = 360 / 27
-  const nakH = height - split
   for (let i = 0; i < 27; i++) {
-    ctx.strokeStyle = 'rgba(190, 170, 240, 0.7)'
-    ctx.lineWidth = 2
-    vline(i * span, split, height)
-    const words = NAKSHATRAS[i].split(' ')
-    const mid = i * span + span / 2
-    const font = `${Math.round(nakH * 0.2)}px Arial, sans-serif`
-    if (words.length === 1) label(words[0], mid, split + nakH * 0.5, font, 'rgba(230, 220, 255, 0.95)')
-    else words.forEach((w, k) => label(w, mid, split + nakH * (0.33 + 0.34 * k), font, 'rgba(230, 220, 255, 0.95)'))
+    ctx.strokeStyle = 'rgba(190, 170, 240, 0.45)'
+    ctx.lineWidth = 1.2
+    vline(i * span, mid, mid + height * 0.1)
+    label(NAKSHATRAS[i], i * span + span / 2, mid + height * 0.07, `${Math.round(height * 0.042)}px Arial, sans-serif`, 'rgba(220, 210, 255, 0.7)')
   }
 
   const tex = new THREE.CanvasTexture(c)

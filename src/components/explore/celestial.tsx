@@ -4,9 +4,10 @@
  * figures) or sidereal ecliptic coordinates (the belt), in astronomy-engine's
  * axes; the parent group's matrix places it in the scene.
  */
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
-import { Html } from '@react-three/drei'
+import { Html, Line } from '@react-three/drei'
+import type { Line2, LineMaterial, LineSegments2 } from 'three-stdlib'
 import * as THREE from 'three'
 import starData from './stars.json'
 import figureData from './constellations.json'
@@ -96,35 +97,47 @@ export function StarNames({ radius, hidden }: { radius: number; hidden?: (p: THR
 interface Figure { abbr: string; name: string; rashi: string; lines: number[][]; stars: number[][] }
 const FIGURES = figureData.figures as Figure[]
 
-/** Stick figures of the 12 zodiac constellations, so each rashi's star pattern can be seen */
-export function ZodiacFigures({ radius, color = '#F6D98B', opacity }: { radius: number; color?: string; opacity: () => number }) {
-  const { lines, dots } = useMemo(() => {
-    const seg: number[] = [], pts: number[] = []
+/** A small round sprite, so pattern stars draw as dots rather than squares */
+function roundDot() {
+  const c = document.createElement('canvas')
+  c.width = c.height = 32
+  const ctx = c.getContext('2d')!
+  const g = ctx.createRadialGradient(16, 16, 0, 16, 16, 16)
+  g.addColorStop(0, 'rgba(255,255,255,1)')
+  g.addColorStop(0.55, 'rgba(255,255,255,0.9)')
+  g.addColorStop(1, 'rgba(255,255,255,0)')
+  ctx.fillStyle = g
+  ctx.fillRect(0, 0, 32, 32)
+  return new THREE.CanvasTexture(c)
+}
+
+/** Stick figures of the 12 zodiac constellations: the main thing to see along the zodiac */
+export function ZodiacFigures({ radius, color = '#FFE3A3', opacity }: { radius: number; color?: string; opacity: () => number }) {
+  const { segments, dots } = useMemo(() => {
+    const seg: [number, number, number][] = [], pts: number[] = []
     for (const f of FIGURES) {
       for (const [ra1, d1, ra2, d2] of f.lines) {
-        seg.push(...eqjUnit(ra1, d1).multiplyScalar(radius).toArray(), ...eqjUnit(ra2, d2).multiplyScalar(radius).toArray())
+        seg.push(eqjUnit(ra1, d1).multiplyScalar(radius).toArray(), eqjUnit(ra2, d2).multiplyScalar(radius).toArray())
       }
       for (const [ra, d] of f.stars) pts.push(...eqjUnit(ra, d).multiplyScalar(radius * 0.999).toArray())
     }
-    return {
-      lines: new THREE.BufferGeometry().setAttribute('position', new THREE.Float32BufferAttribute(seg, 3)),
-      dots: new THREE.BufferGeometry().setAttribute('position', new THREE.Float32BufferAttribute(pts, 3)),
-    }
+    return { segments: seg, dots: new THREE.BufferGeometry().setAttribute('position', new THREE.Float32BufferAttribute(pts, 3)) }
   }, [radius])
-  useEffect(() => () => { lines.dispose(); dots.dispose() }, [lines, dots])
-  const mats = useMemo(() => ({
-    line: new THREE.LineBasicMaterial({ color, transparent: true, depthWrite: false }),
-    dot: new THREE.PointsMaterial({ color, size: 4, sizeAttenuation: false, transparent: true, depthWrite: false }),
-  }), [color])
+  useEffect(() => () => dots.dispose(), [dots])
+  const dotMat = useMemo(() => new THREE.PointsMaterial({
+    color: '#FFFFFF', size: 7, sizeAttenuation: false, transparent: true, depthWrite: false, map: roundDot(), alphaTest: 0.3,
+  }), [])
+  const line = useRef<Line2 | LineSegments2>(null)
   useFrame(() => {
     const o = opacity()
-    mats.line.opacity = 0.55 * o
-    mats.dot.opacity = 0.9 * o
+    if (line.current) (line.current.material as LineMaterial).opacity = 0.9 * o
+    dotMat.opacity = o
   })
   return (
     <>
-      <lineSegments geometry={lines} material={mats.line} renderOrder={2} />
-      <points geometry={dots} material={mats.dot} renderOrder={2} />
+      {/* fat lines (screen-space width), so the patterns read clearly */}
+      <Line ref={line} points={segments} segments color={color} lineWidth={2.2} transparent opacity={0.9} depthWrite={false} renderOrder={2} />
+      <points geometry={dots} material={dotMat} renderOrder={2} />
     </>
   )
 }
@@ -141,7 +154,7 @@ export function ConstellationNames({ radius, hidden }: { radius: number; hidden?
       {centres.map(({ f, p }) => hidden?.(p) ? null : (
         <Html key={f.abbr} center position={p.toArray()} style={{ pointerEvents: 'none' }} zIndexRange={[9, 0]}>
           <span className="block whitespace-nowrap text-center animate-in fade-in zoom-in-50 duration-700">
-            <span className="block font-serif text-[13px] font-bold tracking-wide text-[#F6D98B] drop-shadow">{f.name}</span>
+            <span className="block font-serif text-[14px] font-bold tracking-wide text-[#FFE3A3] drop-shadow">{f.name}</span>
             <span className="block text-[10px] text-white/70">constellation of {f.rashi}</span>
           </span>
         </Html>
