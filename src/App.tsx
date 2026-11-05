@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useEffect, useRef } from "react";
 import AstroKarmaz from "./pages/AstroKarmaz";
 import AiPredictor from "./pages/AiPredictor";
 import Kundli from "./pages/Kundli";
@@ -20,6 +20,18 @@ function ScrollToTop() {
   return null;
 }
 
+// The Meta Pixel in index.html tracks the first page load. This app swaps pages
+// without reloading, so send a PageView on every later route change too.
+function MetaPixelPageView() {
+  const { pathname } = useLocation();
+  const isFirst = useRef(true);
+  useEffect(() => {
+    if (isFirst.current) { isFirst.current = false; return; }
+    (window as unknown as { fbq?: (...args: unknown[]) => void }).fbq?.("track", "PageView");
+  }, [pathname]);
+  return null;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -27,6 +39,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <ScrollToTop />
+        <MetaPixelPageView />
         <Routes>
           <Route path="/" element={<AstroKarmaz />} />
           {/* Legacy link — the Astrokarmaz site now lives at the root. */}
