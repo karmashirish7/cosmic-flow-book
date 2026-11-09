@@ -1,0 +1,1536 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><meta name="robots" content="noindex, nofollow">
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '3669233649904466');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=3669233649904466&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
+</head><body>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Navamsha Made Plain</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=Tiro+Devanagari+Sanskrit&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a study handbook (companion to "Laghu Parashari Made Plain") — sticky contents rail, one reading column, rule/example/note callouts set off by role */
+:root {
+  --bg: #f4f5fa; --surface: #ffffff; --ink: #1c2042; --muted: #5b6185; --line: #d9dcea;
+  --accent: #a8650a; --accent-soft: #f6ead6;
+  --good: #2c7a57; --good-soft: #e1f1e8; --bad: #b13a49; --bad-soft: #f7e3e6; --mid: #5d6390; --mid-soft: #e7e8f4;
+  /* element colours for the 108-pada grid */
+  --fire: #c2410c; --fire-soft: #fbe3d6; --earth: #3f7d3a; --earth-soft: #e2f0dc;
+  --air: #4b5fb0; --air-soft: #e3e7f8; --water: #0e7490; --water-soft: #d8eff4;
+  --f-display: "Marcellus", "Trajan Pro", Georgia, serif;
+  --f-body: "Literata", Georgia, "Times New Roman", serif;
+  --f-deva: "Tiro Devanagari Sanskrit", "Noto Serif Devanagari", serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1226; --surface: #171b35; --ink: #e6e7f3; --muted: #9ca1c6; --line: #2b3058;
+    --accent: #eeb04a; --accent-soft: #2e2615; --good: #6fcf9f; --good-soft: #15291f;
+    --bad: #f08d99; --bad-soft: #301a1f; --mid: #aab0e0; --mid-soft: #1f2445;
+    --fire: #fb9a6c; --fire-soft: #3a2116; --earth: #8fd18a; --earth-soft: #18301a;
+    --air: #a5b4fc; --air-soft: #1f2650; --water: #67d3e6; --water-soft: #10303a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1226; --surface: #171b35; --ink: #e6e7f3; --muted: #9ca1c6; --line: #2b3058;
+  --accent: #eeb04a; --accent-soft: #2e2615; --good: #6fcf9f; --good-soft: #15291f;
+  --bad: #f08d99; --bad-soft: #301a1f; --mid: #aab0e0; --mid-soft: #1f2445;
+  --fire: #fb9a6c; --fire-soft: #3a2116; --earth: #8fd18a; --earth-soft: #18301a;
+  --air: #a5b4fc; --air-soft: #1f2650; --water: #67d3e6; --water-soft: #10303a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 17px; line-height: 1.65; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 32px 80px; display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 48px; }
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 20px); align-self: start; max-height: calc(100vh - 40px); overflow-y: auto; font-size: 14px; line-height: 1.4; }
+nav.toc .label { font-family: var(--f-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 18px 0 6px; }
+nav.toc a { display: block; color: var(--ink); text-decoration: none; padding: 4px 0 4px 10px; border-left: 2px solid var(--line); }
+nav.toc a:hover, nav.toc a:focus-visible { border-left-color: var(--accent); color: var(--accent); outline: none; }
+main { min-width: 0; max-width: 780px; }
+header.hero { padding-bottom: 28px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.eyebrow { font-family: var(--f-mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+h1 { font-family: var(--f-display); font-weight: 400; font-size: clamp(2.2rem, 5vw, 3.3rem); line-height: 1.08; margin: 10px 0 6px; text-wrap: balance; }
+.deva { font-family: var(--f-deva); }
+.hero .deva { font-size: 1.5rem; color: var(--muted); }
+.lede { font-size: 1.12rem; color: var(--muted); max-width: 62ch; }
+h2 { font-family: var(--f-display); font-weight: 400; font-size: 1.9rem; line-height: 1.2; margin: 64px 0 4px; text-wrap: balance; scroll-margin-top: 20px; }
+h2 .src { display: block; font-family: var(--f-mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+h3 { font-family: var(--f-body); font-weight: 600; font-size: 1.15rem; margin: 34px 0 6px; text-wrap: balance; scroll-margin-top: 20px; }
+p { margin: 0 0 14px; }
+a { color: var(--accent); }
+.part { margin-top: 80px; padding: 18px 0; border-top: 3px double var(--line); border-bottom: 3px double var(--line); font-family: var(--f-display); font-size: 1.4rem; color: var(--muted); }
+.part small { display: block; font-family: var(--f-body); font-size: .95rem; margin-top: 4px; }
+.rule, .example, .note, .warn { border-radius: 6px; padding: 16px 18px; margin: 18px 0; }
+.rule { background: var(--surface); border: 1px solid var(--line); }
+.tag { font-family: var(--f-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; display: block; margin-bottom: 6px; }
+.rule .tag { color: var(--ink); }
+.example { background: var(--good-soft); }
+.example .tag { color: var(--good); }
+.note { background: var(--mid-soft); }
+.note .tag { color: var(--mid); }
+.warn { background: var(--bad-soft); }
+.warn .tag { color: var(--bad); }
+.rule p:last-child, .example p:last-child, .note p:last-child, .warn p:last-child { margin-bottom: 0; }
+.rule ul:last-child, .example ul:last-child, .note ul:last-child, .warn ul:last-child, .example ol:last-child { margin-bottom: 0; }
+ul, ol { padding-left: 1.3em; margin: 0 0 14px; }
+li { margin-bottom: 5px; }
+.tbl { overflow-x: auto; margin: 16px 0; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 15px; }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--f-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 500; background: var(--bg); }
+tr:last-child td { border-bottom: none; }
+td.num, .mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; font-size: 14px; }
+td.k { font-weight: 600; white-space: nowrap; }
+.pill { display: inline-block; font-family: var(--f-mono); font-size: 12px; padding: 1px 8px; border-radius: 999px; margin: 1px 2px 1px 0; white-space: nowrap; }
+.p-good { background: var(--good-soft); color: var(--good); }
+.p-bad { background: var(--bad-soft); color: var(--bad); }
+.p-mid { background: var(--mid-soft); color: var(--mid); }
+.p-acc { background: var(--accent-soft); color: var(--accent); }
+.e-fire { background: var(--fire-soft); color: var(--fire); }
+.e-earth { background: var(--earth-soft); color: var(--earth); }
+.e-air { background: var(--air-soft); color: var(--air); }
+.e-water { background: var(--water-soft); color: var(--water); }
+.gloss { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin: 16px 0; }
+.gloss div { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; font-size: 15px; line-height: 1.45; }
+.gloss b { display: block; }
+.gloss .deva { color: var(--muted); font-size: 14px; }
+
+/* figures */
+figure { margin: 22px 0; }
+figcaption { font-size: 14px; color: var(--muted); margin-top: 8px; line-height: 1.45; }
+.fig { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+.fig svg { display: block; width: 100%; height: auto; }
+svg text { font-family: var(--f-body); }
+svg .t-ink { fill: var(--ink); } svg .t-mut { fill: var(--muted); } svg .t-acc { fill: var(--accent); }
+svg .mono { font-family: var(--f-mono); }
+svg .s-line { stroke: var(--line); } svg .s-ink { stroke: var(--ink); } svg .s-acc { stroke: var(--accent); } svg .s-mut { stroke: var(--muted); }
+svg .f-surf { fill: var(--surface); } svg .f-bg { fill: var(--bg); } svg .f-accs { fill: var(--accent-soft); } svg .f-acc { fill: var(--accent); }
+svg .f-goods { fill: var(--good-soft); } svg .f-mids { fill: var(--mid-soft); } svg .f-bads { fill: var(--bad-soft); }
+svg .f-fire { fill: var(--fire-soft); } svg .f-earth { fill: var(--earth-soft); } svg .f-air { fill: var(--air-soft); } svg .f-water { fill: var(--water-soft); }
+svg .c-fire { fill: var(--fire); } svg .c-earth { fill: var(--earth); } svg .c-air { fill: var(--air); } svg .c-water { fill: var(--water); }
+svg .c-good { fill: var(--good); } svg .c-bad { fill: var(--bad); } svg .c-mid { fill: var(--mid); }
+
+/* D1 → D9 seed/fruit */
+.twin { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: stretch; margin: 18px 0; }
+.twin > div { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; font-size: 15px; }
+.twin .big { font-family: var(--f-display); font-size: 1.35rem; display: block; margin-bottom: 2px; }
+.twin .arrow { background: none; border: 0; display: flex; align-items: center; font-size: 1.6rem; color: var(--accent); padding: 0; }
+.twin ul { margin: 6px 0 0; }
+
+/* reading-order flow */
+.flow { display: flex; flex-wrap: wrap; gap: 8px; align-items: stretch; margin: 18px 0; counter-reset: step; }
+.flow > div { flex: 1 1 150px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; font-size: 15px; position: relative; counter-increment: step; }
+.flow > div::before { content: counter(step); display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: var(--bg); font-family: var(--f-mono); font-size: 12px; margin-bottom: 6px; }
+.flow b { display: block; }
+.flow small { color: var(--muted); display: block; line-height: 1.4; margin-top: 2px; }
+
+/* 108 grid */
+.grid108 table { font-size: 13px; min-width: 620px; }
+.grid108 th, .grid108 td { padding: 6px 4px; text-align: center; border: 1px solid var(--line); }
+.grid108 th:first-child, .grid108 td:first-child { text-align: left; padding-left: 10px; white-space: nowrap; }
+.grid108 td.c { font-family: var(--f-mono); font-size: 12px; cursor: default; }
+.grid108 td.hl { outline: 3px solid var(--accent); outline-offset: -3px; font-weight: 600; }
+.grid108 tr.row-hl td:first-child { color: var(--accent); font-weight: 600; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 0; font-size: 13px; }
+
+/* calculator */
+.tool { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 18px; margin: 20px 0; }
+.tool h4 { margin: 0 0 4px; font-family: var(--f-display); font-weight: 400; font-size: 1.3rem; }
+.tool .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin: 12px 0; }
+.tool label { display: flex; flex-direction: column; font-family: var(--f-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); gap: 4px; }
+.tool input, .tool select { font: inherit; font-family: var(--f-body); font-size: 16px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 5px; background: var(--bg); color: var(--ink); text-transform: none; letter-spacing: 0; }
+.tool input[type=range] { padding: 0; width: 100%; accent-color: var(--accent); background: none; border: 0; }
+.tool input:focus-visible, .tool select:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.tool .out { font-size: 15px; }
+button.go { font: inherit; font-family: var(--f-body); font-size: 16px; padding: 7px 16px; border-radius: 5px; border: 1px solid var(--accent); background: var(--accent); color: var(--bg); cursor: pointer; }
+button.go:hover { filter: brightness(1.08); }
+.result-line { font-size: 1.05rem; margin: 8px 0 12px; }
+.result-line b { color: var(--accent); }
+.steps { font-size: 15px; background: var(--bg); border-radius: 6px; padding: 10px 14px; margin: 10px 0 0; }
+.steps ol { margin: 0; }
+
+/* chips */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 16px; padding: 0; list-style: none; }
+.chips li { background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 3px 12px; font-size: 14px; margin: 0; }
+
+/* sign chapters */
+.sign-head { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 18px; align-items: center; margin: 72px 0 10px; padding-top: 28px; border-top: 1px solid var(--line); scroll-margin-top: 20px; }
+.glyph { width: 84px; height: 84px; border-radius: 50%; display: grid; place-items: center; font-size: 2.6rem; line-height: 1; font-family: "Segoe UI Symbol", "Apple Symbols", "Noto Sans Symbols", serif; }
+.sign-head h2 { margin: 0; }
+.sign-head .meta { margin-top: 6px; }
+.essence { font-size: 1.12rem; line-height: 1.6; border-left: 3px solid var(--accent); padding: 2px 0 2px 16px; margin: 14px 0 18px; }
+.hgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; margin: 14px 0; }
+.hgrid div { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 9px 12px 10px; font-size: 14.5px; line-height: 1.45; }
+.hgrid .hn { display: block; font-family: var(--f-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-bottom: 3px; }
+.srcgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; margin: 14px 0; }
+.srcgrid div { border-radius: 6px; padding: 9px 12px; font-size: 14.5px; line-height: 1.45; background: var(--surface); border: 1px solid var(--line); }
+.srcgrid div.never { background: transparent; border-style: dashed; color: var(--muted); }
+.srcgrid b { display: block; font-size: 14px; }
+.srcgrid .never b::after { content: " · never"; font-family: var(--f-mono); font-size: 11px; font-weight: 400; }
+.chartbox { display: grid; grid-template-columns: minmax(0, 250px) minmax(0, 1fr); gap: 22px; align-items: start; margin: 14px 0 0; }
+.chartbox svg { width: 100%; height: auto; max-width: 250px; }
+svg.nchart .ln { stroke: var(--ink); stroke-width: 1.5; fill: none; }
+svg.nchart .sg { fill: var(--muted); font-family: var(--f-mono); font-size: 13px; }
+svg.nchart .pl { fill: var(--accent); font-family: var(--f-body); font-weight: 600; font-size: 15px; }
+svg.nchart .bg { fill: var(--surface); }
+svg.nchart .hi { fill: var(--accent-soft); }
+.chartbox ol { margin: 0; padding-left: 1.2em; font-size: 15px; }
+.chartbox ol li { margin-bottom: 6px; }
+details.more { margin: 12px 0; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+details.more summary { cursor: pointer; padding: 10px 14px; font-family: var(--f-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+details.more > div { padding: 0 14px 12px; font-size: 15px; }
+
+/* planet explorer */
+.pbtns { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 14px; }
+.pbtns button { font: inherit; font-size: 14px; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+.pbtns button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.pcards { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
+.pcards div { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; font-size: 14.5px; line-height: 1.45; }
+.pcards b { display: block; font-size: 14px; margin-bottom: 2px; }
+.pcards .dg { float: right; }
+
+/* reading output */
+.reading { display: grid; gap: 10px; margin-top: 12px; }
+.reading article { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; background: var(--bg); font-size: 15px; }
+.reading article h5 { margin: 0 0 6px; font-family: var(--f-display); font-weight: 400; font-size: 1.15rem; }
+.reading article p { margin: 0 0 6px; }
+.reading article .lbl { font-family: var(--f-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-right: 6px; }
+.charts2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 12px 0; }
+.charts2 figure { margin: 0; }
+.charts2 svg { width: 100%; max-width: 300px; height: auto; }
+
+.cheat { columns: 2 280px; column-gap: 28px; }
+.cheat .rule { break-inside: avoid; margin-top: 0; }
+.mnav { display: none; }
+footer { margin-top: 60px; font-size: 14px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 16px; }
+@media (max-width: 880px) {
+  .wrap { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  nav.toc { display: none; }
+  .mnav { display: block; margin: 18px 0 0; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 10px 14px; font-size: 15px; }
+  .mnav summary { cursor: pointer; font-family: var(--f-mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; }
+  .mnav a { display: block; color: var(--ink); padding: 3px 0; }
+  .chartbox, .charts2 { grid-template-columns: minmax(0, 1fr); }
+  .twin { grid-template-columns: 1fr; }
+  .twin .arrow { justify-content: center; transform: rotate(90deg); }
+  body { font-size: 16px; }
+  .sign-head { grid-template-columns: 60px minmax(0, 1fr); gap: 12px; }
+  .glyph { width: 60px; height: 60px; font-size: 1.9rem; }
+}
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav class="toc" aria-label="Contents">
+  <div class="label">Start here</div>
+  <a href="#about">What these notes are</a>
+  <a href="#glossary">Key words</a>
+  <div class="label">Part I · Foundations</div>
+  <a href="#d1d9">D1 is the seed, D9 the fruit</a>
+  <a href="#calc">Working out a Navamsha</a>
+  <a href="#grid">The 108 padas on one page</a>
+  <a href="#reach">Who can reach which Navamsha</a>
+  <a href="#order">How to read: the 4 steps</a>
+  <a href="#principles">12 ground rules</a>
+  <a href="#journey">The journey through the signs</a>
+  <div class="label">Part II · The Navamshas</div>
+  <a href="#nav-0">♈︎ Aries · the warrior's start</a>
+  <a href="#nav-1">♉︎ Taurus · the storehouse</a>
+  <a href="#nav-2">♊︎ Gemini · the reaction</a>
+  <a href="#nav-3">♋︎ Cancer · the deep water</a>
+  <a href="#nav-4">♌︎ Leo · the throne</a>
+  <a href="#nav-5">♍︎ Virgo · the speed limiter</a>
+  <a href="#nav-6">♎︎ Libra · not taught</a>
+  <a href="#nav-7">♏︎ Scorpio · the ravine</a>
+  <a href="#nav-8">♐︎ Sagittarius · the sword's edge</a>
+  <a href="#nav-9">♑︎ Capricorn · karmic service</a>
+  <a href="#nav-10">♒︎ Aquarius · the punya store</a>
+  <a href="#nav-11">♓︎ Pisces · release</a>
+  <div class="label">Part III · Tools &amp; revision</div>
+  <a href="#planets">Planets across the signs</a>
+  <a href="#houses">House themes</a>
+  <a href="#deities">Deities &amp; remedies</a>
+  <a href="#sutras">Diagnostic sutras</a>
+  <a href="#mychart">Work out your own D9</a>
+  <a href="#cheat">One-page summary</a>
+</nav>
+
+<main>
+<header class="hero">
+  <div class="eyebrow">Study notes · Astro IITians “नवांशा” series</div>
+  <h1>Navamsha Made Plain</h1>
+  <div class="deva">नवांश · D9 · the chart of fortune</div>
+  <p class="lede" style="margin-top:14px">The whole Navamsha lecture series (49 playlist videos and 10 follow-up lectures) turned into one handbook. Every sign from Aries to Pisces, with pictures, worked examples and a tool that reads your own D9 using these rules.</p>
+  <details class="mnav"><summary>Contents</summary>
+    <a href="#about">What these notes are</a><a href="#glossary">Key words</a><a href="#d1d9">D1 vs D9</a><a href="#calc">Working out a Navamsha</a><a href="#grid">The 108 padas</a><a href="#reach">Who reaches which Navamsha</a><a href="#order">The 4 reading steps</a><a href="#principles">12 ground rules</a><a href="#journey">Journey through the signs</a>
+    <a href="#nav-0">Aries</a><a href="#nav-1">Taurus</a><a href="#nav-2">Gemini</a><a href="#nav-3">Cancer</a><a href="#nav-4">Leo</a><a href="#nav-5">Virgo</a><a href="#nav-6">Libra</a><a href="#nav-7">Scorpio</a><a href="#nav-8">Sagittarius</a><a href="#nav-9">Capricorn</a><a href="#nav-10">Aquarius</a><a href="#nav-11">Pisces</a>
+    <a href="#planets">Planets across the signs</a><a href="#houses">House themes</a><a href="#deities">Deities &amp; remedies</a><a href="#sutras">Diagnostic sutras</a><a href="#mychart">Work out your own D9</a><a href="#cheat">One-page summary</a>
+  </details>
+</header>
+
+<!-- ============ ABOUT ============ -->
+<h2 id="about"><span class="src">Introduction</span>What these notes are</h2>
+<p>The Rashi chart (D1) shows the life you were handed. The Navamsha (D9) cuts every sign into nine slices and shows what grows out of it: what you give, what you become, and what your marriage and your second half of life turn into. That is why the D9 is called the chart of <i>bhagya</i>, or fortune.</p>
+<p>This series reads the D9 one sign at a time. For each Navamsha sign it asks four questions: what the sign itself means, what each planet does inside it, what happens when it falls in each house of the D9, and how the planet's original Rashi sign colours the result. These notes keep that order.</p>
+<div class="note"><span class="tag">Read this first</span>
+<p>Everything here is the teacher's framework, recorded as taught, not tested fact. The examples marked “worked example” are made up by these notes to show the method step by step; the short “from class” cases are ones the teacher discussed. Libra Navamsha was never taught in the series (the teacher left it for last and for his book), so its chapter is only a placeholder. Use these readings to ask better questions about a chart, and confirm anything important from three or four directions before you say it out loud.</p>
+</div>
+
+<!-- ============ GLOSSARY ============ -->
+<h2 id="glossary"><span class="src">Before you start</span>Key words you will meet</h2>
+<div class="gloss">
+  <div><b>Rashi chart (D1)</b><span class="deva">राशि</span> The ordinary birth chart. In these notes: the event, the trigger, what you received.</div>
+  <div><b>Navamsha (D9)</b><span class="deva">नवांश</span> “Ninth part.” Each 30° sign is split into nine slices of 3°20′. In these notes: the fruit, the result, what you give and become.</div>
+  <div><b>Pada / amsha</b><span class="deva">पाद</span> One slice of 3°20′. There are 12 × 9 = 108 of them around the zodiac, the same as the 108 nakshatra quarters.</div>
+  <div><b>Navamsha sign</b> The sign a planet lands in once you work out its slice. “Mars in Aries Navamsha” means Mars's slice maps to Aries.</div>
+  <div><b>Source sign</b> The planet's sign in the D1. The series reads it as “Rashi → Navamsha”: blend the D1 sign's nature into the Navamsha sign.</div>
+  <div><b>Navamsha lagna</b> The sign the ascendant's slice falls in. It is house 1 of the D9; houses are counted from it.</div>
+  <div><b>Vargottama</b><span class="deva">वर्गोत्तम</span> A planet in the same sign in D1 and D9 (e.g. Taurus → Taurus Navamsha). The sign's effect comes through at full strength.</div>
+  <div><b>Exalted / debilitated</b> A planet's best and worst signs. In a Navamsha, a debilitated planet's significations go missing; an exalted one can be enjoyed.</div>
+  <div><b>Marriage lens</b> Most house readings in the series look at the D9 as the marriage chart: what the house shows about spouse, in-laws and married life.</div>
+  <div><b>Chara karakas</b> Jaimini's movable significators by degree (Atmakaraka = highest degree, Darakaraka = lowest). The teacher uses the 8-karaka scheme with Rahu, taken from the D1.</div>
+  <div><b>Shadbala / Bhava Bala</b> Strength scores. The teacher's rough lines: Shadbala about 420+ (of 450) is strong; Bhava Bala about 25+ is good.</div>
+  <div><b>Dashavatara deity</b> Each planet is linked to one of Vishnu's ten forms (Sun–Rama, Mars–Narasimha, Rahu–Varaha …). Remedies in the series lean on these.</div>
+</div>
+
+<!-- ============ PART I ============ -->
+<div class="part">Part I · Foundations<small>How the D9 is built, and the method used for every sign.</small></div>
+
+<h2 id="d1d9"><span class="src">Principle 1 &amp; 2</span>D1 is the seed, D9 is the fruit</h2>
+<p>The single most repeated idea in the series: the D1 shows <i>that</i> something happens; the D9 shows <i>what comes of it</i> and whom it touches. When a planet's dasha runs, it gives the results of its Navamsha sign and its D9 house.</p>
+<div class="twin" role="figure" aria-label="D1 versus D9 comparison">
+  <div><span class="big">D1 · Rashi</span>The event, the condition, the trigger.
+    <ul><li>What you <b>received</b> at birth</li><li>Shows strongly from childhood</li><li>“You got married”</li></ul></div>
+  <div class="arrow" aria-hidden="true">→</div>
+  <div><span class="big">D9 · Navamsha</span>The fruit, the result, the after-effect.
+    <ul><li>What you <b>give and become</b></li><li>Sprouts slowly, mostly after work or marriage</li><li>“What the marriage turned into, and who it affected”</li></ul></div>
+</div>
+<div class="example"><span class="tag">Example · how the two charts split a story</span>
+<p>Suppose the D1 shows a job change in a Mars period. The D1 tells you the change happens. The D9 tells you whether that change sets you up (Mars in Capricorn Navamsha: big deals, machines, land), keeps you fighting (Mars in Aries Navamsha: authority won through struggle), or drains you emotionally (Mars in Cancer Navamsha, where it is debilitated: emotion turns into fights).</p>
+</div>
+
+<!-- ============ CALCULATION ============ -->
+<h2 id="calc"><span class="src">Principle 5</span>Working out a planet's Navamsha by hand</h2>
+<p>Every sign is 30°. Cut it into nine equal slices of 3°20′ and you get nine padas. The only question is <b>where the counting starts</b>, and that depends on the element of the D1 sign:</p>
+<div class="tbl"><table>
+<thead><tr><th>D1 sign group</th><th>Element</th><th>Counting starts from</th><th>So the nine slices run</th></tr></thead>
+<tbody>
+<tr><td>Aries, Leo, Sagittarius (1-5-9)</td><td><span class="pill e-fire">fire</span></td><td class="k">Aries</td><td>Aries → Sagittarius</td></tr>
+<tr><td>Taurus, Virgo, Capricorn (2-6-10)</td><td><span class="pill e-earth">earth</span></td><td class="k">Capricorn</td><td>Capricorn → Virgo</td></tr>
+<tr><td>Gemini, Libra, Aquarius (3-7-11)</td><td><span class="pill e-air">air</span></td><td class="k">Libra</td><td>Libra → Gemini</td></tr>
+<tr><td>Cancer, Scorpio, Pisces (4-8-12)</td><td><span class="pill e-water">water</span></td><td class="k">Cancer</td><td>Cancer → Pisces</td></tr>
+</tbody></table></div>
+<p>A memory trick: each element starts from the <b>movable sign of its own element</b>. Fire starts at Aries, earth at Capricorn, air at Libra, water at Cancer.</p>
+
+<figure class="fig" id="stripFig">
+  <svg id="strip" viewBox="0 0 720 150" role="img" aria-label="One sign divided into nine slices of 3 degrees 20 minutes, each labelled with its Navamsha sign"></svg>
+  <figcaption id="stripCap">One sign, nine slices. Pick a sign and a degree in the calculator below and this strip updates.</figcaption>
+</figure>
+
+<div class="tool" id="calcTool">
+  <h4>Navamsha calculator</h4>
+  <p style="font-size:15px;color:var(--muted);margin:0">Choose a D1 sign and a degree. The page shows the slice, the Navamsha sign, and the steps.</p>
+  <div class="row">
+    <label for="cSign">D1 sign<select id="cSign"></select></label>
+    <label for="cDeg">Degree<input type="number" id="cDeg" min="0" max="29" step="1" value="14" style="width:80px"></label>
+    <label for="cMin">Minutes<input type="number" id="cMin" min="0" max="59" step="1" value="0" style="width:80px"></label>
+  </div>
+  <input type="range" id="cRange" min="0" max="1799" value="840" aria-label="Degree within the sign">
+  <div class="out" id="cOut" aria-live="polite"></div>
+</div>
+
+<div class="example"><span class="tag">Worked example · Venus at 25° Libra</span>
+<ol>
+<li>Libra is an air sign, so counting starts from <b>Libra</b>.</li>
+<li>25° ÷ 3°20′ = 7.5, so Venus is in the <b>8th slice</b> (slices 1–7 cover 0°–23°20′; the 8th covers 23°20′–26°40′).</li>
+<li>Count 8 signs starting with Libra: Libra 1, Scorpio 2, Sagittarius 3, Capricorn 4, Aquarius 5, Pisces 6, Aries 7, <b>Taurus 8</b>.</li>
+<li>Venus is in <b>Taurus Navamsha</b>, its own sign. The series calls this exact slice out: Libra 23°20′–26°40′ → Taurus, “marriage brings money, fights or division; a best-deal mindset.”</li>
+</ol>
+</div>
+
+<!-- ============ 108 GRID ============ -->
+<h2 id="grid"><span class="src">The whole map</span>All 108 padas on one page</h2>
+<p>Rows are the D1 signs; columns are the nine slices. Each cell is the Navamsha sign, coloured by its element. Two patterns jump out: the diagonal stripes (each element group repeats the same run), and the <b>gaps</b>: every D1 sign skips three Navamsha signs entirely. That is the next section.</p>
+<figure class="tbl grid108" id="grid108" style="margin:16px 0 4px"></figure>
+<div class="legend"><span class="pill e-fire">fire Navamsha</span><span class="pill e-earth">earth Navamsha</span><span class="pill e-air">air Navamsha</span><span class="pill e-water">water Navamsha</span><span class="pill p-acc">bold cell = vargottama (same sign in D1 and D9)</span></div>
+<p style="margin-top:14px">Notice the bold cells: the vargottama slice is always the 1st pada of a movable sign, the 5th of a fixed sign, and the 9th of a dual sign.</p>
+
+<!-- ============ REACH ============ -->
+<h2 id="reach"><span class="src">Exclusion rules</span>Who can reach which Navamsha</h2>
+<p>Because each element runs through only nine signs, three Navamsha signs are always out of reach. The series uses this all the time: if a Navamsha can never be formed from a sign, that sign's “nightmare” is that Navamsha.</p>
+<figure class="fig">
+  <svg id="reachSvg" viewBox="0 0 720 300" role="img" aria-label="Four element groups and the three Navamsha signs each can never reach"></svg>
+  <figcaption>Each element group can never reach the three signs just before its starting point.</figcaption>
+</figure>
+<div class="tbl"><table>
+<thead><tr><th>Navamsha</th><th>Never reached from</th><th>What the teacher draws from it</th></tr></thead>
+<tbody>
+<tr><td class="k">Aries, Taurus, Gemini</td><td>Cancer, Scorpio, Pisces</td><td>Water signs are stuck in the past and emotion; they rarely start things cleanly. Take initiatives before such dashas.</td></tr>
+<tr><td class="k">Cancer, Leo, Virgo</td><td>Gemini, Libra, Aquarius</td><td>Air signs never sit on Leo's throne; Virgo's daily SOPs are an earth cycle.</td></tr>
+<tr><td class="k">Libra, Scorpio, Sagittarius</td><td>Taurus, Virgo, Capricorn</td><td>Earth signs never fall into Scorpio's ravine or Sagittarius's test.</td></tr>
+<tr><td class="k">Capricorn, Aquarius, Pisces</td><td>Aries, Leo, Sagittarius</td><td>Fire signs never get bound by Capricorn. Pisces is their nightmare: Aries can't start, Leo loses position, Sagittarius stalls.</td></tr>
+</tbody></table></div>
+<h3>What the source element adds</h3>
+<div class="tbl"><table>
+<thead><tr><th>Source element</th><th>Flavour it gives any Navamsha</th></tr></thead>
+<tbody>
+<tr><td><span class="pill e-fire">fire 1-5-9</span></td><td>Fast, future-oriented, driven by initiative, no storehouse or baggage.</td></tr>
+<tr><td><span class="pill e-earth">earth 2-6-10</span></td><td>Accumulate or learn first, then act. Earth signs bring money.</td></tr>
+<tr><td><span class="pill e-air">air 3-7-11</span></td><td>Media, paperwork, IT, partnerships, groups, NGOs.</td></tr>
+<tr><td><span class="pill e-water">water 4-8-12</span></td><td>Emotion, the past, karma with the masses, research or occult, surrender.</td></tr>
+</tbody></table></div>
+
+<!-- ============ ORDER ============ -->
+<h2 id="order"><span class="src">Principle 3</span>How to read a planet: the four steps</h2>
+<p>The teacher insists on this order. Starting from the planet first, he says, is the commonest reason predictions go wrong. The sign outweighs the planet.</p>
+<div class="flow" role="list">
+  <div role="listitem"><b>Navamsha sign</b><small>What is this sign's nature? (its core traits)</small></div>
+  <div role="listitem"><b>Planet</b><small>What does this planet do inside that sign?</small></div>
+  <div role="listitem"><b>D9 house</b><small>Which area of life (and which relative) carries it?</small></div>
+  <div role="listitem"><b>Source sign</b><small>Blend in the D1 sign it came from.</small></div>
+</div>
+<p>Then cross-check with the dasha that is running, the planet's strength, aspects and the chara karakas, and only say it if it holds from several directions.</p>
+<div class="example"><span class="tag">Worked example · Saturn at 27° Cancer</span>
+<p>Cancer is a water sign, so counting starts at Cancer. 27° is the 9th slice (26°40′–30°), and nine signs from Cancer lands on <b>Pisces</b>. Say the Navamsha lagna is Virgo, so Pisces is the <b>7th</b> house of the D9.</p>
+<ol>
+<li><b>Sign:</b> Pisces Navamsha is the moksha sign. Everyone leaves so you learn to stand on your own; it rewards charity and surrender.</li>
+<li><b>Planet:</b> Saturn here makes a sannyasi-type, a Shiva bhakta, night shifts, results-oriented charity, a full-stack worker.</li>
+<li><b>House:</b> Pisces in the 7th: the relationship feels like deity worship, one-sided, with reciprocation delayed.</li>
+<li><b>Source:</b> Cancer → Pisces: must leave home, may settle abroad; “Saturn neutralises attachment (the coconut).”</li>
+</ol>
+<p>Put together: a partner who is served with devotion but answers late, a working life of long or night hours, and home left behind. Now check the running dasha and Saturn's strength before saying any of it.</p>
+</div>
+
+<!-- ============ PRINCIPLES ============ -->
+<h2 id="principles"><span class="src">Used across every sign</span>The 12 ground rules</h2>
+<div class="tbl"><table>
+<thead><tr><th>#</th><th>Rule</th><th>In plain words</th></tr></thead>
+<tbody>
+<tr><td class="num">1</td><td>D1 = event; D9 = fruit</td><td>A planet's dasha gives the results of its Navamsha sign and D9 house.</td></tr>
+<tr><td class="num">2</td><td>D9 sprouts slowly</td><td>It wakes up mostly after work or marriage. Rashi = what you got; Navamsha = what you give and become.</td></tr>
+<tr><td class="num">3</td><td>Reading order</td><td>Sign → planet → house → planet. Never planet first.</td></tr>
+<tr><td class="num">4</td><td>Source sign matters</td><td>Blend the D1 sign's nature into the Navamsha sign's traits.</td></tr>
+<tr><td class="num">5</td><td>Manual calculation</td><td>3°20′ per slice; fire from Aries, earth from Capricorn, air from Libra, water from Cancer.</td></tr>
+<tr><td class="num">6</td><td>Dignity in the D9</td><td>Debilitated: the planet's significations go missing (or carry the most pending karma). Exalted: you can enjoy the planet.</td></tr>
+<tr><td class="num">7</td><td>7th from own sign</td><td>A planet in the 7th from its own sign empties its own house and pours its energy into the opposite one, becoming dependent on it.</td></tr>
+<tr><td class="num">8</td><td>Check strength</td><td>Shadbala ≈ 420+/450 strong; Bhava Bala ≈ 25+; Vimshopaka for the nodes. Aspects work in every varga, but give flavour, not full results.</td></tr>
+<tr><td class="num">9</td><td>Chara karakas</td><td>Always the 8-karaka scheme (with Rahu), taken from the D1 by degree. Ignore divisional-chart karakas for now.</td></tr>
+<tr><td class="num">10</td><td>Validate</td><td>Confirm from 3–4 directions. If a reading fails, look for what suppresses the planet (aspects, dashas, D45/D81/D144 for pending karma, D7 for children).</td></tr>
+<tr><td class="num">11</td><td>The 180° rule</td><td>A mature prediction can come true as its exact opposite: people fall as dramatically as they rise.</td></tr>
+<tr><td class="num">12</td><td>Ethics</td><td>Never use astrology to harm or settle grudges; prefer sattvic remedies.</td></tr>
+</tbody></table></div>
+
+<!-- ============ JOURNEY ============ -->
+<h2 id="journey"><span class="src">Adjacent-sign logic</span>The journey through the signs</h2>
+<p>The teacher often explains a Navamsha by the sign before and after it. Read the twelve as one story:</p>
+<figure class="fig">
+  <svg id="journeySvg" viewBox="0 0 720 360" role="img" aria-label="Story arcs linking adjacent Navamsha signs"></svg>
+  <figcaption>Four story arcs. The red return arrow: indulging in Aquarius drops you back into Capricorn. Surrender carries you on to Pisces.</figcaption>
+</figure>
+<ul>
+<li><b>Aries starts → Taurus sustains → Gemini reacts and expresses.</b> Aries begins things; Taurus decides whether they survive (capital, support); Gemini is what comes after money: art, talk, play.</li>
+<li><b>Leo rules → Virgo maintains.</b> The throne, then the daily upkeep and SOPs that keep it.</li>
+<li><b>Scorpio wounds → Sagittarius tests and protects → Capricorn binds.</b> Misconduct in Sagittarius ends in bonded labour in Capricorn.</li>
+<li><b>Capricorn (karma) → Aquarius (results, desires fulfilled) → Pisces (release).</b></li>
+<li><b>Opposites:</b> Cancer vs Capricorn (mood vs compulsory routine); Aquarius vs Leo (no territory, no regular income vs the throne).</li>
+<li><b>Leo ↔ Sagittarius:</b> Sagittarius → Leo Navamsha = rise and fame. Leo → Sagittarius Navamsha = risk of falling from position. Pisces is the 8th from Leo: the fall from status.</li>
+</ul>
+
+<!-- ============ PART II ============ -->
+<div class="part">Part II · The Navamshas<small>Each chapter: the essence, core traits, planets, the twelve houses, source signs, remedies and a worked example.</small></div>
+<div id="chapters"></div>
+
+<!-- ============ PART III ============ -->
+<div class="part">Part III · Tools &amp; revision<small>Cross-references, remedies, and a calculator for your own chart.</small></div>
+
+<h2 id="planets"><span class="src">Quick cross-reference</span>One planet across all the Navamshas</h2>
+<p>Pick a planet to see what it does in each Navamsha sign at a glance. Green and red tags mark exaltation and debilitation.</p>
+<div class="pbtns" id="pBtns" role="group" aria-label="Choose a planet"></div>
+<div class="pcards" id="pCards" aria-live="polite"></div>
+
+<h2 id="houses"><span class="src">Marriage lens, condensed</span>House themes that recur across signs</h2>
+<div class="tbl"><table>
+<thead><tr><th>D9 house</th><th>What keeps coming up</th></tr></thead>
+<tbody>
+<tr><td class="num">1</td><td>The sign defines what the marriage rests on: Sagittarius = morals, Leo = trophy and ego, Taurus = resources, Virgo = a checklist.</td></tr>
+<tr><td class="num">2</td><td>Family, speech, food; money fights with in-laws. Words carry weight (Sagittarius in the 2nd: what you say comes true).</td></tr>
+<tr><td class="num">3</td><td>Siblings and in-laws tested; rumours; risk of affairs; relocation or transfer.</td></tr>
+<tr><td class="num">4</td><td>Happiness at home; mother vs mother-in-law; house size and space (Jupiter needs space, Leo a palace, Capricorn a fortress).</td></tr>
+<tr><td class="num">5</td><td>Children, romance; affairs as the first crisis (Sagittarius, Cancer); first child lucky (Sagittarius).</td></tr>
+<tr><td class="num">6</td><td>Litigation, maternal uncle and paternal aunt, violence risk (Virgo, Aries); service income.</td></tr>
+<tr><td class="num">7</td><td>The partner bears the results; partnership trust.</td></tr>
+<tr><td class="num">8</td><td>Hidden matters, in-laws, inheritance, abuse risk.</td></tr>
+<tr><td class="num">9</td><td>Father and guru; fortune. The father can cause marital trouble.</td></tr>
+<tr><td class="num">10</td><td>Mother-in-law; career rises, often while the marriage strains; consultation careers.</td></tr>
+<tr><td class="num">11</td><td>Network and gains; keep wealth private (Leo); no affairs in the social circle (Sagittarius).</td></tr>
+<tr><td class="num">12</td><td>Separation and divorce, losses, abroad, donation. Recurs as a separation marker in Leo, Gemini, Scorpio, Sagittarius and Capricorn.</td></tr>
+</tbody></table></div>
+<div class="rule"><span class="tag">Whose resource? (from Taurus, useful everywhere)</span>
+<p>The house a sign falls in tells you <b>whose</b> matter it is: 1st you, 2nd family, 3rd siblings, 4th mother, 7th spouse, 8th in-laws, 9th father or guru, 10th mother-in-law, 11th elder sibling or friends, 12th grandmother or foreign lands.</p>
+</div>
+
+<h2 id="deities"><span class="src">As taught</span>Deities and remedies</h2>
+<div class="tbl"><table>
+<thead><tr><th>Planet</th><th>Deities linked in the series</th><th>Music healing</th></tr></thead>
+<tbody>
+<tr><td class="k">Sun</td><td>Lord Rama, Surya Narayana, Gayatri</td><td>Gayatri</td></tr>
+<tr><td class="k">Moon</td><td>Krishna, Sati / Adi Shakti as mother, Chandra</td><td>Flute, midnight ragas</td></tr>
+<tr><td class="k">Mars</td><td>Narasimha, Hanuman</td><td>Patriotic songs</td></tr>
+<tr><td class="k">Mercury</td><td>Stutis (Vishnu Sahasranama, Gita), Devis; Narasimha for Mercury troubles (Ahobilam)</td><td>—</td></tr>
+<tr><td class="k">Jupiter</td><td>Vishnu / Vamana, Brihaspati, one's own guru</td><td>Bhajans</td></tr>
+<tr><td class="k">Venus</td><td>Lakshmi, Radharani, Parashurama, Sita</td><td>—</td></tr>
+<tr><td class="k">Saturn</td><td>Kurma avatar, Kaal Bhairav</td><td>—</td></tr>
+<tr><td class="k">Rahu</td><td>Varaha (called most effective), fierce goddesses</td><td>—</td></tr>
+<tr><td class="k">Ketu</td><td>Matsya avatar, Ganesha</td><td>Komal-swara ragas (e.g. Bhairav)</td></tr>
+</tbody></table></div>
+<h3>Remedies that recur</h3>
+<div class="hgrid">
+  <div><span class="hn">Bhojan–bhajan law</span>Change food, company and self-talk. No gossip. Donate joyfully. (Taurus, money crises.)</div>
+  <div><span class="hn">Leave critical people</span>For Cancer Navamsha this is non-negotiable, “better than any gem or mantra.”</div>
+  <div><span class="hn">Get busy</span>Leo troubles you less when you work hard and independently. Virgo: small daily maintenance and service.</div>
+  <div><span class="hn">Change the plane</span>Group kirtan, satsang, bhakti temples, Ekadashi fasting. Avoid solitary practice when Scorpio is active.</div>
+  <div><span class="hn">Honour vows</span>Sagittarius: unfulfilled vows and mannats bind like a noose; remedies won't work until you keep them.</div>
+  <div><span class="hn">Let go</span>Capricorn's result is always Pisces: nishkama karma-yoga, surrender, set boundaries.</div>
+  <div><span class="hn">Drop grief</span>Aquarius fulfils desires only once grief is dropped. Control speech and obsession; a mud bath for obsession.</div>
+  <div><span class="hn">Give to the universe</span>Pisces: food, water, knowledge, medical help; tarpan; Ganga snan; bathe deities.</div>
+  <div><span class="hn">Pitris</span>Shraddha or pind-daan at Gaya, tarpan (Rahu), donations in Pitru Paksha.</div>
+  <div><span class="hn">Cool a fierce Mars</span>Narasimha abhishekam with sandal, turmeric and camphor.</div>
+  <div><span class="hn">Light and timing</span>The same sadhana changes with light and time. Practise in darkness to work on the 8th, Scorpio or the nodes.</div>
+  <div><span class="hn">Initiation</span>The teacher's view: deities fully accept service only through initiation in an authentic sampradaya.</div>
+</div>
+
+<h2 id="sutras"><span class="src">Techniques</span>Diagnostic sutras worth remembering</h2>
+<div class="rule"><span class="tag">D9 superimposition (from Cancer)</span>
+<p>Place another person's planets on your D9 and see which falls on your D9 Moon's house. Rahu, Venus or Jupiter there = love. Mars = irritation. Saturn = drain and stalled work. Sun = they give orders.</p></div>
+<div class="rule"><span class="tag">Money fights and dowry (from Taurus)</span>
+<p>The D9 2nd sign = what your family is abused over in fights. The D9 8th sign = what you pick on in your spouse. For physical violence check the 3rd and 9th, Mars, and the D4.</p></div>
+<div class="rule"><span class="tag">Venus is the seed (from Taurus)</span>
+<p>Where Venus sits in the D9 is the seed of your money tree; water it. Venus houses are “grey”: money from them is never fully clean, unlike Jupiter's.</p></div>
+<div class="rule"><span class="tag">Position timing (from Leo)</span>
+<p>Leo Navamsha activating = getting position; Sagittarius = falling from it. In Lagnamsha (Navamsha-lagna) rashi dasha, Leo–Sagittarius sub-periods test your position. Whatever drama you hide tends to surface in an Aquarius–Sagittarius period.</p></div>
+<div class="rule"><span class="tag">When Mercury readings fail (from Virgo)</span>
+<p>Find what suppresses Mercury: Jupiter = family training, Mars = peer or group pressure, a strong Moon = no rules.</p></div>
+<div class="warn"><span class="tag">Handle with care</span>
+<p>The series also gives “litmus tests” for cheating (Jupiter in Capricorn Navamsha plus other factors, confirmed in D45/D81) and markers for violence. These are never single-factor readings. The teacher himself says to confirm from several charts and dashas. Don't announce them from one placement.</p></div>
+
+<!-- ============ YOUR CHART ============ -->
+<h2 id="mychart"><span class="src">Try it yourself</span>Work out your own D9 and read it</h2>
+<p>Enter a birth date, time and place. The page calculates the D1 and D9 the same way as the Laghu Parashari notes (Lahiri ayanamsa, whole-sign houses, mean Rahu), then reads every planet in the series' order: Navamsha sign → planet → D9 house → source sign. Everything is calculated in your browser, and nothing you type is sent anywhere.</p>
+<div class="tool" id="myTool">
+  <form id="myForm">
+    <div class="row">
+      <label for="myPreset">Load an example
+        <select id="myPreset">
+          <option value="">Your own data</option>
+          <option value="gandhi">Mahatma Gandhi</option>
+          <option value="nehru">Jawaharlal Nehru</option>
+          <option value="vivek">Swami Vivekananda</option>
+          <option value="einstein">Albert Einstein</option>
+        </select>
+      </label>
+    </div>
+    <div class="row">
+      <label for="myDate">Birth date<input type="date" id="myDate"></label>
+      <label for="myTime">Birth time<input type="time" id="myTime"></label>
+      <label for="myTz">Time zone
+        <select id="myTz">
+          <option value="5.75">+5:45 Nepal (from 1986)</option>
+          <option value="5.5">+5:30 India · Nepal before 1986</option>
+          <option value="6">+6:00 Bangladesh · Bhutan</option>
+          <option value="0">+0:00 UTC · GMT</option>
+          <option value="1">+1:00 Central Europe</option>
+          <option value="8">+8:00 China · Singapore</option>
+          <option value="-5">−5:00 US Eastern</option>
+          <option value="-8">−8:00 US Pacific</option>
+          <option value="lmt">Local mean time (old births)</option>
+          <option value="custom">Other offset…</option>
+        </select>
+      </label>
+      <label for="myTzCustom" id="myTzCustomWrap" hidden>Hours from UTC<input type="number" id="myTzCustom" step="0.25" min="-12" max="14" placeholder="e.g. 5.5" style="width:110px"></label>
+    </div>
+    <div class="row">
+      <label for="myLat">Latitude (north +)<input type="number" id="myLat" step="0.0001" min="-90" max="90" style="width:130px"></label>
+      <label for="myLon">Longitude (east +)<input type="number" id="myLon" step="0.0001" min="-180" max="180" style="width:130px"></label>
+      <button type="submit" class="go">Work out the D9</button>
+    </div>
+    <p style="font-size:14px;color:var(--muted);margin:0">Kathmandu is 27.7172, 85.3240. Pokhara is 28.2096, 83.9856. Delhi is 28.6139, 77.2090. Birth time matters a lot here: the D9 lagna changes every 12–15 minutes, so an uncertain time gives an uncertain D9 lagna and houses.</p>
+  </form>
+  <div id="myOut" style="margin-top:16px" aria-live="polite"></div>
+</div>
+
+<!-- ============ CHEAT ============ -->
+<h2 id="cheat"><span class="src">Revision</span>One-page summary</h2>
+<div class="cheat" id="cheatBox">
+  <div class="rule"><span class="tag">Method</span><p>D1 = event, D9 = fruit. Read sign → planet → house → source sign. Validate from 3–4 directions. The sign outweighs the planet.</p></div>
+  <div class="rule"><span class="tag">Calculation</span><p>3°20′ slices. Fire from Aries, earth from Capricorn, air from Libra, water from Cancer. Vargottama: 1st slice of movable, 5th of fixed, 9th of dual signs.</p></div>
+</div>
+
+<footer>
+  <p>Condensed from the Astro IITians “नवांशा” lecture notes (Aries to Pisces; Libra not taught). Readings are the teacher's views as recorded in those notes; worked examples are illustrations made for this handbook. Companion to <i>Laghu Parashari Made Plain</i>.</p>
+</footer>
+</main>
+</div>
+
+<script>
+/* ================= DATA (condensed from the lecture notes) ================= */
+var SIGNS = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
+var SAB = ["Ar","Ta","Ge","Cn","Le","Vi","Li","Sc","Sg","Cp","Aq","Pi"];
+var GLY = ["♈︎","♉︎","♊︎","♋︎","♌︎","♍︎","♎︎","♏︎","♐︎","♑︎","♒︎","♓︎"];
+var DEVA = ["मेष","वृषभ","मिथुन","कर्क","सिंह","कन्या","तुला","वृश्चिक","धनु","मकर","कुम्भ","मीन"];
+var ELEM = ["fire","earth","air","water"];
+var START = [0, 9, 6, 3]; // fire→Aries, earth→Capricorn, air→Libra, water→Cancer
+var LORD = ["Mars","Venus","Mercury","Moon","Sun","Mercury","Venus","Mars","Jupiter","Saturn","Saturn","Jupiter"];
+var PLANETS = ["Sun","Moon","Mars","Mercury","Jupiter","Venus","Saturn","Rahu","Ketu"];
+var ABBR = { Sun: "Su", Moon: "Mo", Mars: "Ma", Mercury: "Me", Jupiter: "Ju", Venus: "Ve", Saturn: "Sa", Rahu: "Ra", Ketu: "Ke" };
+var EXALT = { Sun: 0, Moon: 1, Mars: 9, Mercury: 5, Jupiter: 3, Venus: 11, Saturn: 6 };
+var DEBIL = { Sun: 6, Moon: 7, Mars: 3, Mercury: 11, Jupiter: 9, Venus: 5, Saturn: 0 };
+var OWN = { Sun: [4], Moon: [3], Mars: [0, 7], Mercury: [2, 5], Jupiter: [8, 11], Venus: [1, 6], Saturn: [9, 10] };
+function navOf(sign, degInSign) { return (START[sign % 4] + Math.floor(degInSign / (10 / 3) + 1e-9)) % 12; }
+function dignity(p, s) {
+  var t = [];
+  if (EXALT[p] === s) t.push(["p-good", "exalted"]);
+  if (DEBIL[p] === s) t.push(["p-bad", "debilitated"]);
+  if (OWN[p] && OWN[p].indexOf(s) >= 0) t.push(["p-acc", "own sign"]);
+  return t;
+}
+
+var S = [];
+/* ---------- ARIES ---------- */
+S[0] = {
+  title: "The warrior's start", dign: "Ruled by Mars · Sun exalted · Saturn debilitated",
+  essence: "Instability plus courage. Every new beginning here demands a price or sacrifice first. A warrior and pioneer whose life comes down to one choice: freeze or fight.",
+  traits: ["Warrior mentality","Action before overthinking","First mover in the lineage","Competitive","Learns through struggle, not comfort","Always wants new beginnings","Sacrifice before success","Sudden energy, restlessness","Freeze vs fight: bold action wins"],
+  warn: "Impulsiveness and anger; head injuries, burns, fractures, accidents; blood issues (BP, cholesterol, insulin).",
+  extra: "<p><b>Strengths:</b> leadership, courage, initiative, fast decisions, crisis management. <b>Weaknesses:</b> impatience, anger, over-confidence, can't slow down.</p><p><b>Bloodline rule:</b> the relative signified by the planet in Aries Navamsha passes on its health patterns (e.g. Sun → father's BP).</p>",
+  pl: {
+    Sun: "Exalted. The solo leader and crisis manager, head of the family or organisation. A strict father. No time for the spouse; can't do partnerships.",
+    Moon: "The mother struggles; you end up providing food and shelter. A restless mind that needs a “kick.” Spicy food, fights at meal times, constant renovations.",
+    Mars: "Own sign. Strong and must stay active; authority comes through fighting. Generally good. Be like Hanuman.",
+    Mercury: "Fights through words, paperwork and law: marketing, publishing, debate. Nerve and neuro risks. Never cheat through information.",
+    Jupiter: "A guru who fights for a cause; practical, hard teachers; the intellectual head or counsellor. Conflicts in institutions; diabetes or back issues.",
+    Venus: "High libido, impulsive relationships, tight clothes; drawn to a fit, army-type partner. Affairs possible when 3/8/11/12 and malefics join in.",
+    Saturn: "Debilitated. Responsibility without experience; opportunity arrives through a crisis. Overthinking; extreme work pressure (trading, deadlines).",
+    Rahu: "Unstoppable and obsessive. Loopholes, replication; tech, security, finance; propaganda; sama-dana-danda-bheda; land grabs.",
+    Ketu: "The critic; obstacles at every new start. The headless warrior who sacrifices himself. Spy, audit, investigation, astrology. Anxiety, cholesterol."
+  },
+  ho: [
+    "A power-struggle marriage: protective and fiery. Big events (an accident, a death or a birth) around the wedding; new property or job.",
+    "Fluctuating savings, loans; electronics and gifts. Blunt, fast speech; taunts about the lineage; hot, spicy food.",
+    "Fame through fighting and campaigns. Third-party entry and affairs possible. Flats and rental income, vehicles; fights with siblings or neighbours.",
+    "Irritability and domestic strife; a perfectionist about the home; big cars; feeding and helping others. The mother-in-law's health.",
+    "Studies, promotion or transfer after marriage. After children: fights, relocation or sacrifice. Speculation.",
+    "The job flourishes but the maternal uncle or paternal aunt suffers. Blood issues, accidents, litigation. A strong divorce or domestic-violence combination.",
+    "The spouse or partner bears the results. An intimacy-driven marriage. Saturn here: looks good outside, poor private life. Multiple businesses.",
+    "A poor placement: health issues, constant fights, sudden deaths or inheritance, the occult. Abuse risk. Transformation.",
+    "Pilgrimages, settling abroad; the father's or guru's health. Venus–Ketu here: separation. Saturn hides facts.",
+    "Clashes with in-laws; a big career rise; issues over the father's property; siblings' troubles.",
+    "Earns their own money and won't ask; fights for the family. The maternal uncle suffers. Debilitated Mars here = dependence.",
+    "A poor placement: can't carry responsibility, lives off the lineage, needs punya. Marriage breaks from the 12th."
+  ],
+  src: {
+    0: "Fire into fire: fast, future-oriented, no baggage, no storehouse.",
+    4: "Fire into fire: fast, future-oriented, no baggage, no storehouse.",
+    8: "Fire into fire: fast, future-oriented, no baggage, no storehouse.",
+    1: "Accumulate first, then start: resources turn into a shop or a job.",
+    5: "Skills first: SOP changes, fights in the office.",
+    9: "Turns into your own venture; set boundaries.",
+    2: "Air: media, paperwork, IT, partnerships, company registration, groups and NGOs.",
+    6: "Air: media, paperwork, IT, partnerships, company registration, groups and NGOs.",
+    10: "Air: media, paperwork, IT, partnerships, company registration, groups and NGOs."
+  },
+  srcNote: "Water signs never reach Aries Navamsha: they are stuck in the past and in emotion and need a guru. Take your initiatives before such dashas.",
+  rem: ["Exercise, competitive sport, martial arts or intense yoga.","Worship Hanuman, Narasimha, Devi; read the Lanka Kand (Rama as destroyer).","Ketu blocking property: modak to Ganesha and the Matsya avatar story."],
+  ex: { p: "Mars", d1: 4, deg: "2°10′", lag: 6, steps: [
+    "Leo is fire, so count from Aries. 2°10′ is the 1st slice → <b>Aries Navamsha</b>, Mars's own sign.",
+    "<b>Sign:</b> courage and instability; every start costs something.",
+    "<b>Planet:</b> Mars here is strong and must stay active; authority through fighting.",
+    "<b>House:</b> with a Libra D9 lagna, Aries is the 7th: the partner bears the results; an intimacy-driven marriage; multiple businesses.",
+    "<b>Source:</b> Leo is fire → fast, future-oriented, no storehouse. Expect a fiery, protective partner and a life of fresh starts."
+  ]}
+};
+/* ---------- TAURUS ---------- */
+S[1] = {
+  title: "The storehouse", dign: "Ruled by Venus · Moon exalted",
+  essence: "Resources, money, family, lineage, speech and food. Aries starts things; Taurus decides whether they survive. It comes through support (family, spouse, in-laws, mentors), not by fighting.",
+  traits: ["The storehouse","Comes through support, not solo effort","Fights only when family or possessions are threatened","Speech and food","Lineage","Practical, not spiritual","Venus = the seed of money"],
+  warn: "Inventory piles up; a weak Taurus brings bankruptcy, failed ventures, marriages broken over dowry; money violence.",
+  extra: "<p><b>Rule:</b> the planet in Taurus Navamsha is the resource you must keep; lose it and poverty follows. The house tells you <i>whose</i> resource it is. Respect those people or money blocks.</p><p>Taurus in the 2nd or 4th: more money, fewer children. You get a great married life or great money, rarely both. Debilitated planets here give money one way; exalted ones give little. Jaimini: Atmakaraka in Taurus Navamsha = comforts from vehicles, strong finances.</p>",
+  pl: {
+    Sun: "Authority, institutions, government, the father; recognition; inheritance from the father.",
+    Moon: "Exalted. Food, medicine, welfare schemes; the mother as a storehouse; a motherly nature.",
+    Mars: "Land, transport, labs, electronics, logistics; willpower; “me-me.” Violence over property or dowry if afflicted.",
+    Mercury: "Paperwork, shares, insurance, multiple incomes; makes money for others; homeopathy, teaching.",
+    Jupiter: "The guru's grace, banking, lineage knowledge; a wish-fulfilling Chintamani for others; poor at family politics; diabetes and liver.",
+    Venus: "Own sign. Luxury, cleanliness, a wealthy marriage; stubborn, never asks twice.",
+    Saturn: "Scrap, oil, iron, staffing; hoarding; the most stubborn and conservative.",
+    Rahu: "Digital wealth, hype, illusion; grudges and a toxic family; fraud risk.",
+    Ketu: "Gives only half; elite and minimal; works for others; keep your gains secret."
+  },
+  ho: [
+    "Speech, family and resources decide the marriage. Seen as the one who “has everything.” Fraud risk about the partner's wealth.",
+    "Money fights with in-laws, abuse of the lineage; a glow after marriage; food and speech change.",
+    "Fame; a lavish wedding, rings and gifts; flats; siblings and sister-in-law; affairs possible.",
+    "House, vehicles, a rich mother, a dowry of comforts; fewer children; cooking fights with the mother-in-law.",
+    "Children bring money; speculation; the rejected lover gets rich.",
+    "Litigation from family, or money through consultancy, law, tax or medicine; separation from home.",
+    "The spouse is the resource and controls the money; family interference.",
+    "Affairs, black money, inheritance, research, loans; chronic illness in the family.",
+    "Grow by giving to temples, education, pilgrimage: the more spirituality, the more money.",
+    "Status, wealth managers and advisors, rich clients.",
+    "Money through groups and friends; affairs possible; give up comfort to gain.",
+    "Losses, alimony, cheating, settling abroad, foreign income. Keep donating."
+  ],
+  src: {
+    0: "What you start becomes capital; the impact is family-wide.",
+    1: "Vargottama: scaling existing resources; transparent dealers.",
+    2: "Commissions, courses, subscriptions, selling information, coding.",
+    4: "Position converts to money; with Rahu, risk of corruption and raids.",
+    5: "Hard work = money; “seva brings meva”; controversies.",
+    6: "Libra 23°20′–26°40′: marriage brings money, fights or division; best-deal mindset; partnerships.",
+    8: "Money via banks, education and temples (or temple theft).",
+    9: "Huge money via hiring, industry, gold, refineries.",
+    10: "Easy money via tech, AI, marketing."
+  },
+  srcNote: "Never reached from Cancer, Scorpio or Pisces.",
+  rem: ["Bhojan–bhajan law in a money crisis: change food, company and self-talk; no gossip; joyful donation; speak with love.","Sun → Rama temple with tulsi and fruit. Moon → gold to the mother, Krishna/Lakshmi shringar. Mars → serve like Hanuman, donate from profits.","Mercury → naam-jap, stationery for children, an amla plant. Jupiter → feed cows, serve the guru. Ketu → modak and durva to Ganesha.","Taurus in the 9th or 12th: keep donating food, books and resources to temples."],
+  ex: { p: "Venus", d1: 6, deg: "25°00′", lag: 9, steps: [
+    "Libra is air, count from Libra. 25° is the 8th slice → <b>Taurus Navamsha</b>, Venus's own sign.",
+    "<b>Sign:</b> the storehouse; comes through support, not fighting.",
+    "<b>Planet:</b> Venus here: luxury, cleanliness, a wealthy marriage; never asks twice.",
+    "<b>House:</b> with a Capricorn D9 lagna, Taurus is the 5th: children bring money; speculation.",
+    "<b>Source:</b> Libra → Taurus: marriage brings money (or fights over it); partnerships. Read: wealth arriving through marriage and children. Venus is also the seed of money, so the 5th is where to “water” it."
+  ]}
+};
+/* ---------- GEMINI ---------- */
+S[2] = {
+  title: "The reaction", dign: "Ruled by Mercury",
+  essence: "What comes after money: art, play, hobbies, communication, aura, the subconscious. “No action, only reaction.” It shows how you react, respond, correct and defend, and it carries your childhood programming.",
+  traits: ["Itch-driven, triggered from outside","Always on the spot","Detailed instructions","No promises (trader mindset)","Upgrades its surroundings","Counter-attacks criticism","Childlike curiosity","Loves medals and recognition","A connector or catalyst"],
+  warn: "Without sadhana it slides into gossip, bias and not listening. Skin and itching issues, nerves, bodily laxity.",
+  extra: "<p><b>Upachaya logic:</b> the 3rd (what you hear and who you mix with) programs the 6th (routine), which feeds the 10th and 11th (work and gains) and the 9th (luck). To fix a routine, fix your inputs: good books, the Gita, motivating company.</p>",
+  pl: {
+    Sun: "Clashes with bosses, father and government; a formal tone; won't cheat; galleries, staircases, selfies.",
+    Moon: "Cries mid-conversation; a copycat; colourful snacks; Ayurvedic tonics; careers in food, pharmacy, delivery.",
+    Mars: "Quick comebacks; security work (cyber, paperwork); early achiever; kills art; road rage. Needed to bear Saturn.",
+    Mercury: "Own sign: every trait doubled. A nonstop talker; media and marketing.",
+    Jupiter: "Salesman or information desk; fragmented, long-winded knowledge; blind trust. Needs a guru or Saturn.",
+    Venus: "Early, sibling-like relationships; third-party interference; refined; medicine and counselling; a trendsetter.",
+    Saturn: "A spoiled childhood; takes away Mercury's joy; thyroid, anxiety, stammering, delays; a fault-finding partner. Matures later.",
+    Rahu: "Manipulative, wants everything free; paper fraud, knock-offs; obsessive talk; workaholic; ancestral links.",
+    Ketu: "Micro-fault-finding that becomes deep research; speech breaks, nerve issues; blocks people; encryption, editing, astrology."
+  },
+  ho: [
+    "Friendship-first marriage; fear of commitment; a young-looking partner; third parties; marrying someone known since school.",
+    "Property quarrels; family interference.",
+    "Many reactions; risk of affairs; new hobbies.",
+    "A nagging (or highly educated) mother-in-law.",
+    "Super-sharp children; spokesperson roles.",
+    "Litigation; fights with in-laws.",
+    "Same as the 1st, seen from the partner: friendship first, commitment fear, third parties.",
+    "Secrecy; social-media affairs; the occult.",
+    "A youthful guru; learning through travel.",
+    "Mother and mother-in-law agree only on shared values.",
+    "Childhood desires fulfilled through your children.",
+    "Divorce through a third party."
+  ],
+  src: {
+    0: "People object to and talk about every initiative; copycat or counter-moves.",
+    1: "Boasting; flaunting family things that aren't yours.",
+    2: "Vargottama: an articulate extrovert.",
+    4: "The self-PR king.",
+    5: "Narrates its service and SOPs.",
+    6: "Publicises the partnership; keep the papers clean.",
+    8: "A storyteller who may distort the scriptures unless disciplined.",
+    9: "CA and legal type; quotes records; harsh.",
+    10: "Sales and marketing genius; a research communicator."
+  },
+  srcNote: "Never formed from Cancer, Scorpio or Pisces.",
+  rem: ["Narasimha worship; an Ahobilam pilgrimage for Mercury problems (paperwork, property, siblings, psychology).","Fix your inputs: what you read, hear and who you sit with."],
+  ex: { p: "Mercury", d1: 10, deg: "28°00′", lag: 2, steps: [
+    "Aquarius is air, count from Libra. 28° is the 9th slice → <b>Gemini Navamsha</b>, Mercury's own sign.",
+    "<b>Sign:</b> reaction, expression, childhood programming.",
+    "<b>Planet:</b> Mercury doubled: a nonstop talker, media and marketing.",
+    "<b>House:</b> with a Gemini D9 lagna it sits in the 1st: a friendship-first marriage, commitment fear, a young-looking partner.",
+    "<b>Source:</b> Aquarius → Gemini: a sales and marketing genius. A communicator by trade who marries a friend."
+  ]}
+};
+/* ---------- CANCER ---------- */
+S[3] = {
+  title: "The deep water", dign: "Ruled by the Moon · Jupiter exalted · Mars debilitated",
+  essence: "Patala, the deepest emotional zone. Psychic, absorbent, easily programmed, without routine; serves the masses and craves appreciation. Mother-like: nurtures, feeds, protects. The hardest to heal, but healable.",
+  traits: ["Psychic and absorbent","No fixed routine","Serves the masses","Craves social validation","Mother-like: feeds and protects","Logic and emotion disagree","Trauma repeats"],
+  warn: "Toxic people, repeating trauma; watery signs are vulnerable to tantra. Work with patience, sattva and generosity, never with heat.",
+  extra: "<p>Check childhood and the <b>mother's marriage</b>: patterns here repeat. Compared with its neighbours: Cancer is healable; Scorpio's wounds are hidden; Pisces can't let go.</p><p><b>The vessel (patrata):</b> Jupiter gold, Saturn iron, Venus diamond, Ketu space, Mars hot fluid, Rahu the internet.</p>",
+  pl: {
+    Sun: "Justice and equal distribution (Rama mode); dries emotions, held in the dock and guilt-tripped; stuck between mother and wife. Excellent for welfare, temple kitchens, HR.",
+    Moon: "Own sign: every Cancer trait directly. Sides with whoever is in power or the limelight.",
+    Mars: "Debilitated. Emotion becomes fighting; irritable; breathing or BP issues; water and appliance problems; builds and rebuilds homes; great cooking. Remedy: the Ramayana. Worst in the 6th.",
+    Mercury: "Commission mindset, double agent, chatterbox, opportunist. With the Sun: an inventor or entrepreneur.",
+    Jupiter: "Exalted grace; a big green home; merit flows to children and lineage; a counsellor people open up to; heals your own emotions.",
+    Venus: "Narcissistic “Kamadeva”; expects mother-like care from the partner; one of mother or spouse fades. Toxic only if poor, so earn and be your own provider.",
+    Saturn: "Exhausts until expectation dies; treated like a servant; karma with the masses. Mass-facing businesses succeed. Extreme cleanliness or messiness.",
+    Rahu: "Endless thirst; faked emotions; copies and first-copies; never satisfied; big houses; obsessive after breakups.",
+    Ketu: "Dissolution, so let go (Nirvana Shatakam). A heavy price in resources; a nomadic home, ships, navy; intuitive siddhi. Needs Saturn to stabilise, not Jupiter."
+  },
+  ho: [
+    "A heart-led choice, toxic or blessed. Breaks engagements on vibes. The teacher suggests marrying at 23–27; “only Leo handles Cancer.”",
+    "Joint-family trauma; diet changes; the face rounds out.",
+    "Rumours; drama with sister-in-law and paternal aunt; crying phone calls. Keep engagements short.",
+    "The house of the marriage's happiness. Mother vs mother-in-law; crying in kitchen or bedroom. With malefics: emotional torture.",
+    "Children cause fights; the father acts like a mother; moody kids; emotional affairs; old flames return.",
+    "Fights over food and loyalty; love measured in brands; gut and psychological issues. Spiritual camps help.",
+    "“Cry in their arms or it's not love”; love-bombing cycles. Servant karma with Capricorn on the axis. Be self-reliant.",
+    "Suffocation. Soft hearts should avoid Sagittarius partners.",
+    "The spoilt child of a powerful father; legacy at risk; irregular bhakti; a huge rise if disciplined.",
+    "A “sarpanch” mother-in-law; seasonal work and businesses.",
+    "Moon-like desires; kitty parties.",
+    "Long-distance love; import–export; therapy and wellness careers."
+  ],
+  src: {
+    0: "Initiatives from suppressed emotion: environment, the voiceless, causes.",
+    4: "Position-holders serving through government (not CSR, which is Aquarius).",
+    8: "Gurus and religious organisations serving; missionary work.",
+    1: "Employment for the masses; business works.",
+    5: "Medical and legal aid; business works.",
+    9: "Officers, judges, mining, oil; business works.",
+    3: "Vargottama: moody, a housewife tendency.",
+    7: "Buried trauma surfaces; occult and Ayurveda; insurance and inheritance money.",
+    11: "The joy of sadhana, but takes others' stray arrows."
+  },
+  srcNote: "Air signs never reach Cancer Navamsha. Every source here means pending karma with the masses.",
+  rem: ["Leave negative and critical people: non-negotiable.","Spiritual company, bhajan and kirtan, temples, Mahadev worship; bathe in sacred waters.","Music healing by planet; sing the stuti of the planet's Dashavatara deity.","Express emotions to the deity, not the world."],
+  ex: { p: "Moon", d1: 7, deg: "1°30′", lag: 0, steps: [
+    "Scorpio is water, count from Cancer. 1°30′ is the 1st slice → <b>Cancer Navamsha</b>. (The Moon is debilitated in the D1 but in its own sign in the D9: the D1 condition is hard, the fruit is the Moon's own.)",
+    "<b>Sign:</b> the deepest emotional zone; serves the masses.",
+    "<b>Planet:</b> the Moon here gives all Cancer traits directly.",
+    "<b>House:</b> with an Aries D9 lagna, Cancer is the 4th, the house of the marriage's happiness: mother vs mother-in-law. (The notes say to check for violence with an Aries D9 lagna.)",
+    "<b>Source:</b> Scorpio → Cancer: buried trauma surfaces; occult and Ayurveda. Read: emotional life at home is the centre of everything; healing comes by leaving critical people."
+  ]}
+};
+/* ---------- LEO ---------- */
+S[4] = {
+  title: "The throne", dign: "Ruled by the Sun",
+  essence: "The simhasana: authority, position, status, respect and purity, not money. It demands sacrifice, pure intent and selfless giving, then blesses like a king. “One chair only.”",
+  traits: ["Territory marking","Status and fame","Purva punya (past merit)","Sets the rules","Centre of consciousness","All planets are subordinates","Management","Lineage identity","Burn completely to shine"],
+  warn: "Ego battles and no compromise. It troubles you less when you are independent and busy.",
+  extra: "<p>The fame comes from past punya and grace, so stay humble. Light planets struggle here; you need heavy, strong planets to rule. Leo Navamsha also shows college and education, the living room, decor and screens. Only Leo and Aquarius Navamshas give “party freedom.”</p>",
+  pl: {
+    Sun: "Own sign: authority. The Sun never binds you in marriage (atma → Paramatma). “The Sun gives progeny wherever it goes.”",
+    Moon: "Clashes with the father.",
+    Mars: "Position comes if you help without vetting.",
+    Mercury: "Always picks the wrong partner; close to powerful people; PR, spokesperson, writer, broker. Don't be the middleman or hanger-on: be your own provider. Pair it with the Sun.",
+    Jupiter: "Position comes by feeding visitors and giving knowledge.",
+    Venus: "An egoistic spouse; the partner brings status; a grand wedding. Breaks through disrespect or public humiliation. Condition for position: burn attachment and lust.",
+    Saturn: "Humility tests, Harishchandra-type trials; orthodox about principles.",
+    Rahu: "Authority never comes straight: “unless snatched, nothing comes.” Shows off wealth it doesn't have (about 75% legal, 25% not). Money abroad, especially the Gulf.",
+    Ketu: "Topples whoever is on the throne; wants the chair but can't rule. Very precise; reads faces. Condition for position: mauna vrata (silence)."
+  },
+  ho: [
+    "The spouse as a trophy; ego battles; a formal “agreement” marriage; maharani in public, servant in private.",
+    "Assertive orders; family pride. Respectful address works. Never insult the in-laws.",
+    "The referee or leader; trouble with sister- and brother-in-law. Give credit; keep improving.",
+    "A palace or government housing. Don't trust mother or mother-in-law on property; separate bedrooms.",
+    "The best overall: wants glory and an autobiography. Burns romance.",
+    "Crisis manager, CFO/CTO type; makes others rich → copper, and start your own firm.",
+    "Secret relationships; slow to trust; live-in can outlast marriage.",
+    "No recognition for sacrifice; hidden abuse; status hidden. Rahu here → politicians, big screens.",
+    "The father brings debt or ruin (often after 45–50); fall from position. Give to the public and temples.",
+    "The career rises while the marriage burns; both partners need big goals.",
+    "Purva-punya favours; keep salary and investments secret; few friends.",
+    "The divorce house: public humiliation; a job or promotion, then divorce. Respect abroad; sole proprietorship."
+  ],
+  src: {
+    0: "Self-made authority from ground zero; blamed unfairly; money only through cut-throat effort.",
+    4: "Vargottama: early success, show-off; beware money delusion and Rahu. Remedy: the Sun.",
+    8: "Rise and fame through bhakti, temples, gurus, lineage punya.",
+    1: "Money (FDs, inheritance); royal-family combination; ego and display of wealth; respect only while you earn.",
+    5: "Position by fighting; known for perfection; service, legal, pharma, SOP work; the best trainers.",
+    9: "“Three stages of hell”; dirty-hands work; only Scorpio handles Capricorn.",
+    3: "The masses lift you up (politicians, kathakars, HR); grudges; a top raja yoga (Pushya).",
+    7: "Position after extreme sacrifice or posthumous honour; kills comfort first.",
+    11: "Position after a death, breakup or childbirth, or through surrender; teaching, abroad."
+  },
+  srcNote: "Air signs (Gemini, Libra, Aquarius) never map to Leo Navamsha.",
+  rem: ["Get busy: most Leo troubles shrink when you work hard and independently.","Sattvic remedies; Sun worship; copper (and ruby, if advised) for a drained Sun.","Validate before you predict: never parrot a reading."],
+  ex: { p: "Sun", d1: 8, deg: "15°00′", lag: 0, steps: [
+    "Sagittarius is fire, count from Aries. 15° is the 5th slice → <b>Leo Navamsha</b>, the Sun's own sign.",
+    "<b>Sign:</b> the throne: authority, respect, purity.",
+    "<b>Planet:</b> the Sun in its own Navamsha: natural authority.",
+    "<b>House:</b> with an Aries D9 lagna, Leo is the 5th, called the best overall: glory, an autobiography. (Aries lagna: a fast, impatient marriage.)",
+    "<b>Source:</b> Sagittarius → Leo: rise and fame through bhakti and gurus. The series' classic “rise” pattern."
+  ]}
+};
+/* ---------- VIRGO ---------- */
+S[5] = {
+  title: "The speed limiter", dign: "Ruled by Mercury · Mercury exalted · Venus debilitated",
+  essence: "Nothing is denied, everything is delayed until you improve. Daily maintenance, SOPs, checklists, corrections and service. Tools are the deity; help comes through people.",
+  traits: ["Sign of daily work","Improve every day","Logic and detail win","Learning brings growth","Precision brings respect","Nothing is free","No shortcuts; follow the SOP","Constant feedback loop","Delayed, not denied"],
+  warn: "Without maintenance it decays into roga, rina, shatru: disease, debt and enemies.",
+  extra: "<p><b>Marriage signature:</b> love shown through service and practical help, not words. Picky, checklist-driven partner selection; relationships often start at work. Friction when the shared track diverges (job loss, a move, one partner turning spiritual).</p><p><b>Remedy formula:</b> small daily effort, a fixed routine, tracked habits, regular maintenance, boring repeated basics.</p>",
+  pl: {
+    Sun: "The manager who hires a team of the best; service with authority; government links.",
+    Moon: "Clean freak, minimalist white aesthetics, measured cooking, fixed meals; healthcare and dietetics.",
+    Mars: "Brings machines and automation; best for bulk work.",
+    Mercury: "Own sign: extreme detail; hires an expert third party; a “transition-plan” breakup style.",
+    Jupiter: "Paying back to the lineage; organised dharma; asks politely for donations.",
+    Venus: "Debilitated. Never satisfied, brand-picky, love judged by help; workplace romance; can make doctors.",
+    Saturn: "Old-school manual verification; very reliable QA; fails at scale; loyal customers.",
+    Rahu: "Cut-copy-paste business, cheap versions, subscriptions; weak at detail and testing; won't work under anyone.",
+    Ketu: "Handcraft precision; hyper-detailed planner; extracts procedure like a spy; fixes what the original lacked; smell-sensitive."
+  },
+  ho: [
+    "A checklist-selected partner and wedding; picky; the D9 lagna lord's agenda dominates.",
+    "Family and property partition; medical equipment at home; the family judges the spouse; gastric issues; slow wealth-building.",
+    "Fights when guests or relatives arrive: the entrance is the conflict zone. A sibling or in-law may be a doctor.",
+    "A little domestic friction is healthy; a dedicated cleaner at home.",
+    "Overthinking in love; rehearsed talk; IVF and medical costs; a lineage of healers.",
+    "Violence recurs, so leave at the first instance; a third-party instigator; income from medicine and law.",
+    "Like the 1st but for the partner: hygiene rules; medical report before marriage; an over-correcting spouse.",
+    "In-laws' debts; “permanent-stain” conflicts; live-in may work better than legal marriage. Use kirtan rather than heavy fire rituals.",
+    "Pitri rina; organised dharma; practical gurus; clashes with father or boss over principles.",
+    "Service careers; the mother-in-law's corrective role; keep your jewellery in your own locker.",
+    "Must fight to get anything; gains in years 3–12 after marriage; fraud risk; practical friends help.",
+    "A maternal aunt or grandmother creates issues; ancestral OCD; independent business works. Malefics here = violence risk."
+  ],
+  src: {
+    0: "Initiative to improve: “I'll wake at 5 and run daily.” Service centres, gyms, nutrition; gut, skin and blood issues.",
+    1: "Always checking where money and food go; sick relatives recover at your home; a strong wealth combination.",
+    3: "Working for the masses and being blamed for it; love of cleaning; “we won't do this much,” then works day and night.",
+    4: "A king tired of ruling makes others kings: business courses, MLM networks.",
+    5: "Vargottama: “what you see is what they are.” Starts as a consultant, stays one; service aggregators.",
+    7: "“Went to do one thing, ended up doing another.” Debt or junk from the father; transformation industries.",
+    8: "“Set out to build a temple, built a corporation.” Must fight very strong people.",
+    9: "One of the best money combinations: slow, steady market capture through SOPs and people.",
+    11: "The free bird caged: forced discipline after leaving everything to God; constant taunts."
+  },
+  srcNote: "Air signs never map to Virgo Navamsha (it falls in the earth cycle that starts from Capricorn).",
+  rem: ["Daily maintenance and small daily service; care for your tools.","Pay for relatives' medicines and health care.","Hari-naam sankirtan or Sundarkand for 3/7/11-axis problems; shraddha at Gaya for ancestral issues; copper for a drained Sun."],
+  ex: { p: "Saturn", d1: 1, deg: "28°00′", lag: 2, steps: [
+    "Taurus is earth, count from Capricorn. 28° is the 9th slice → <b>Virgo Navamsha</b>.",
+    "<b>Sign:</b> the speed limiter: delayed, not denied; maintenance and service.",
+    "<b>Planet:</b> Saturn here: manual verification, very reliable QA, loyal customers.",
+    "<b>House:</b> with a Gemini D9 lagna, Virgo is the 4th: a little domestic friction is healthy; a dedicated cleaner at home.",
+    "<b>Source:</b> Taurus → Virgo: tracks where money and food go; a strong wealth combination. A slow but dependable builder of savings."
+  ]}
+};
+/* ---------- LIBRA ---------- */
+S[6] = { untaught: true };
+</script>
+
+<script>
+/* ---------- SCORPIO ---------- */
+S[7] = {
+  title: "The ravine", dign: "Ruled by Mars · Moon debilitated",
+  essence: "Low oxygen and dampness: the ravine after Libra's heaven. The sadhak's Navamsha. Poison held in the throat like Neelkanth. It punishes craving for comfort and gives knowledge only at a cost, often late.",
+  traits: ["No room for emotion","Hidden work: research, surgery, intelligence","Grudges and unexpressed pain","Numbness through repeated hurt","Things fall just short (99, not 100)","Karmic marriage","Improves slowly over time"],
+  warn: "“Whatever you fear here, you attract.” Grudges, numbness, trauma received or given. Gemini (6/8) is its enemy: it kills expression and playfulness.",
+  extra: "<p>Whatever house it falls in, things go wrong on the day you get emotional about that area. Excellent for unemotional, technical, hidden work. It shows what you are <i>given</i> (resources received, not earned), and the marriage lasts as long as the pending karma lasts. The model is Shiva and Parvati: it deepens slowly.</p>",
+  pl: {
+    Sun: "Won't work under anyone; fights for existence, not position. Position comes after desire dies. Distance from father or boss is needed.",
+    Moon: "Debilitated. Love shown through action, not words; a patient untangler; reads enemies; surgeon, antidote-maker; never idle. Can give big money with emotional dryness.",
+    Mars: "Own sign. Regrets not hitting back; retaliates only when provoked; in-laws and inheritance disputes; a friend's betrayal cuts deep.",
+    Mercury: "A questioner; poor rote memory, great analyst or data scientist; half-messages; nerve and skin issues; paperwork stuck.",
+    Jupiter: "Guilt given or taken; can't face the guru; revives the hopeless (phoenix); good for introvert researchers.",
+    Venus: "Past-life Devi upasana (the goddess rescues you); never-ending breakups; one-sided love; passive income from royalties and patents.",
+    Saturn: "Time is the tool; slow, persistent struggle; deep researcher; the best trainer in the 5th; rigid and unforgiving.",
+    Rahu: "Can't forget or forgive; magnifies and fabricates; research intuition; addictions; ancestral unrest. Varaha remedy.",
+    Ketu: "One life-changing betrayal; escapes problems; won't service or repair; hidden donations; needs personal space."
+  },
+  ho: [
+    "A karmic marriage you can't describe; hidden facts about the spouse; rebound marriages; strong fear of marriage. Never reveal your past (it becomes a weapon). Silent for long, then a sudden explosion: nectar or poison for the partner.",
+    "Never satisfied with family; as money grows, family gets cut off; terror of losing the job. Loved only while you keep bringing something; attacks come from behind.",
+    "The relationship breaks the day you first cry while talking to the partner. Regret for abandoned ambitions; diaries written and torn; learns occult subjects after marriage.",
+    "As the home grows more beautiful, emotional distance grows. Can't read mother or mother-in-law; “will she leave me?” fears; property conflicts after marriage.",
+    "Mysterious, “toxic” partners; anonymous platforms; renting; accidental love.",
+    "Can't win fights with them; heals broken people; psychiatric issues in relatives; tears in meeting rooms.",
+    "Intimacy dissatisfaction (especially with a Taurus D9 lagna); private about the bedroom; transformation after the second child.",
+    "Money through pain; inheritance; escalating hidden abuse (leave); never trust the in-laws.",
+    "A guru who reads your dilemma; Shiva or Krishna in separation; gets things late; hidden donations.",
+    "Toxicity from mother-in-law or father's family (share less); research, genetics careers; no business with your spouse.",
+    "Never 100% of desires or salary; past-life suppressed wishes; mining, oil, pathology, insurance.",
+    "Slow divorce or the silent treatment; improves over time. Whatever you fear (divorce) you attract."
+  ],
+  src: {
+    0: "Starts that sink underground; regret.",
+    2: "Paperwork stuck; writing turns into research; “digging the base.”",
+    3: "A hug, then a stab; healer or surgeon.",
+    4: "A position with hidden money; a death or breakup on getting a position; admirer turns rival.",
+    6: "Heaven to ravine; drained after intimacy; don't be an unpaid therapist.",
+    7: "Vargottama: ace researcher and diagnostician; hates shrill noise.",
+    8: "Repeats mistakes; spiritual falls; leave rather than fight; a 10th lord here endangers the job.",
+    10: "Deception, smuggling, LLMs; desires become sadhana.",
+    11: "Exploited while serving; donation regret; Ketu bleeds most."
+  },
+  srcNote: "Earth signs (Taurus, Virgo, Capricorn) never reach Scorpio Navamsha.",
+  rem: ["Change the plane: bhakti temple, camp or group kirtan. Avoid solitary Vipassana while it is active.","Fasting, especially Ekadashi; Ganapati first; deities in caves and old temples.","Water to Vishnu or Rama daily; pind-daan for ancestors; Varaha's 108 names for Rahu here.","Keep it hidden (the spice-jar principle); share less information; don't cheat."],
+  ex: { p: "Venus", d1: 11, deg: "15°00′", lag: 1, steps: [
+    "Pisces is water, count from Cancer. 15° is the 5th slice → <b>Scorpio Navamsha</b>.",
+    "<b>Sign:</b> the ravine: no room for emotion, karmic bonds.",
+    "<b>Planet:</b> Venus here: past-life Devi upasana; breakups; one-sided love; passive income.",
+    "<b>House:</b> with a Taurus D9 lagna, Scorpio is the 7th, exactly the case the notes flag for intimacy dissatisfaction.",
+    "<b>Source:</b> Pisces → Scorpio: exploited while serving. Read: giving a lot in love and getting little back; the goddess is the protector, and devotion is the remedy."
+  ]}
+};
+/* ---------- SAGITTARIUS ---------- */
+S[8] = {
+  title: "The sword's edge", dign: "Ruled by Jupiter",
+  essence: "“Fortune of fortune”: bhagya, dharma, gurus, and the fall from heights. It sits between Scorpio's abyss and Capricorn's bondage, so you walk a sword's edge. The story is King Nahusha, who reached Indra's throne and fell.",
+  traits: ["Fear and fearlessness (heights)","Tests and falls","Hidden protection","Moral principles","Vows and curses","Long vision","Faith only in God","Blunt, half-headed","Long travel"],
+  warn: "Misconduct here ends in bonded labour in Capricorn Navamsha. Unfulfilled vows bind like a noose; remedies won't work until you honour them.",
+  extra: "<p>Don't make a lie into truth; admit wrongs. <b>Jupiter never fights:</b> it walks away and doesn't return. The guru is read from the D1 9th when young and the D9 9th after work or marriage. An affair damages the house 8th from where Sagittarius sits.</p>",
+  pl: {
+    Sun: "The father often missing or falling from heights; powerful gurus who may fall; long-term goals, no small jobs.",
+    Moon: "Own rules or leaves; a picky eater; needs headspace and high ceilings; a temple-like home; fights like Sati.",
+    Mars: "The protector who “crucifies” wrongdoers; land fights; strict, fighting gurus; back and sciatica; falls in temples or bathrooms.",
+    Mercury: "At best the favourite disciple: a raja yoga for learners. In wrong hands, marketing the guru's throne. Never betray the teacher.",
+    Jupiter: "Own sign. Stubborn on philosophy; a touchstone (helps others more than self); wants recognition; a monopoly-builder.",
+    Venus: "Loyalty tests; a bold, principled partner; temple or royal weddings; ritual expert; risk of harassment cases.",
+    Saturn: "Scolds or gets scolded (father, guru); beast-of-burden seva; fear of falling. The scolding is a blessing.",
+    Rahu: "Lifts you high to drop you; never satisfied with one guru; show-off devotion; miracle-chasing; scams or is scammed.",
+    Ketu: "Instinct about gurus always right; omens; broken engagements save you. With Jupiter: the path of knowledge and sannyasa."
+  },
+  ho: [
+    "The marriage rests on morals; relocation to a spiritual place; liver and back. Never sell or pawn gold.",
+    "Words come true: no lies or curses. Hospitality to devotees; Jupiterian inheritance from the spouse's family.",
+    "Moving the home altar is the big mistake; transfer or a new house near temples; in-laws tested.",
+    "The home must have God, space and high ceilings; the mother's or mother-in-law's health.",
+    "Affairs are the first crisis; the first child is lucky; spiritual study.",
+    "A vastu defect at the altar; conflict with the paternal aunt; wishes unfulfilled.",
+    "Jupiter's debt: go south to Balaji. No fraud in partnerships; stand by the partner.",
+    "Fortune draining; secret, intense japa on Ekadashi and Ashtami.",
+    "The father causes marital trouble; domestic violence possible. Bow to God, guru and father.",
+    "Consultation careers; others take the credit or the money.",
+    "A huge network, marketing, no enemies. No affairs within the social circle.",
+    "Only God releases you from the marriage; affairs harm children. Donate generously."
+  ],
+  src: {
+    0: "Initiatives for higher learning and God; physical fights become ideological wars; gives pravachans.",
+    2: "Art and calligraphy for God; bankers, kathavachaks, professors, salesmen; riyaz as worship.",
+    3: "Social reformer; feeding the deity; leaving home or going abroad; “mother is God.”",
+    4: "Stubborn for position; never gives up, never cheats; status over money; Rama devotion. (Risk of falling from position.)",
+    6: "Sees God in the beloved; affairs spoil the marriage; promotion or abroad after marriage.",
+    7: "Spiritual only after a crisis; researcher or occultist; gold and savings.",
+    8: "Vargottama: success without emotional “water.” Remedy: emotional deities, Braj songs, the Ganga.",
+    10: "1 → 2 → 4 → 8 expansion, then a crash; online preaching; analysts and mathematicians.",
+    11: "Has seen everything yet pretends not to; total faith in a deity."
+  },
+  srcNote: "Taurus, Virgo and Capricorn never reach Sagittarius Navamsha (their count starts at Capricorn and ends at Virgo).",
+  rem: ["Honour vows and mannats; don't make a lie into truth.","Read the Bhagavatam canto matching the house of Sagittarius Navamsha.","Braj songs and Ganga worship for missing emotional “water”; lotus.","Never spoil Jupiter or Saturn: they give results gently."],
+  ex: { p: "Jupiter", d1: 2, deg: "8°00′", lag: 4, steps: [
+    "Gemini is air, count from Libra. 8° is the 3rd slice → <b>Sagittarius Navamsha</b>, Jupiter's own sign.",
+    "<b>Sign:</b> fortune, dharma, gurus, the risk of a fall.",
+    "<b>Planet:</b> Jupiter here: stubborn on philosophy; a touchstone who helps others more than self.",
+    "<b>House:</b> with a Leo D9 lagna, Sagittarius is the 5th: affairs would be the first crisis; the first child is lucky.",
+    "<b>Source:</b> Gemini → Sagittarius: professors, kathavachaks, bankers. A teacher of dharma whose fortune runs through children and conduct."
+  ]}
+};
+/* ---------- CAPRICORN ---------- */
+S[9] = {
+  title: "Karmic service", dign: "Ruled by Saturn · Mars exalted · Jupiter debilitated",
+  essence: "The Navamsha of karma: whatever goes here, you become its servant. No emotions, only duty: a pressure cooker. It gives position, money and a stable second half of life, but no peace.",
+  traits: ["Duty, not feeling","Routine is compulsory","Labour, not loving seva","Work nobody else can do","Old-school, manual","Can't quit midway","Starts in the mud, grows steadily"],
+  warn: "You can't leave karmic service midway; only bhakti cuts it. The result is always Pisces: let go.",
+  extra: "<p>Opposite of Cancer: routine whatever your mood. Leo is its 8th, so clashes with authority and father-figures. <b>Strength decides everything:</b> a strong planet here commands empires, a weak one suffers. Malefics turn junk into palaces; benefics complain. Careers: permanent or government roles, heavy industry, finance, law, medicine, teaching, QA and supervision. Natural deity: Shiva; remedy through Kurma.</p>",
+  pl: {
+    Sun: "Head of labourers or union leader; consistency makes you the most senior; father's status falls as yours rises; little marital warmth. The Sun must give, like Karna.",
+    Moon: "Practical and sceptical; emotions burned out; simple cold food; riverbank solitude and Shiva temples; happiness only from work.",
+    Mars: "Exalted. Accidents, stitches, scars; a one-man army; machines, big vehicles, towers, land; deals in big sums.",
+    Mercury: "Runs a house on any budget and saves; counts every paisa; knows others' depth and wealth; thyroid and hormones.",
+    Jupiter: "Debilitated. Career or health, not both; immune to criticism; strict teachers; pays for every breath. Used as one factor in the series' cheating “litmus test,” never alone.",
+    Venus: "Slave of money, partner or family; the marriage lasts while the karma lasts; perfumes, luxury goods, chemicals, paints.",
+    Saturn: "Own sign, very strong. The dirtiest work with no recognition; “head down, just work”; teacher, trainer, core industries, QA.",
+    Rahu: "Traps and leaves; works through third parties; middleman and back-channel deals; can't do punch-in jobs; AI and stock market.",
+    Ketu: "Likes no job; deep specialist (intelligence, research, AI/ML, crisis management); cuts out middlemen; resigns first; career breaks."
+  },
+  ho: [
+    "A tough “wrestler” partner; money but no peace; tested before given; isolation.",
+    "Judged by worth and bank balance; hoarding; remembers everything. Build your own wealth; safe investments.",
+    "Analytical and critical; good at budgeting and paperwork; a cluttered entrance blocks work.",
+    "A “labourer inside the home” with no voice; a very big house; machines and storage at home.",
+    "Bound by children with little response; children improve later; hates asking for money.",
+    "Quiet, long fights with records kept; bone and joint illness; don't become dependent.",
+    "Good: long, stable, mature but dry, “living with a colleague”; money; needs a good Venus.",
+    "No help in sorrow; marriage problems cost the job; must “become a lawyer” with in-laws.",
+    "Made helpless before turning to God; temple seva; late but surprising rewards.",
+    "A brilliant career, but conflict in the marriage; “apna haath Jagannath”; caregiver to in-laws.",
+    "Everything comes late (“after the teeth are gone”); desires fulfilled by your own skilled hands.",
+    "Sleep lost after marriage. Saturn can't let go, so learn to give."
+  ],
+  src: {
+    1: "A prisoner of money and speech; early responsibility; never do business with family.",
+    2: "Third parties; CA, records, archives, databases, coders; repeated isolation cycles.",
+    3: "Service becomes a profession; an emotional “eclipse” can make one a sadhana-siddha.",
+    5: "Problem-solving becomes the career (courts, logistics, finance); COO/CEO types; earth + earth gives money.",
+    6: "“Married into a palace, made a daily-wage worker”: comfort without love; extreme career swings after marriage.",
+    7: "Research and analysis; hidden or underground workplaces.",
+    9: "Vargottama: the full Capricorn effect: a lot of duty and pressure.",
+    10: "Shortcuts backfire; ultra-rich if the person finds the market's “black hole” and works hard.",
+    11: "Heavy responsibility on an undisciplined person: a journey into discipline."
+  },
+  srcNote: "Aries, Leo and Sagittarius never reach Capricorn Navamsha.",
+  rem: ["Let go and surrender: nishkama karma-yoga (Gita 2.40, 18.65, 15.15 are cited).","Kurma abhishekam (panchamrita, for father and pitris); copper and Surya worship for the Sun.","Buttermilk for Ketu; dawn breathing and mantra for Jupiter; set boundaries.","Annadana (Jagannath, Narasimha, Balaji, cows); japa at night for sleeplessness."],
+  ex: { p: "Jupiter", d1: 5, deg: "2°00′", lag: 3, steps: [
+    "Virgo is earth, count from Capricorn. 2° is the 1st slice → <b>Capricorn Navamsha</b>, where Jupiter is debilitated.",
+    "<b>Sign:</b> karmic service; duty without peace.",
+    "<b>Planet:</b> debilitated Jupiter: career or health, not both; strict teachers; pays for every breath.",
+    "<b>House:</b> with a Cancer D9 lagna, Capricorn is the 7th: a long, stable but dry marriage, “living with a colleague.”",
+    "<b>Source:</b> Virgo → Capricorn: problem-solving becomes the career (COO type). Read: a strong worker in a steady, unemotional marriage. Don't jump to the cheating test from this alone: the series needs several more factors."
+  ]}
+};
+/* ---------- AQUARIUS ---------- */
+S[10] = {
+  title: "The punya store", dign: "Ruled by Saturn (and Rahu)",
+  essence: "The storehouse of punya. Past-life service gives a “VIP line”: a planet here bypasses rules. It fulfils desires once grief is dropped, like a deity's blessing hand. Tech, AI, social media; money comes in chunks and multiplies.",
+  traits: ["VIP line: rules bypassed","Fulfils desires once grief is dropped","Money in chunks, not salary","Multiplies 2 → 4 → 8","Tech, AI, social media, branding","Anti-authority; active at night","Linked to land"],
+  warn: "Obsession and over-desire waste the punya and drop you into Capricorn. Scams, intoxicants.",
+  extra: "<p>Opposite Leo: no regular income, enters others' territory. Benefics here fulfil desires through people but drain assets (debt); malefics fulfil them forcefully and remove people. The parents' desires show in the children. Good Aquarius → giving away → freedom (Pisces); indulgence → a fall into Capricorn.</p>",
+  pl: {
+    Sun: "A duplicitous rule-bender (a “magic show everyone sees through”); a double-engine worker; ego and visibility: posters, PR, big brands.",
+    Moon: "Food, travel, home and health content; no food rules; a cosy smart home.",
+    Mars: "Shows off power, property, cars and gems; property dealer; athletic.",
+    Mercury: "Inflated connections; hype; sells courses and anything; greedy relatives; no paperwork.",
+    Jupiter: "Cheats or is cheated; huge connections; very rich clients; faith plus social media brings fame.",
+    Venus: "Live-in relationships; luxury brands; very expensive products; lots of money.",
+    Saturn: "Own sign. An endless “struggle story”; caretaker work.",
+    Rahu: "Very powerful: hype, DJs, anchors; AI, blockchain, crypto; mysterious income; automation.",
+    Ketu: "A curious seeker who tests astrologers; knows secrets; chips, DNA, precision tech; minimalism and limited editions."
+  },
+  ho: [
+    "Love fades after marriage; old work ends; a grand wedding; pitri karma; date or venue changes.",
+    "Cheating, so keep the keys safe; luxury (perfume, diamonds); “rich, then looted”; money after leaving the country.",
+    "Rumours and miscommunication through in-laws; sudden social reach; paperwork and property fraud.",
+    "Home drama; big everything; an automated designer home; a reel studio at home.",
+    "Obsessive about children's education; status rises then crashes, so turn to the Devi.",
+    "An obsessive problem-solver; enemies destroyed; don't borrow from them; servants cheat.",
+    "Cheating possible, but expensive partnerships; money in batches.",
+    "Devastated by loss; inheritance multiplies; one-way loyalty; very good astrologers.",
+    "A Devi upasaka protected by fierce deities; online teaching; a foreign guru; AI engineers.",
+    "Fancy, irregular or contract careers; social-media fame; property from the mother or mother-in-law.",
+    "Connections and groups; sudden gains; cheating by friends.",
+    "Scams with foreigners; going abroad; MNC salary; trading; the father may give a big share."
+  ],
+  src: {
+    1: "Collecting becomes a business; control speech and consumption.",
+    2: "Media, PR, publishing, teaching; beware scams and lies.",
+    3: "Emotional posting; social service on social media; secrets leak; good for astrology.",
+    5: "Problem-solving and franchises; pitri debt; inherited diseases.",
+    6: "Very rich; avoid affairs and alcohol; serious misconduct backfires heavily (Ganga remedy).",
+    7: "Occult, research, astrology; never in the present.",
+    9: "Work hard, enjoy late (the squirrel). Enjoy alongside.",
+    10: "Vargottama: rule-breaker, word-of-mouth deals, lots of punya; avoid over-obsession.",
+    11: "Loses peace to others; spends on desires."
+  },
+  srcNote: "Aries, Leo and Sagittarius never reach Aquarius Navamsha.",
+  rem: ["Drop grief and unresolved feelings to unlock desires.","Control speech and obsession; a mud or soil bath.","Maa Durga (Navratri), Varaha's 108 names; Durga or Varaha for disease, debt and enemies.","Pitri remedies for Virgo → Aquarius; the Ganga for Libra → Aquarius misconduct."],
+  ex: { p: "Rahu", d1: 1, deg: "5°00′", lag: 8, steps: [
+    "Taurus is earth, count from Capricorn. 5° is the 2nd slice → <b>Aquarius Navamsha</b>.",
+    "<b>Sign:</b> the punya store; desires fulfilled, rules bypassed.",
+    "<b>Planet:</b> Rahu here is very powerful: hype, AI, crypto, mysterious income.",
+    "<b>House:</b> with a Sagittarius D9 lagna, Aquarius is the 3rd: sudden social reach, but rumours through in-laws and paperwork fraud.",
+    "<b>Source:</b> Taurus → Aquarius: collecting becomes a business. Read: an online business that grows in jumps; guard your speech and paperwork."
+  ]}
+};
+/* ---------- PISCES ---------- */
+S[11] = {
+  title: "Release", dign: "Ruled by Jupiter · Venus exalted · Mercury debilitated",
+  essence: "The moksha Navamsha. Everyone leaves so that you learn to stand on your own; God is the hidden support. Nothing helps except punya, charity and faith. It gives good results only when pending karma is cleared.",
+  traits: ["Everyone leaves; God supports","The Navamsha of charity","Sleep, night, the bedroom","Foreign lands, isolation","The sanctum (garbha-griha)","What you do in private","Surrender"],
+  warn: "Malefics here = heavy karmic debt: calamities, delays, sleeplessness, the end of anything built on lies. Its greatest enemy is Libra Navamsha.",
+  extra: "<p>Pisces is the 8th from Leo (a fall from position, Rama's exile), the 4th from Sagittarius (God's heart, the sanctum) and the 12th from Aquarius (the resources for liberation). Mercury debilitated: the intellect doesn't work; forgetfulness; giving to the unworthy. Venus exalted: devotion and sattvic scents, not marital pleasure. Fire signs never reach it: it is their nightmare.</p>",
+  pl: {
+    Sun: "Give up position and ego in God's court; the father may be absent; farewell people without ego. Surya namaskar; tarpan.",
+    Moon: "Stress; loneliness in old age; devastated by the mother's death; own your house; poor sleep. Worship Shiva and Krishna.",
+    Mars: "Aerospace, shipping, pipelines, payment gateways; a sibling far away; border or coastal postings. Hanuman at remote temples.",
+    Mercury: "Debilitated. A forgetful one-way talker (cards, passports); international payments, law; a historian, not an analyst; good fiction.",
+    Jupiter: "Own sign. Over-compassion can cause bedroom or temple misconduct; good for yajna and knowledge; “God comes where you step.”",
+    Venus: "Exalted. Bad for marriage and sex, good for bhakti and charity; sattvic scents (rose water or sandalwood in the bath).",
+    Saturn: "Sannyasi, Shiva bhakta; night shifts; results-oriented charity; a full-stack worker with lots of money; hoarding.",
+    Rahu: "Ancestral debt; investor; radar, space and satellite tech; global fixer; packaged spirituality. Pitri remedies.",
+    Ketu: "Removes what steals your sleep; senses death; attachment then freedom; mountains and Govardhan; a spacious minimalist bedroom."
+  },
+  ho: [
+    "Spiritual isolation in marriage; used without realising; selfless, then resentful. Bathe deities, Ganga snan, marry in a temple.",
+    "Forced giving to the in-laws' family; feels unfairly treated; wants partition; don't show off.",
+    "Drama from the spouse's siblings; paperwork and locker losses; night outings.",
+    "Leave home with no share; open views; a full fridge; gives every visitor something.",
+    "Gives to children; conception after vows; loss of status or a country change.",
+    "Trusts God over doctors; credit-card debt; job loss or gain; routine problems.",
+    "A relationship like deity worship: one-sided, reciprocation delayed.",
+    "Knows secrets you can't share; sees what you shouldn't.",
+    "Trial by fire (Kaikeyi's boons); may have to leave the one you love; forced marriage.",
+    "Shani tests your giving; builds careers, criticised; regret for not doing for yourself.",
+    "Giving makes you a fool; insatiable others, ungrateful children.",
+    "Sleeplessness: good with benefics, terrible with malefics. Leave violent relationships."
+  ],
+  src: {
+    1: "Can't save what is leaving; burn attachment to family and ego; import–export, aviation.",
+    2: "Peace through writing or singing; words manifest; selfish to selfless; solo traveller.",
+    3: "Must leave home; settle abroad; bhandaras; Saturn neutralises attachment (the coconut); tarpan.",
+    5: "Runs from chaos; job or team changes; nitpicker becomes adjuster; sees the deity everywhere.",
+    6: "A divorce combination; prophetic dreams; liberation or fraud after marriage.",
+    7: "“Moved on,” but not; a saviour as spouse; astrology, Ayurveda; secret charity; addictions.",
+    9: "Bliss in grinding work; night shifts for foreign teams; labour abroad; sleep and wellness industries.",
+    10: "Fights its own desires (digital detox); philanthropist; quick fame; online gurus."
+  },
+  srcNote: "Aries, Leo and Sagittarius never reach Pisces Navamsha.",
+  rem: ["Give to the universe: food, water, knowledge, medical help.","Tarpan, Ganga snan, bathe deities and recite the Brahma Samhita; marry in a temple.","Venus: rose water or sandalwood in the bath. Mars: Hanuman at remote temples. Rahu: peepal water and pitri yajna.","Farewell departing people without ego; hold no grudges about who left."],
+  ex: { p: "Saturn", d1: 3, deg: "27°00′", lag: 5, steps: [
+    "Cancer is water, count from Cancer. 27° is the 9th slice → <b>Pisces Navamsha</b>.",
+    "<b>Sign:</b> release; everyone leaves, God supports.",
+    "<b>Planet:</b> Saturn here: a Shiva bhakta, night shifts, results-oriented charity.",
+    "<b>House:</b> with a Virgo D9 lagna, Pisces is the 7th: a relationship like deity worship, one-sided.",
+    "<b>Source:</b> Cancer → Pisces: must leave home; Saturn neutralises attachment."
+  ]}
+};
+
+/* Master cross-reference (one-liners per planet, Aries..Pisces skipping Libra) */
+var XR = {
+  Sun: ["Solo leader","Authority, inheritance","Clashes with bosses","Justice, dries emotions","Authority","Manager of the best team",null,"Won't work under anyone","Father missing or falls; powerful gurus","Head of labourers; steady rise","Rule-bender; ego, PR","Give up ego; father absent"],
+  Moon: ["Mother struggles","Food, welfare","Copycat, cries mid-talk","All Cancer traits","Clashes with father","Clean, measured",null,"Love by action","Own rules or leaves","Emotions burned out; work = happiness","Food/home content; smart home","Old-age loneliness; Shiva + Krishna"],
+  Mars: ["Strong, active","Land, logistics","Quick comebacks","Emotion = fighting","Help without vetting","Machines, automation",null,"Regrets not hitting back","Protector, strict gurus","Accidents, machines, big deals","Shows off land and power","Aerospace, pipelines; sibling far"],
+  Mercury: ["Fights via words and law","Paperwork, many incomes","Doubled traits","Double agent, chatterbox","Don't be a middleman","Extreme detail",null,"Analyst, poor rote memory","Favourite disciple","Counts every paisa","Hype, sells courses","Forgetful; historian not analyst"],
+  Jupiter: ["Guru fighting for a cause","Guru's grace, banking","Salesman, fragmented","Exalted grace","Feed visitors, give knowledge","Payback to lineage",null,"Guilt; the phoenix","Stubborn on philosophy; touchstone","Career or health, not both","Huge network, rich clients","Over-compassion → misconduct"],
+  Venus: ["High libido, affair risk","Luxury, wealthy marriage","Early, sibling-like love","Narcissistic; toxic if poor","Burn attachment","Picky; love = help",null,"Devi upasana, breakups","Loyalty tests; ritualist","Slave of money or partner","Live-in, luxury, big money","Bhakti; bad for marriage"],
+  Saturn: ["Crisis responsibility","Scrap, oil, hoarding","Spoiled childhood, thyroid","Servant to the masses","Humility tests","Manual QA",null,"Slow researcher","Scolded or scolding","Dirtiest work, no credit","Endless struggle story","Sannyasi; night shifts"],
+  Rahu: ["Obsessive, loopholes","Digital wealth, fraud risk","Manipulative, knock-offs","Endless thirst, fakes","Snatches authority","Cut-copy-paste business",null,"Can't forgive; magnifies","High, then the drop","Traps and leaves; middleman","Very powerful: hype, AI, crypto","Ancestral debt; investor"],
+  Ketu: ["Critic, headless warrior","Gives half; elite","Micro-fault-finding","Dissolution, nomadic","Mauna vrata; topples rulers","Handcraft precision",null,"One betrayal; escapes","Guru instinct always right","Likes no job; deep specialist","Seeker, secrets, chips","Lets go; senses death"]
+};
+</script>
+
+<script>
+(function () {
+  var el = function (id) { return document.getElementById(id); };
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function ord(n) { return n + (n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th"); }
+  function dms(x) { var d = Math.floor(x + 1e-9), m = Math.floor((x - d) * 60 + 1e-6); return d + "°" + (m < 10 ? "0" : "") + m + "′"; }
+  function pillE(i) { return '<span class="pill e-' + ELEM[i % 4] + '">' + ELEM[i % 4] + "</span>"; }
+  function dgPills(p, s) { return dignity(p, s).map(function (t) { return '<span class="pill ' + t[0] + '">' + t[1] + "</span>"; }).join(""); }
+
+  /* ---------- North Indian chart ---------- */
+  var PPOS = {1:[200,86],2:[100,34],3:[38,96],4:[100,186],5:[38,294],6:[100,370],7:[200,286],8:[300,370],9:[362,294],10:[300,186],11:[362,96],12:[300,34]};
+  var SPOS = {1:[200,178],2:[100,80],3:[80,104],4:[178,205],5:[80,302],6:[100,326],7:[200,232],8:[300,326],9:[320,302],10:[222,205],11:[320,104],12:[300,80]};
+  var POLY = {1:"200,200 101,101 200,2 299,101",2:"2,2 200,2 101,101",3:"2,2 101,101 2,200",4:"2,200 101,101 200,200 101,299",5:"2,200 101,299 2,398",6:"2,398 101,299 200,398",7:"200,200 101,299 200,398 299,299",8:"200,398 299,299 398,398",9:"398,398 299,299 398,200",10:"398,200 299,299 200,200 299,101",11:"398,200 299,101 398,2",12:"398,2 299,101 200,2"};
+  var DIAMOND = {1:1,4:1,7:1,10:1};
+  function drawNorth(svg, lag, pl, hiHouse) {
+    var h = '<rect class="bg" x="2" y="2" width="396" height="396"/>';
+    if (hiHouse) h += '<polygon class="hi" points="' + POLY[hiHouse] + '"/>';
+    h += '<rect class="ln" x="2" y="2" width="396" height="396"/><line class="ln" x1="2" y1="2" x2="398" y2="398"/><line class="ln" x1="398" y1="2" x2="2" y2="398"/><polygon class="ln" points="200,2 398,200 200,398 2,200"/>';
+    for (var house = 1; house <= 12; house++) {
+      var sign = (lag - 1 + house - 1) % 12 + 1, s = SPOS[house];
+      h += '<text class="sg" x="' + s[0] + '" y="' + s[1] + '" text-anchor="middle">' + sign + "</text>";
+      var list = pl[house] || [];
+      if (!list.length) continue;
+      var per = DIAMOND[house] ? 3 : 2, lines = [];
+      for (var i = 0; i < list.length; i += per) lines.push(list.slice(i, i + per).join(" "));
+      var p = PPOS[house], y0 = (house === 6 || house === 8) ? p[1] - (lines.length - 1) * 17 : p[1];
+      lines.forEach(function (ln, k) { h += '<text class="pl" x="' + p[0] + '" y="' + (y0 + k * 17) + '" text-anchor="middle">' + ln + "</text>"; });
+    }
+    svg.innerHTML = h;
+  }
+  window.navDrawNorth = drawNorth;
+
+  /* ---------- Strip + calculator ---------- */
+  var cSign = el("cSign");
+  SIGNS.forEach(function (n, i) { cSign.insertAdjacentHTML("beforeend", '<option value="' + i + '">' + n + "</option>"); });
+  cSign.value = "4";
+  function drawStrip(s, mins) {
+    var start = START[s % 4], pada = Math.min(8, Math.floor(mins / 200)), h = "";
+    h += '<text class="t-ink" x="0" y="18" font-size="15">' + SIGNS[s] + ' (' + ELEM[s % 4] + ') · counting starts from <tspan class="t-acc" font-weight="600">' + SIGNS[start] + "</tspan></text>";
+    for (var k = 0; k < 9; k++) {
+      var n = (start + k) % 12, x = k * 80, on = k === pada;
+      h += '<rect x="' + (x + 1) + '" y="34" width="78" height="62" rx="5" class="f-' + ELEM[n % 4] + '"' + (on ? ' stroke="var(--accent)" stroke-width="3"' : "") + "/>";
+      h += '<text x="' + (x + 40) + '" y="58" text-anchor="middle" font-size="20" class="c-' + ELEM[n % 4] + '">' + GLY[n] + "</text>";
+      h += '<text x="' + (x + 40) + '" y="84" text-anchor="middle" font-size="12.5" class="t-ink"' + (on ? ' font-weight="600"' : "") + ">" + SIGNS[n] + "</text>";
+      var d0 = k * 10 / 3, dd = Math.floor(d0 + 1e-9), mm = Math.round((d0 - dd) * 60);
+      h += '<text x="' + (x + 2) + '" y="114" font-size="11" class="t-mut mono">' + dd + "°" + (mm ? mm + "′" : "") + "</text>";
+    }
+    h += '<text x="718" y="114" font-size="11" text-anchor="end" class="t-mut mono">30°</text>';
+    var mx = Math.min(719, mins / 1800 * 720);
+    h += '<polygon class="f-acc" points="' + mx + ",124 " + (mx - 7) + ",138 " + (mx + 7) + ',138"/>';
+    h += '<text x="' + Math.max(30, Math.min(690, mx)) + '" y="150" text-anchor="middle" font-size="11" class="t-acc mono">' + dms(mins / 60) + "</text>";
+    el("strip").innerHTML = h;
+  }
+  function calc(from) {
+    var s = +cSign.value, mins;
+    if (from === "range") { mins = +el("cRange").value; el("cDeg").value = Math.floor(mins / 60); el("cMin").value = mins % 60; }
+    else { var d = Math.max(0, Math.min(29, parseInt(el("cDeg").value, 10) || 0)), m = Math.max(0, Math.min(59, parseInt(el("cMin").value, 10) || 0)); mins = d * 60 + m; el("cRange").value = mins; }
+    var pada = Math.floor(mins / 200), start = START[s % 4], n = (start + pada) % 12;
+    var lo = pada * 200, hi = lo + 200;
+    function fm(x) { return Math.floor(x / 60) + "°" + (x % 60 < 10 ? "0" : "") + (x % 60) + "′"; }
+    var count = []; for (var k = 0; k <= pada; k++) count.push(SIGNS[(start + k) % 12] + " " + (k + 1));
+    var varg = n === s ? ' <span class="pill p-acc">vargottama</span>' : "";
+    var link = S[n] && !S[n].untaught ? ' · <a href="#nav-' + n + '">read the ' + SIGNS[n] + " chapter</a>" : ' · <a href="#nav-6">Libra was not taught</a>';
+    el("cOut").innerHTML = '<p class="result-line" style="margin-top:12px">' + SIGNS[s] + " " + fm(mins) + " → <b>" + SIGNS[n] + " Navamsha</b>" + varg + link + "</p>" +
+      '<div class="steps"><ol><li>' + SIGNS[s] + " is a " + ELEM[s % 4] + " sign → count from <b>" + SIGNS[start] + "</b>.</li><li>" + fm(mins) + " falls in slice <b>" + (pada + 1) + "</b> (" + fm(lo) + "–" + fm(hi) + ").</li><li>Count " + (pada + 1) + (pada ? " signs" : " sign") + ": " + count.join(", ") + ".</li></ol></div>";
+    drawStrip(s, mins);
+    highlightGrid(s, pada);
+  }
+  ["cSign", "cDeg", "cMin"].forEach(function (id) { el(id).addEventListener("input", function () { calc("num"); }); });
+  el("cRange").addEventListener("input", function () { calc("range"); });
+
+  /* ---------- 108 grid ---------- */
+  (function () {
+    var h = "<table><thead><tr><th>D1 sign</th>";
+    for (var k = 0; k < 9; k++) { var d0 = k * 10 / 3, dd = Math.floor(d0 + 1e-9), mm = Math.round((d0 - dd) * 60); h += "<th>" + (k + 1) + '<br><span style="text-transform:none;letter-spacing:0">' + dd + "°" + (mm ? mm + "′" : "") + "</span></th>"; }
+    h += "</tr></thead><tbody>";
+    for (var s = 0; s < 12; s++) {
+      h += '<tr data-s="' + s + '"><td>' + GLY[s] + " " + SIGNS[s] + "</td>";
+      for (var p = 0; p < 9; p++) {
+        var n = (START[s % 4] + p) % 12;
+        h += '<td class="c e-' + ELEM[n % 4] + '" data-p="' + p + '" title="' + SIGNS[s] + " slice " + (p + 1) + " → " + SIGNS[n] + ' Navamsha"' + (n === s ? ' style="font-weight:700;text-decoration:underline"' : "") + ">" + SAB[n] + "</td>";
+      }
+      h += "</tr>";
+    }
+    el("grid108").innerHTML = h + "</tbody></table>";
+  })();
+  function highlightGrid(s, p) {
+    Array.prototype.forEach.call(document.querySelectorAll("#grid108 td.hl"), function (c) { c.classList.remove("hl"); });
+    Array.prototype.forEach.call(document.querySelectorAll("#grid108 tr.row-hl"), function (r) { r.classList.remove("row-hl"); });
+    var row = document.querySelector('#grid108 tr[data-s="' + s + '"]');
+    if (!row) return;
+    row.classList.add("row-hl");
+    row.querySelector('td[data-p="' + p + '"]').classList.add("hl");
+  }
+
+  /* ---------- Reach diagram ---------- */
+  (function () {
+    var groups = [["Fire", "Aries · Leo · Sagittarius", 0], ["Earth", "Taurus · Virgo · Capricorn", 1], ["Air", "Gemini · Libra · Aquarius", 2], ["Water", "Cancer · Scorpio · Pisces", 3]];
+    var h = "";
+    for (var i = 0; i < 12; i++) h += '<text x="' + (232 + i * 40) + '" y="22" text-anchor="middle" font-size="12" class="t-mut mono">' + SAB[i] + "</text>";
+    groups.forEach(function (g, r) {
+      var y = 56 + r * 64, st = START[g[2]];
+      h += '<rect x="0" y="' + (y - 24) + '" width="196" height="48" rx="6" class="f-' + ELEM[g[2]] + '"/>';
+      h += '<text x="12" y="' + (y - 4) + '" font-size="15" font-weight="600" class="c-' + ELEM[g[2]] + '">' + g[0] + " signs</text>";
+      h += '<text x="12" y="' + (y + 14) + '" font-size="11.5" class="t-mut">' + g[1] + "</text>";
+      for (var i = 0; i < 12; i++) {
+        var reach = ((i - st + 12) % 12) < 9, cx = 232 + i * 40;
+        if (reach) {
+          h += '<circle cx="' + cx + '" cy="' + y + '" r="15" class="f-' + ELEM[i % 4] + '"/>';
+          h += '<text x="' + cx + '" y="' + (y + 5) + '" text-anchor="middle" font-size="14" class="c-' + ELEM[i % 4] + '">' + GLY[i] + "</text>";
+          if (i === st) h += '<text x="' + cx + '" y="' + (y + 30) + '" text-anchor="middle" font-size="10" class="t-acc mono">start</text>';
+        } else {
+          h += '<circle cx="' + cx + '" cy="' + y + '" r="15" fill="none" class="s-mut" stroke-dasharray="3 3"/>';
+          h += '<line x1="' + (cx - 6) + '" y1="' + (y - 6) + '" x2="' + (cx + 6) + '" y2="' + (y + 6) + '" class="s-mut" stroke-width="1.5"/><line x1="' + (cx + 6) + '" y1="' + (y - 6) + '" x2="' + (cx - 6) + '" y2="' + (y + 6) + '" class="s-mut" stroke-width="1.5"/>';
+        }
+      }
+    });
+    el("reachSvg").innerHTML = h;
+  })();
+
+  /* ---------- Journey diagram ---------- */
+  (function () {
+    var rows = [
+      [[0, "starts"], [1, "sustains"], [2, "reacts"]],
+      [[4, "rules"], [5, "maintains"]],
+      [[7, "wounds"], [8, "tests"], [9, "binds"]],
+      [[9, "karma"], [10, "desires fulfilled"], [11, "release"]]
+    ];
+    var h = '<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker><marker id="ahb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--bad)"/></marker></defs>';
+    rows.forEach(function (row, r) {
+      var y = 14 + r * 82;
+      row.forEach(function (c, k) {
+        var x = 20 + k * 240, n = c[0];
+        h += '<rect x="' + x + '" y="' + y + '" width="200" height="54" rx="8" class="f-' + ELEM[n % 4] + '"/>';
+        h += '<text x="' + (x + 16) + '" y="' + (y + 33) + '" font-size="22" class="c-' + ELEM[n % 4] + '">' + GLY[n] + "</text>";
+        h += '<text x="' + (x + 50) + '" y="' + (y + 24) + '" font-size="15" font-weight="600" class="t-ink">' + SIGNS[n] + "</text>";
+        h += '<text x="' + (x + 50) + '" y="' + (y + 42) + '" font-size="13" class="t-mut">' + c[1] + "</text>";
+        if (k < row.length - 1) h += '<line x1="' + (x + 204) + '" y1="' + (y + 27) + '" x2="' + (x + 236) + '" y2="' + (y + 27) + '" stroke="var(--accent)" stroke-width="2" marker-end="url(#ah)"/>';
+      });
+    });
+    var y4 = 14 + 3 * 82 + 54;
+    h += '<path d="M 360 ' + y4 + ' C 330 ' + (y4 + 40) + ", 150 " + (y4 + 40) + ", 120 " + (y4 + 4) + '" fill="none" stroke="var(--bad)" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#ahb)"/>';
+    h += '<text x="240" y="' + (y4 + 44) + '" text-anchor="middle" font-size="12" class="c-bad">indulgence drops you back</text>';
+    el("journeySvg").innerHTML = h;
+  })();
+
+  /* ---------- Chapters ---------- */
+  (function () {
+    var out = "";
+    for (var i = 0; i < 12; i++) {
+      var d = S[i], E = ELEM[i % 4];
+      if (d.untaught) {
+        out += '<div class="sign-head" id="nav-' + i + '"><div class="glyph e-' + E + '" aria-hidden="true">' + GLY[i] + '</div><div><h2><span class="src">Chapter ' + (i + 1) + " · " + DEVA[i] + " · " + E + "</span>Libra Navamsha · not taught</h2></div></div>" +
+          '<div class="note"><span class="tag">Gap in the series</span><p>Libra Navamsha was never covered. The teacher said he would teach it last, in 2–5 short lectures, with the rest in his book. What the other chapters do say about it: Libra → Taurus Navamsha is the marriage-money slice (23°20′–26°40′); Scorpio is “the ravine after Libra’s heaven”; and Libra Navamsha is called the <b>greatest enemy of Pisces Navamsha</b>, its period “the most disturbing phase.” Libra Navamsha is never reached from Taurus, Virgo or Capricorn.</p></div>';
+        continue;
+      }
+      out += '<div class="sign-head" id="nav-' + i + '"><div class="glyph e-' + E + '" aria-hidden="true">' + GLY[i] + "</div><div>" +
+        '<h2><span class="src">Chapter ' + (i + 1) + " · " + DEVA[i] + " नवांश · " + E + "</span>" + SIGNS[i] + " Navamsha · " + d.title + "</h2>" +
+        '<div class="meta"><span class="pill p-mid">' + d.dign + "</span></div></div></div>";
+      out += '<p class="essence">' + d.essence + "</p>";
+      out += '<h3 id="nav-' + i + '-traits">Core traits</h3><ul class="chips">' + d.traits.map(function (t) { return "<li>" + t + "</li>"; }).join("") + "</ul>";
+      out += d.extra;
+      out += '<div class="warn"><span class="tag">Key warning</span><p>' + d.warn + "</p></div>";
+      // planets
+      out += "<h3>Planets in " + SIGNS[i] + " Navamsha</h3><div class=\"tbl\"><table><thead><tr><th>Planet</th><th>What it does here</th></tr></thead><tbody>";
+      PLANETS.forEach(function (p) { out += '<tr><td class="k">' + p + "<br>" + dgPills(p, i) + "</td><td>" + d.pl[p] + "</td></tr>"; });
+      out += "</tbody></table></div>";
+      // houses
+      out += "<h3>" + SIGNS[i] + ' Navamsha in the 12 houses of the D9</h3><p style="font-size:15px;color:var(--muted)">Mostly read through the marriage lens: what the house shows about spouse, in-laws and married life when this sign falls there.</p><div class="hgrid">';
+      d.ho.forEach(function (t, k) { out += '<div><span class="hn">' + ord(k + 1) + " house</span>" + t + "</div>"; });
+      out += "</div>";
+      // sources
+      out += "<h3>Source sign → " + SIGNS[i] + ' Navamsha</h3><p style="font-size:15px;color:var(--muted)">' + d.srcNote + '</p><div class="srcgrid">';
+      for (var s = 0; s < 12; s++) {
+        var reach = ((i - START[s % 4] + 12) % 12) < 9;
+        if (!reach) { out += '<div class="never"><b>' + SIGNS[s] + "</b>Can't reach this Navamsha.</div>"; continue; }
+        out += "<div><b>" + SIGNS[s] + (s === i ? ' <span class="pill p-acc">vargottama</span>' : "") + "</b>" + (d.src[s] || '<span style="color:var(--muted)">Not covered in the notes.</span>') + "</div>";
+      }
+      out += "</div>";
+      // remedies
+      out += '<div class="rule"><span class="tag">Remedies the teacher suggests</span><ul>' + d.rem.map(function (r) { return "<li>" + r + "</li>"; }).join("") + "</ul></div>";
+      // example
+      var x = d.ex, house = (i - x.lag + 12) % 12 + 1, pl = {}; pl[house] = [ABBR[x.p]];
+      out += '<div class="example"><span class="tag">Worked example · ' + x.p + " at " + x.deg + " " + SIGNS[x.d1] + ", D9 lagna " + SIGNS[x.lag] + '</span><div class="chartbox"><svg class="nchart" viewBox="0 0 400 400" data-lag="' + (x.lag + 1) + '" data-pl=\'' + JSON.stringify(pl) + '\' data-hi="' + house + '" role="img" aria-label="D9 chart, ' + SIGNS[x.lag] + " lagna, " + x.p + " in the " + ord(house) + ' house"></svg><ol>' +
+        x.steps.map(function (st) { return "<li>" + st + "</li>"; }).join("") + "</ol></div></div>";
+    }
+    el("chapters").innerHTML = out;
+    Array.prototype.forEach.call(document.querySelectorAll("svg.nchart[data-lag]"), function (svg) {
+      drawNorth(svg, +svg.getAttribute("data-lag"), JSON.parse(svg.getAttribute("data-pl")), +svg.getAttribute("data-hi"));
+    });
+  })();
+
+  /* ---------- Planet explorer ---------- */
+  (function () {
+    var btns = el("pBtns");
+    PLANETS.forEach(function (p, k) { btns.insertAdjacentHTML("beforeend", '<button type="button" data-p="' + p + '" aria-pressed="' + (k === 0) + '">' + p + "</button>"); });
+    function show(p) {
+      Array.prototype.forEach.call(btns.querySelectorAll("button"), function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-p") === p); });
+      var h = "";
+      for (var i = 0; i < 12; i++) {
+        if (i === 6) continue;
+        h += '<div><span class="dg">' + dgPills(p, i) + "</span><b>" + GLY[i] + ' <a href="#nav-' + i + '">' + SIGNS[i] + "</a></b>" + XR[p][i] + "</div>";
+      }
+      el("pCards").innerHTML = h;
+    }
+    btns.addEventListener("click", function (e) { var b = e.target.closest("button[data-p]"); if (b) show(b.getAttribute("data-p")); });
+    show("Sun");
+  })();
+
+  /* ---------- Cheat cards ---------- */
+  (function () {
+    var h = "";
+    for (var i = 0; i < 12; i++) {
+      if (i === 6) continue;
+      h += '<div class="rule"><span class="tag">' + GLY[i] + " " + SIGNS[i] + " · " + S[i].title + "</span><p>" + S[i].essence.split(". ")[0].replace(/\.$/, "") + '.</p><p style="font-size:14px;color:var(--bad)">⚠ ' + S[i].warn.split(". ")[0].replace(/\.$/, "") + ".</p></div>";
+    }
+    el("cheatBox").insertAdjacentHTML("beforeend", h);
+  })();
+
+  calc("num");
+})();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
+<script>
+function navComputeChart(inp) {
+  var A = Astronomy, D2R = Math.PI / 180;
+  var utMs = Date.UTC(inp.y, inp.m - 1, inp.d, inp.hh, inp.mm) - inp.tz * 3600000;
+  var t = A.MakeTime(new Date(utMs));
+  var jd = t.ut + 2451545.0, T = t.tt / 36525;
+  var ayan = 23.85306 + (jd - 2451545.0) / 365.25 * (50.2788 / 3600);
+  function norm(x) { x %= 360; return x < 0 ? x + 360 : x; }
+  function trop(body) { if (body === "Moon") return A.EclipticGeoMoon(t).lon; return A.Ecliptic(A.GeoVector(A.Body[body], t, true)).elon; }
+  var lon = {};
+  ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"].forEach(function (b) { lon[b] = norm(trop(b) - ayan); });
+  var node = 125.04452 - 1934.136261 * T + 0.0020708 * T * T;
+  lon.Rahu = norm(node - ayan); lon.Ketu = norm(lon.Rahu + 180);
+  var eps = (23.4392911 - 0.0130042 * T) * D2R;
+  var ramc = norm(A.SiderealTime(t) * 15 + inp.lon) * D2R, phi = inp.lat * D2R;
+  var asc = Math.atan2(Math.cos(ramc), -(Math.sin(ramc) * Math.cos(eps) + Math.tan(phi) * Math.sin(eps))) / D2R;
+  return { asc: norm(norm(asc) - ayan), lon: lon };
+}
+(function () {
+  var el = function (id) { return document.getElementById(id); }, out = el("myOut");
+  var PRESETS = {
+    gandhi: { date: "1869-10-02", time: "07:12", tz: "lmt", lat: 21.6417, lon: 69.6293 },
+    nehru: { date: "1889-11-14", time: "23:03", tz: "lmt", lat: 25.4358, lon: 81.8463 },
+    vivek: { date: "1863-01-12", time: "06:33", tz: "lmt", lat: 22.5726, lon: 88.3639 },
+    einstein: { date: "1879-03-14", time: "11:30", tz: "lmt", lat: 48.4011, lon: 9.9876 }
+  };
+  function ord(n) { return n + (n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th"); }
+  function dms(x) { var d = Math.floor(x), m = Math.floor((x - d) * 60); return d + "°" + (m < 10 ? "0" : "") + m + "′"; }
+  function dg(p, s) { return dignity(p, s).map(function (t) { return ' <span class="pill ' + t[0] + '">' + t[1] + "</span>"; }).join(""); }
+  function readForm() {
+    var tzSel = el("myTz").value, lon = parseFloat(el("myLon").value), lat = parseFloat(el("myLat").value);
+    var dt = el("myDate").value, tm = el("myTime").value || "12:00";
+    if (!dt || isNaN(lat) || isNaN(lon)) return null;
+    var tz = tzSel === "lmt" ? lon / 15 : tzSel === "custom" ? parseFloat(el("myTzCustom").value) : parseFloat(tzSel);
+    if (isNaN(tz)) return null;
+    var p = dt.split("-").map(Number), q = tm.split(":").map(Number);
+    return { y: p[0], m: p[1], d: p[2], hh: q[0], mm: q[1], tz: tz, lat: lat, lon: lon };
+  }
+  function render() {
+    var inp = readForm();
+    if (!inp) { out.innerHTML = '<p class="result-line">Enter a date, time, time zone, latitude and longitude to see the D9.</p>'; return; }
+    if (typeof Astronomy === "undefined") { out.innerHTML = '<p class="result-line">The astronomy library didn\'t load, so the chart can\'t be calculated right now. The rest of the notes work without it.</p>'; return; }
+    try { localStorage.setItem("nav-mychart", JSON.stringify({ date: el("myDate").value, time: el("myTime").value, tz: el("myTz").value, tzc: el("myTzCustom").value, lat: el("myLat").value, lon: el("myLon").value })); } catch (e) {}
+    var c = navComputeChart(inp);
+    var lag1 = Math.floor(c.asc / 30), lag9 = navOf(lag1, c.asc - lag1 * 30);
+    var P = {}, d1pl = {}, d9pl = {};
+    PLANETS.forEach(function (p) {
+      var L = c.lon[p], s = Math.floor(L / 30), deg = L - s * 30, n = navOf(s, deg);
+      P[p] = { s: s, deg: deg, n: n, h1: (s - lag1 + 12) % 12 + 1, h9: (n - lag9 + 12) % 12 + 1 };
+      (d1pl[P[p].h1] = d1pl[P[p].h1] || []).push(ABBR[p]);
+      (d9pl[P[p].h9] = d9pl[P[p].h9] || []).push(ABBR[p]);
+    });
+    var vg = PLANETS.filter(function (p) { return P[p].s === P[p].n; });
+    var h = '<p class="result-line">D1 lagna <b>' + SIGNS[lag1] + "</b> " + dms(c.asc - lag1 * 30) + " · Navamsha lagna <b>" + SIGNS[lag9] + "</b>" + (vg.length ? " · vargottama: <b>" + vg.join(", ") + "</b>" : "") + "</p>";
+    h += '<div class="charts2"><figure><svg class="nchart" id="myD1" viewBox="0 0 400 400" role="img" aria-label="D1 Rashi chart"></svg><figcaption>D1 · Rashi (the event)</figcaption></figure><figure><svg class="nchart" id="myD9" viewBox="0 0 400 400" role="img" aria-label="D9 Navamsha chart"></svg><figcaption>D9 · Navamsha (the fruit)</figcaption></figure></div>';
+    h += '<div class="tbl"><table><thead><tr><th>Planet</th><th>D1 position</th><th>Navamsha sign</th><th>D9 house</th></tr></thead><tbody>';
+    PLANETS.forEach(function (p) { var q = P[p]; h += '<tr><td class="k">' + p + '</td><td class="num">' + SIGNS[q.s] + " " + dms(q.deg) + '</td><td><a href="#nav-' + q.n + '">' + SIGNS[q.n] + "</a>" + dg(p, q.n) + (q.s === q.n ? ' <span class="pill p-acc">vargottama</span>' : "") + '</td><td class="num">' + q.h9 + "</td></tr>"; });
+    h += "</tbody></table></div>";
+    h += '<h4 style="font-family:var(--f-display);font-weight:400;font-size:1.25rem;margin:20px 0 4px">Reading, in the series\' order</h4><p style="font-size:14px;color:var(--muted);margin:0">Sign → planet → D9 house → source sign. These are the raw rules for each placement; blend them yourself and confirm with dashas and strength before believing any one line.</p><div class="reading">';
+    var LS = S[lag9];
+    h += '<article><h5>Navamsha lagna in ' + SIGNS[lag9] + "</h5>" + (LS.untaught ? "<p>Libra Navamsha was not taught in the series.</p>" : "<p><span class=\"lbl\">Sign</span>" + LS.essence + "</p><p><span class=\"lbl\">1st house</span>" + LS.ho[0] + "</p>") + "</article>";
+    PLANETS.forEach(function (p) {
+      var q = P[p], N = S[q.n];
+      h += "<article><h5>" + p + " in " + SIGNS[q.n] + " Navamsha · " + ord(q.h9) + " house" + dg(p, q.n) + "</h5>";
+      if (N.untaught) { h += "<p>Libra Navamsha was not taught in the series, so there is no reading for this placement. From " + SIGNS[q.s] + " in the D1.</p></article>"; return; }
+      h += '<p><span class="lbl">Sign</span>' + N.essence.split(". ")[0].replace(/\.$/, "") + '.</p><p><span class="lbl">Planet</span>' + N.pl[p] + '</p><p><span class="lbl">House</span>' + N.ho[q.h9 - 1] + '</p><p><span class="lbl">Source</span>' + SIGNS[q.s] + " → " + SIGNS[q.n] + ": " + (N.src[q.s] || "not covered in the notes.") + ' <a href="#nav-' + q.n + '">Chapter</a></p></article>';
+    });
+    h += "</div>";
+    out.innerHTML = h;
+    navDrawNorth(el("myD1"), lag1 + 1, d1pl);
+    navDrawNorth(el("myD9"), lag9 + 1, d9pl);
+  }
+  function fill(v) {
+    el("myDate").value = v.date; el("myTime").value = v.time; el("myTz").value = v.tz;
+    el("myTzCustom").value = v.tzc || ""; el("myLat").value = v.lat; el("myLon").value = v.lon;
+    el("myTzCustomWrap").hidden = el("myTz").value !== "custom";
+  }
+  el("myPreset").addEventListener("change", function () { var v = PRESETS[this.value]; if (v) { fill(v); render(); } });
+  el("myTz").addEventListener("change", function () { el("myTzCustomWrap").hidden = this.value !== "custom"; render(); });
+  ["myDate", "myTime", "myTzCustom", "myLat", "myLon"].forEach(function (id) { el(id).addEventListener("change", render); });
+  el("myForm").addEventListener("submit", function (e) { e.preventDefault(); render(); });
+  var saved = null;
+  try { saved = JSON.parse(localStorage.getItem("nav-mychart") || "null"); } catch (e) {}
+  fill(saved && saved.date ? saved : PRESETS.gandhi);
+  if (!saved) el("myPreset").value = "gandhi";
+  render();
+})();
+</script>
+</body>
+</html>
+
+</body></html>

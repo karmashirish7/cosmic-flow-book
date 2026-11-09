@@ -20,6 +20,14 @@ const BOOKS: Book[] = [
       'A chapter-by-chapter plain-English rewrite of the Laghu and Madhya Parashari: good and bad lords, yogas, longevity and marakas, and how dashas give results. Each rule is restated, shown in an example, and worked through famous charts.',
     href: '/books/laghu-parashari.html',
   },
+  {
+    title: 'Navamsha Made Plain',
+    original: 'नवांश · D9 · the chart of fortune',
+    subtitle: 'Study notes from the Astro IITians “नवांशा” lecture series',
+    description:
+      'The D9 read one sign at a time, Aries to Pisces: core traits, every planet, all twelve houses and source signs, with remedies and worked examples. Includes a Navamsha calculator, the 108-pada map, and a tool that reads your own D9.',
+    href: '/books/navamsha.html',
+  },
 ]
 
 const Books = () => {
