@@ -10,9 +10,9 @@
     "directory": "./dist",
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",
-    "run_worker_first": ["/api/*"]
+    "run_worker_first": ["/api/*", "/books", "/books/*"]
   },
-  // AKASHVANI_API_URL and AKASHVANI_API_KEY are secrets — set them with
+  // AKASHVANI_API_URL, AKASHVANI_API_KEY and BOOKS_PASSWORD are secrets — set them with
   // `npx wrangler secret put <NAME>`, never here. Locally they live in .dev.vars.
   "compatibility_flags": [
     "nodejs_compat"

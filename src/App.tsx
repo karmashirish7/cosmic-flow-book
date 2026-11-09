@@ -7,6 +7,7 @@ import { lazy, Suspense, useEffect, useRef } from "react";
 import AstroKarmaz from "./pages/AstroKarmaz";
 import AiPredictor from "./pages/AiPredictor";
 import Kundli from "./pages/Kundli";
+import Books from "./pages/Books";
 
 // The 3D sky (three.js) loads only when someone opens Explore.
 const Explore = lazy(() => import("./pages/Explore"));
@@ -46,6 +47,8 @@ const App = () => (
           <Route path="/astrokarmaz" element={<Navigate to="/" replace />} />
           <Route path="/ai-predictor" element={<AiPredictor />} />
           <Route path="/kundli" element={<Kundli />} />
+          {/* Private: not linked anywhere, noindex. */}
+          <Route path="/books" element={<Books />} />
           <Route
             path="/explore"
             element={

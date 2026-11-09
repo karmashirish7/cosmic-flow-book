@@ -30,3 +30,6 @@ dist-ssr
 .dev.vars
 .dev.vars.*
 .wrangler
+
+# Private books: deployed from this machine only, never committed (repo is public)
+public/books/
